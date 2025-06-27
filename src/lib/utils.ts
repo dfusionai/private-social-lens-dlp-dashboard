@@ -38,3 +38,12 @@ export const formatNumberIntoShort = (num: number) => {
 	if (num >= 1000) return (num / 1000).toFixed(1) + "K";
 	return num.toLocaleString();
 };
+
+export const formatNumberWithDecimals = (num: number, decimals: number = 2) => {
+	return num.toFixed(decimals);
+};
+
+export const weiToEther = (weiAmount: bigint | string | number): number => {
+    const wei = BigInt(weiAmount || 0);
+    return Number(wei) / 1e18;
+};

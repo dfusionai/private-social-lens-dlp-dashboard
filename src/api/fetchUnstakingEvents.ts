@@ -15,12 +15,12 @@ interface IFetchStakingParams {
     months: number;
 }
 
-export async function fetchStaking(params: IFetchStakingParams) {
+export async function fetchUnstaking(params: IFetchStakingParams) {
     const { months } = params;
     const currentBlock = await provider.getBlockNumber();
     const startBlock = Math.max(0, currentBlock - months * blockRangeForAMonth);
 
-    const allStakesEvents = [];
+    const allUnstakeEvents = [];
 
     for (let i = 0; i < months; i++) {
         // Calculate block range
@@ -37,26 +37,26 @@ export async function fetchStaking(params: IFetchStakingParams) {
             const to = Math.min(from + maxBlockRange - 1, toBlock);
             blockRanges.push({ from, to });
         }
-        
+
         try {
-            const stakePromises = blockRanges.map(({ from, to }) => {
-                return stakingContract.queryFilter(
-                    stakingContract.filters.TokensStaked(),
+            const unstakePromises = blockRanges.map(({ from, to }) =>
+                stakingContract.queryFilter(
+                    stakingContract.filters.TokensUnstaked(),
                     from,
                     to
-                );
-            });
+                )
+            );
 
-            const stakeResults = await Promise.all(stakePromises);
+            const unstakeResults = await Promise.all(unstakePromises);
 
-            const stakeEvents = stakeResults.flat();
+            const unstakeEvents = unstakeResults.flat();
 
-            allStakesEvents.push(stakeEvents);
+            allUnstakeEvents.push(unstakeEvents);
         } catch (error) {
-            console.error("🚀 ~ fetchStaking ~ error:", error);
+            console.error("🚀 ~ fetchUnstaking ~ error:", error);
             throw error;
         }
     }
 
-    return allStakesEvents;
+    return allUnstakeEvents;
 }

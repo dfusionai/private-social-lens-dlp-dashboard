@@ -11,7 +11,6 @@
         description,
         chartConfig,
         className,
-        footer,
         ...lineChartProps
     }: Props = $props();
 </script>
@@ -50,8 +49,8 @@
             </LineChart>
         </Chart.Container>
     </Card.Content>
+    <!-- svelte-ignore slot_element_deprecated -->
     <Card.Footer>
-        <!-- svelte-ignore svelte_component_deprecated -->
-        <svelte:component this={footer} />
+        <slot name="footer" />
     </Card.Footer>
 </Card.Root>
