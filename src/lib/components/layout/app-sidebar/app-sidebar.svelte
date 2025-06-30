@@ -5,8 +5,10 @@
     import { mode } from "mode-watcher";
     import NavMain from "../nav-main/nav-main.svelte";
     import NavUser from "../nav-user/nav-user.svelte";
-    import dFusionLogo from "../../../../assets/logo.svg";
-    import dFusionLogoWhite from "../../../../assets/logo-white.svg";
+    // import dFusionLogo from "../../../../assets/logo.svg";
+    // import dFusionLogoWhite from "../../../../assets/logo-white.svg";
+    import dFusionLogo from "../../../../assets/light-logo.svg";
+    import dFusionLogoWhite from "../../../../assets/dark-logo.svg";
     import { data } from "./data";
 
     let { ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
