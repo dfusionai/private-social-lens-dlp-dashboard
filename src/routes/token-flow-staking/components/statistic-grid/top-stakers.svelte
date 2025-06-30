@@ -71,7 +71,7 @@
                                         <p>{member.address}</p>
 
                                         <b>Amount</b>
-                                        <p>{member.amount} VTK</p>
+                                        <p>{member.amount} $VFSN</p>
                                     </div>
                                 </Tooltip.Content>
                             </Tooltip.Root>
@@ -102,7 +102,7 @@
                                         <p>{member.address}</p>
 
                                         <b>Amount</b>
-                                        <p>{member.amount} VTK</p>
+                                        <p>{member.amount} $VFSN</p>
                                     </div>
                                 </Tooltip.Content>
                             </Tooltip.Root>

@@ -37,7 +37,7 @@
         {:else}
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Balance:</span>
-                <span>{balance} VTK</span>
+                <span>{balance} $VFSN</span>
             </div>
         {/if}
     </Card.Content>

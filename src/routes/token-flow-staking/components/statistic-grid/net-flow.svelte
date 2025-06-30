@@ -54,27 +54,27 @@
         {:else}
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Net Flow:</span>
-                <span>{netFlowInfo.netFlow} VTK</span>
+                <span>{netFlowInfo.netFlow} $VFSN</span>
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Net Flow Per Day:</span>
-                <span>{netFlowInfo.netFlowPerDay} VTK</span>
+                <span>{netFlowInfo.netFlowPerDay} $VFSN</span>
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Net Flow Per Week:</span>
-                <span>{netFlowInfo.netFlowPerWeek} VTK</span>
+                <span>{netFlowInfo.netFlowPerWeek} $VFSN</span>
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Total Stake In:</span>
-                <span>{netFlowInfo.totalStakeIn} VTK</span>
+                <span>{netFlowInfo.totalStakeIn} $VFSN</span>
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Total Unstake Out:</span>
-                <span>{netFlowInfo.totalUnstakeOut} VTK</span>
+                <span>{netFlowInfo.totalUnstakeOut} $VFSN</span>
             </div>
         {/if}
     </Card.Content>
