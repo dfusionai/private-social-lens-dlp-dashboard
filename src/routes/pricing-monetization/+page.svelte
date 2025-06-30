@@ -2,10 +2,11 @@
     import UnderConstruction from "$lib/components/layout/under-construction/under-construction.svelte";
     import { onMount } from "svelte";
 
-    const rpcUrl = "https://rpc.moksha.vana.org";
-    const DLP_ADDRESS = "0x308bFf8Ad48f11ff5692adE73B8Fd4af6aE9381d";
-    const STAKING_ADDRESS = "0x9B9bD709844a3Fa34EfFAd67a7cB91d881ca4fA0";
-    const TOKEN_ADDRESS = "0x4f6502027Ef5887453E167df84F430B1b1f6726b";
+    const rpcUrl = import.meta.env.VITE_RPC_URL;
+    const DLP_ADDRESS = import.meta.env.VITE_DLP_ADDRESS;
+    const STAKING_ADDRESS = import.meta.env.VITE_STAKING_ADDRESS;
+    const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS;
+
     let balance = $state("…");
     let fileCount = $state("…");
     let lastUploadTs = $state(0);
