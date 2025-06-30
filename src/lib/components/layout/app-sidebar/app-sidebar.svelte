@@ -47,7 +47,7 @@
         <!-- <NavDocuments items={data.documents} onNavigate={handleNavigation} /> -->
         <!-- <NavSecondary items={data.navSecondary} class="mt-auto" onNavigate={handleNavigation} /> -->
     </Sidebar.Content>
-    <Sidebar.Footer>
+    <!-- <Sidebar.Footer>
         <NavUser user={data.user} />
-    </Sidebar.Footer>
+    </Sidebar.Footer> -->
 </Sidebar.Root>
