@@ -20,7 +20,9 @@
     import { queryMonthDuration } from "$lib/const";
 
     // Generate latest 6 months dynamically
-    let chartData: { date: Date; stakingAmount: number }[] = $state([]);
+    let chartData: { date: Date; stakingAmount: number }[] = $state(
+        generateLatestMonths()
+    );
     let trendingData: ITrendingData = $state({
         percent: "0",
         isUp: false,
@@ -46,9 +48,21 @@
 
     const store = $stakeEventsStore;
 
+    stakeEventsStore.subscribe((state) => {
+        if (!state.stakeEvents) return;
+
+        const stakeAmount = calculateStakeAmount(state.stakeEvents || []);
+        // Update chart data with calculated amounts
+        chartData = chartData.map((item, index) => ({
+            ...item,
+            stakingAmount: stakeAmount[index] || 0,
+        }));
+
+        trendingData = generateTrendingData(chartData);
+    });
+
     onMount(async () => {
         try {
-            chartData = generateLatestMonths();
             if (!store.stakeEvents || !store.unstakeEvents) {
                 stakeEventsActions.setLoading(true);
                 isLoading = true;
@@ -61,15 +75,6 @@
                 stakeEventsActions.setStakeEvents(stakeEvents);
                 stakeEventsActions.setUnstakeEvents(unstakeEvents);
             }
-
-            const stakeAmount = calculateStakeAmount(store.stakeEvents || []);
-            // Update chart data with calculated amounts
-            chartData = chartData.map((item, index) => ({
-                ...item,
-                stakingAmount: stakeAmount[index] || 0,
-            }));
-
-            trendingData = generateTrendingData(chartData);
         } catch (error) {
             console.error("Error fetching stake events:", error);
             toast.error("Fetching stake events failed!");
