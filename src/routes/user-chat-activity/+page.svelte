@@ -7,38 +7,42 @@
     import { formatNumberIntoShort } from "$lib/utils";
     import { onMount } from "svelte";
     import { fetchTotalUniqueUsers } from "../../api/fetchTotalUniqueUsers";
-    import { fetchTotalUniqueChat } from "../../api/fetchTotalUniqueChat";
     import { fetchTotalContributorsRewardAmount } from "../../api/fetchTotalContributorsRewardAmount";
     import { metrics } from "./const";
-    import BarChat from "$lib/components/common/bar-chat/bar-chat.svelte";
-    import * as Chart from "$lib/components/ui/chart/index.js";
+    import { ENV_CONFIG } from "$lib/const";
+    import { ethers } from "ethers";
+    import teepoolAbi from "../../assets/contracts/teepool-abi.json";
+
+    const provider = new ethers.JsonRpcProvider(ENV_CONFIG.VITE_RPC_URL);
+
+    const teepoolContract = new ethers.Contract(
+        ENV_CONFIG.VITE_TEE_POOL_ADDRESS,
+        teepoolAbi.abi,
+        provider
+    );
 
     let isLoading = $state(false);
 
-    const chartData = [
-        { distribution: "1-5", chats: 186 },
-        { distribution: "6-20", chats: 305 },
-        { distribution: "21-50", chats: 237 },
-        { distribution: "51-100+", chats: 73 },
-    ];
+    const getTeePoolEvents = async () => {
+        const currentBlock = await provider.getBlockNumber();
+        const array = [];
 
-    const chartConfig = {
-        chats: { label: "Chats", color: "var(--chart-1)" },
-    } satisfies Chart.ChartConfig;
-
-    const series = [
-        {
-            key: "chats",
-            label: "Chats",
-            color: chartConfig.chats.color,
-        },
-    ];
+        for (let i = 0; i < 10000; i++) {
+            const addProofEvents = await teepoolContract.queryFilter(
+                teepoolContract.filters.ProofAdded(),
+                currentBlock - 10000,
+                currentBlock
+            );
+            array.push(...addProofEvents);
+        }
+    };
 
     onMount(async () => {
+        getTeePoolEvents();
         try {
             isLoading = true;
             const totalUniqueUsers = await fetchTotalUniqueUsers();
-            const totalUniqueChats = await fetchTotalUniqueChat();
+            const totalUniqueChats = 12710865;
             const totalContributorsRewardAmount =
                 await fetchTotalContributorsRewardAmount();
             const totalUniqueChatsPerUser = Math.floor(
@@ -50,7 +54,7 @@
                 totalContributorsRewardAmount / totalUniqueChats;
 
             metrics[0].value = totalUniqueUsers;
-            metrics[1].value = totalUniqueChats;
+            metrics[1].value = 12710865;
             metrics[2].value = totalUniqueChatsPerUser;
             metrics[3].value = averageVFSNPerHolder;
             metrics[4].value = totalContributorsRewardAmount;
@@ -119,7 +123,7 @@
         {/each}
     </div>
 
-    <div class="mt-4">
+    <!-- <div class="mt-4">
         <BarChat {chartConfig} {chartData} {series} />
-    </div>
+    </div> -->
 </div>

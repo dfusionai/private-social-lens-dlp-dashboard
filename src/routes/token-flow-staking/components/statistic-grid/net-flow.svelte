@@ -6,11 +6,11 @@
     import { calculateNetFlowInfo } from "../../utils";
 
     let netFlowInfo = $state({
-        netFlow: "-",
-        netFlowPerDay: "-",
-        netFlowPerWeek: "-",
-        totalStakeIn: "-",
-        totalUnstakeOut: "-",
+        netFlow: "",
+        netFlowPerDay: "",
+        netFlowPerWeek: "",
+        totalStakeIn: "",
+        totalUnstakeOut: "",
     });
 
     let loading = $state(false);
@@ -26,7 +26,7 @@
                 state.unstakeEvents
             );
         } catch (error) {
-            throw error;
+            console.error("Error fetching net flow info:", error);
         }
     });
 
@@ -54,27 +54,47 @@
         {:else}
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Net Flow:</span>
-                <span>{netFlowInfo.netFlow} $VFSN</span>
+                <span
+                    >{netFlowInfo.netFlow
+                        ? netFlowInfo.netFlow + " VTK"
+                        : "-"}</span
+                >
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Net Flow Per Day:</span>
-                <span>{netFlowInfo.netFlowPerDay} $VFSN</span>
+                <span
+                    >{netFlowInfo.netFlowPerDay
+                        ? netFlowInfo.netFlowPerDay + " VTK"
+                        : "-"}</span
+                >
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Net Flow Per Week:</span>
-                <span>{netFlowInfo.netFlowPerWeek} $VFSN</span>
+                <span
+                    >{netFlowInfo.netFlowPerWeek
+                        ? netFlowInfo.netFlowPerWeek + " VTK"
+                        : "-"}</span
+                >
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Total Stake In:</span>
-                <span>{netFlowInfo.totalStakeIn} $VFSN</span>
+                <span
+                    >{netFlowInfo.totalStakeIn
+                        ? netFlowInfo.totalStakeIn + " VTK"
+                        : "-"}</span
+                >
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Total Unstake Out:</span>
-                <span>{netFlowInfo.totalUnstakeOut} $VFSN</span>
+                <span
+                    >{netFlowInfo.totalUnstakeOut
+                        ? netFlowInfo.totalUnstakeOut + " VTK"
+                        : "-"}</span
+                >
             </div>
         {/if}
     </Card.Content>

@@ -52,62 +52,74 @@
             <div>
                 <p class="text-sm font-medium mb-2">Top 5 Stakers</p>
                 <div class="flex flex-wrap gap-2">
-                    {#each top5Stakers as member}
-                        <Tooltip.Provider>
-                            <Tooltip.Root>
-                                <Tooltip.Trigger
-                                    class={buttonVariants({
-                                        variant: "outline",
-                                        class: "h-8",
-                                    })}
-                                >
-                                    <span class="w-20 truncate">
-                                        {member.address}
-                                    </span>
-                                </Tooltip.Trigger>
-                                <Tooltip.Content>
-                                    <div class="flex flex-col gap-1">
-                                        <b>Address</b>
-                                        <p>{member.address}</p>
+                    {#if top5Stakers.length === 0}
+                        <p class="text-sm text-muted-foreground">
+                            No stakers found
+                        </p>
+                    {:else}
+                        {#each top5Stakers as member}
+                            <Tooltip.Provider>
+                                <Tooltip.Root>
+                                    <Tooltip.Trigger
+                                        class={buttonVariants({
+                                            variant: "outline",
+                                            class: "h-8",
+                                        })}
+                                    >
+                                        <span class="w-20 truncate">
+                                            {member.address}
+                                        </span>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Content>
+                                        <div class="flex flex-col gap-1">
+                                            <b>Address</b>
+                                            <p>{member.address}</p>
 
-                                        <b>Amount</b>
-                                        <p>{member.amount} $VFSN</p>
-                                    </div>
-                                </Tooltip.Content>
-                            </Tooltip.Root>
-                        </Tooltip.Provider>
-                    {/each}
+                                            <b>Amount</b>
+                                            <p>{member.amount} VTK</p>
+                                        </div>
+                                    </Tooltip.Content>
+                                </Tooltip.Root>
+                            </Tooltip.Provider>
+                        {/each}
+                    {/if}
                 </div>
             </div>
 
             <div>
                 <p class="text-sm font-medium mb-2">Top 5 Withdrawers</p>
                 <div class="flex flex-wrap gap-2">
-                    {#each top5Withdrawers as member}
-                        <Tooltip.Provider>
-                            <Tooltip.Root>
-                                <Tooltip.Trigger
-                                    class={buttonVariants({
-                                        variant: "outline",
-                                        class: "h-8",
-                                    })}
-                                >
-                                    <span class="w-20 truncate">
-                                        {member.address}
-                                    </span>
-                                </Tooltip.Trigger>
-                                <Tooltip.Content>
-                                    <div class="flex flex-col gap-1">
-                                        <b>Address</b>
-                                        <p>{member.address}</p>
+                    {#if top5Withdrawers.length === 0}
+                        <p class="text-sm text-muted-foreground">
+                            No withdrawers found
+                        </p>
+                    {:else}
+                        {#each top5Withdrawers as member}
+                            <Tooltip.Provider>
+                                <Tooltip.Root>
+                                    <Tooltip.Trigger
+                                        class={buttonVariants({
+                                            variant: "outline",
+                                            class: "h-8",
+                                        })}
+                                    >
+                                        <span class="w-20 truncate">
+                                            {member.address}
+                                        </span>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Content>
+                                        <div class="flex flex-col gap-1">
+                                            <b>Address</b>
+                                            <p>{member.address}</p>
 
-                                        <b>Amount</b>
-                                        <p>{member.amount} $VFSN</p>
-                                    </div>
-                                </Tooltip.Content>
-                            </Tooltip.Root>
-                        </Tooltip.Provider>
-                    {/each}
+                                            <b>Amount</b>
+                                            <p>{member.amount} VTK</p>
+                                        </div>
+                                    </Tooltip.Content>
+                                </Tooltip.Root>
+                            </Tooltip.Provider>
+                        {/each}
+                    {/if}
                 </div>
             </div>
         {/if}

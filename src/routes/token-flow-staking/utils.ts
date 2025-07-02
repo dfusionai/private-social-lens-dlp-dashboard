@@ -1,6 +1,8 @@
 import type { ethers } from "ethers";
 import { formatNumberWithDecimals } from "$lib/utils";
 import { weiToEther } from "../../lib/utils";
+import type { ITrendingData } from "./components/chart-footer/type";
+import { queryMonthDuration } from "$lib/const";
 
 export const calculateTotalFromEvents = (
     events: (ethers.Log | ethers.EventLog)[]
@@ -66,11 +68,11 @@ export const calculateNetFlowInfo = (
     const netFlow = totalStakeIn - totalUnstakeOut;
 
     // Calculate per day (assuming 6 months = 180 days)
-    const daysInPeriod = 180;
+    const daysInPeriod = queryMonthDuration * 30;
     const netFlowPerDay = netFlow / daysInPeriod;
 
     // Calculate per week
-    const weeksInPeriod = 26; // 6 months ≈ 26 weeks
+    const weeksInPeriod = 4 * queryMonthDuration; // 6 months ≈ 26 weeks
     const netFlowPerWeek = netFlow / weeksInPeriod;
 
     return {
@@ -235,4 +237,36 @@ export const getTokenVelocity = (
     } catch (error) {
         console.error("Error calculating token velocity:", error);
     }
+};
+
+export const generateTrendingData = (
+    chartData: {
+        date: Date;
+        stakingAmount: number;
+    }[]
+) => {
+    const latestMonth = chartData[chartData.length - 1];
+    const previousMonth = chartData[chartData.length - 2];
+    const farestMonth = chartData[0];
+
+    const percent =
+        ((latestMonth.stakingAmount - previousMonth.stakingAmount) /
+            previousMonth.stakingAmount) *
+        100;
+
+    const trendingData: ITrendingData = {
+        percent: percent.toFixed(2),
+        isUp: percent > 0,
+        timeDuration: {
+            from: farestMonth.date.toLocaleDateString("en-US", {
+                month: "long",
+            }),
+            to: latestMonth.date.toLocaleDateString("en-US", {
+                month: "long",
+            }),
+            year: latestMonth.date.getFullYear().toString(),
+        },
+    };
+
+    return trendingData;
 };

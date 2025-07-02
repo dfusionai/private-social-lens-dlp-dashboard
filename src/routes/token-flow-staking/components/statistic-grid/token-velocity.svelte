@@ -3,7 +3,8 @@
     import { stakeEventsStore } from "$lib/stores/stakeEventsStore";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { getTokenVelocity } from "../../utils";
-    let tokenVelocity = $state("-");
+
+    let tokenVelocity = $state("");
     let loading = $state(false);
 
     stakeEventsStore.subscribe((state) => {
@@ -12,7 +13,7 @@
         if (!state.stakeEvents || !state.unstakeEvents) return;
 
         tokenVelocity =
-            getTokenVelocity(state.stakeEvents, state.unstakeEvents) || "-";
+            getTokenVelocity(state.stakeEvents, state.unstakeEvents) || "";
     });
 </script>
 
@@ -31,7 +32,7 @@
         {:else}
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Token Velocity:</span>
-                <span>{tokenVelocity}</span>
+                <span>{tokenVelocity ? tokenVelocity + " days" : "-"}</span>
             </div>
         {/if}
     </Card.Content>

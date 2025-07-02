@@ -5,12 +5,16 @@
     import * as Card from "$lib/components/ui/card/index.js";
     import type { Props } from "./type";
     import { LineChart } from "layerchart";
+    import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
+    import { cn } from "$lib/utils";
 
     const {
         title,
         description,
         chartConfig,
         className,
+        isLoading,
+        skeletonClass,
         ...lineChartProps
     }: Props = $props();
 </script>
@@ -22,35 +26,41 @@
             >{description || "Showing data for ..."}</Card.Description
         >
     </Card.Header>
-    <Card.Content>
-        <Chart.Container config={chartConfig} class={className}>
-            <LineChart
-                points={{ r: 4 }}
-                x="date"
-                xScale={scaleUtc()}
-                props={{
-                    spline: {
-                        curve: curveNatural,
-                        motion: "tween",
-                        strokeWidth: 2,
-                    },
-                    xAxis: {
-                        format: (v: Date) =>
-                            v.toLocaleDateString("en-US", { month: "short" }),
-                        ticks: 4,
-                    },
-                    highlight: { points: { r: 4 } },
-                }}
-                {...lineChartProps}
-            >
-                {#snippet tooltip()}
-                    <Chart.Tooltip hideLabel />
-                {/snippet}
-            </LineChart>
-        </Chart.Container>
-    </Card.Content>
-    <!-- svelte-ignore slot_element_deprecated -->
-    <Card.Footer>
-        <slot name="footer" />
-    </Card.Footer>
+    {#if isLoading}
+        <Skeleton class={cn("h-80 mx-5", skeletonClass)} />
+    {:else}
+        <Card.Content>
+            <Chart.Container config={chartConfig} class={className}>
+                <LineChart
+                    points={{ r: 4 }}
+                    x="date"
+                    xScale={scaleUtc()}
+                    props={{
+                        spline: {
+                            curve: curveNatural,
+                            motion: "tween",
+                            strokeWidth: 2,
+                        },
+                        xAxis: {
+                            format: (v: Date) =>
+                                v.toLocaleDateString("en-US", {
+                                    month: "short",
+                                }),
+                            ticks: 4,
+                        },
+                        highlight: { points: { r: 4 } },
+                    }}
+                    {...lineChartProps}
+                >
+                    {#snippet tooltip()}
+                        <Chart.Tooltip hideLabel />
+                    {/snippet}
+                </LineChart>
+            </Chart.Container>
+        </Card.Content>
+        <!-- svelte-ignore slot_element_deprecated -->
+        <Card.Footer>
+            <slot name="footer" />
+        </Card.Footer>
+    {/if}
 </Card.Root>
