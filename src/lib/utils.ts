@@ -47,3 +47,9 @@ export const weiToEther = (weiAmount: bigint | string | number): number => {
     const wei = BigInt(weiAmount || 0);
     return Number(wei) / 1e18;
 };
+
+export const formatDecimalNumber = (num: number, decimals: number = 2) => {
+	const decimalNumber = Number(formatNumberWithDecimals(num, decimals));
+
+	return formatNumber(decimalNumber);
+};

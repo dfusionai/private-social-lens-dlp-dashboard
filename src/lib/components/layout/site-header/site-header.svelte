@@ -4,6 +4,7 @@
     import MoonIcon from "@lucide/svelte/icons/moon";
     import { toggleMode } from "mode-watcher";
     import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+    import { queryMonthDuration } from "$lib/const";
 </script>
 
 <header
@@ -12,7 +13,12 @@
     <div
         class="flex w-full items-center justify-between gap-1 px-4 lg:gap-2 lg:px-6"
     >
-        <Sidebar.Trigger class="-ml-1" />
+        <div class="flex items-center gap-2">
+            <Sidebar.Trigger class="-ml-1" />
+            <span class="text-sm font-medium text-muted-foreground"
+                >Data statistics within the lastest {queryMonthDuration} months</span
+            >
+        </div>
 
         <Button onclick={toggleMode} variant="outline" size="icon">
             <SunIcon

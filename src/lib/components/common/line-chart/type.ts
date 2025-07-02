@@ -8,4 +8,6 @@ export interface Props extends LineChartProps<Record<string, any>> {
     chartConfig: ChartConfig;
     className?: string;
     footer?: Component;
+    isLoading?: boolean;
+    skeletonClass?: string;
 }

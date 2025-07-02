@@ -7,8 +7,8 @@ import SlidersVertical from "@lucide/svelte/icons/sliders-vertical";
 
 export const data = {
     user: {
-        name: "shadcn",
-        email: "m@example.com",
+        name: "Dfusion",
+        email: "dfusion@example.com",
         avatar: "/avatars/shadcn.jpg",
     },
     navMain: [

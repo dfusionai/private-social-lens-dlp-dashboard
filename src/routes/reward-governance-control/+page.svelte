@@ -1,7 +1,51 @@
 <script lang="ts">
-    import UnderConstruction from "$lib/components/layout/under-construction/under-construction.svelte";
+    import { onMount } from "svelte";
+    import { fetchTotalDistributedForValidator } from "../../api/fetchTotalDistributedForValidator";
+    import { fetchTotalDistributedForContributor } from "../../api/fetchTotalDistributedForContributor";
+    import {
+        rewardEventsActions,
+        rewardEventsStore,
+    } from "$lib/stores/rewardEventsStore";
+    import { toast } from "svelte-sonner";
+    import RewardStatistics from "./components/reward-statistics/reward-statistics.svelte";
+    import RewardCurve from "./components/reward-curve/reward-curve.svelte";
+    import GovernanceControls from "./components/governance-controls/governance-controls.svelte";
+    import { queryMonthDuration } from "$lib/const";
+    const store = $rewardEventsStore;
+
+    onMount(async () => {
+        try {
+            if (
+                !store.contributorRewardEvents ||
+                !store.validatorRewardEvents
+            ) {
+                rewardEventsActions.setLoading(true);
+                const claimedEvents = await fetchTotalDistributedForValidator({
+                    months: queryMonthDuration,
+                });
+                const totalDistributedForContributor =
+                    await fetchTotalDistributedForContributor({
+                        months: queryMonthDuration,
+                    });
+
+                rewardEventsActions.setContributorRewardEvents(
+                    totalDistributedForContributor
+                );
+                rewardEventsActions.setValidatorRewardEvents(claimedEvents);
+            }
+        } catch (error) {
+            console.error("Error fetching reward events:", error);
+            toast.error("Error fetching reward events");
+        } finally {
+            rewardEventsActions.setLoading(false);
+        }
+    });
 </script>
 
-<div>
-    <UnderConstruction />
+<div class="max-w-7xl mx-auto space-y-6">
+    <RewardStatistics />
+
+    <RewardCurve />
+
+    <GovernanceControls />
 </div>
