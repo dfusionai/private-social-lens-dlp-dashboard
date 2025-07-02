@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import stakingAbi from "../assets/contracts/staking-abi.json";
-import { ENV_CONFIG } from "$lib/const";
+import { blockRangeForAMonth, ENV_CONFIG, maxBlockRange } from "$lib/const";
 
 const provider = new ethers.JsonRpcProvider(ENV_CONFIG.VITE_RPC_URL);
 const stakingContract = new ethers.Contract(
@@ -8,8 +8,6 @@ const stakingContract = new ethers.Contract(
     stakingAbi.abi,
     provider
 );
-const blockRangeForAMonth = 432000;
-const maxBlockRange = 10000;
 
 interface IFetchStakingParams {
     months: number;
@@ -32,7 +30,7 @@ export async function fetchStaking(params: IFetchStakingParams) {
         }
 
         const blockRanges = [];
-
+        
         for (let from = fromBlock; from <= toBlock; from += maxBlockRange) {
             const to = Math.min(from + maxBlockRange - 1, toBlock);
             blockRanges.push({ from, to });
@@ -56,6 +54,8 @@ export async function fetchStaking(params: IFetchStakingParams) {
             console.error("🚀 ~ fetchStaking ~ error:", error);
             throw error;
         }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     return allStakesEvents;

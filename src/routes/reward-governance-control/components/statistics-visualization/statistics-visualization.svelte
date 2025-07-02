@@ -8,6 +8,7 @@
     import Badge from "$lib/components/ui/badge/badge.svelte";
     import type { IStatisticsVisualizationProps } from "./type";
     import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
+    import { tokenSymbol } from "$lib/const";
 
     const {
         totalRewards,
@@ -28,7 +29,7 @@
     const generateTokensText = (value: string) => {
         if (!value) return "-";
 
-        return formatDecimalNumber(Number(value)) + " VTK";
+        return formatDecimalNumber(Number(value)) + " " + tokenSymbol;
     };
 </script>
 

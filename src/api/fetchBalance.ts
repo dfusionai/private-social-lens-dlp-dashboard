@@ -16,7 +16,7 @@ export async function fetchBalance() {
             ENV_CONFIG.VITE_RPC_URL
         );
 
-        return formatNumber(Number(BigInt(balData)) / 1e18);
+        return Number(BigInt(balData)) / 1e18;
     } catch (error) {
         console.error("🚀 ~ fetchBalance ~ error:", error);
         throw error;

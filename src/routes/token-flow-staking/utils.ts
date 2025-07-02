@@ -20,18 +20,6 @@ export const calculateStakeAmount = (
     return stakeEvents.map(calculateTotalFromEvents);
 };
 
-export const generateLatestMonths = () => {
-    const months = [];
-    const now = new Date();
-
-    for (let i = 5; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        months.push({ date, stakingAmount: 0 });
-    }
-
-    return months;
-};
-
 export const calculateNetFlowInfo = (
     stakeEvents: (ethers.Log | ethers.EventLog)[][],
     unstakeEvents: (ethers.Log | ethers.EventLog)[][]
@@ -164,12 +152,6 @@ export const getTokenVelocity = (
     if (!stakeEvents || !unstakeEvents) return;
 
     try {
-        // Helper function to convert wei to ether
-        const weiToEther = (weiAmount: bigint | string | number): number => {
-            const wei = BigInt(weiAmount || 0);
-            return Number(wei) / 1e18;
-        };
-
         // Get all unique addresses that have both staked and unstaked
         const allStakeAddresses = new Set(
             stakeEvents.flat().map((event) => (event as any).args[0])
@@ -231,7 +213,7 @@ export const getTokenVelocity = (
         // Convert to days (assuming 12 second block time)
         const blocksPerDay = 7200; // 24 * 60 * 60 / 12
         const averageHoldDays = averageHoldDuration / blocksPerDay;
-        const tokenVelocity = averageHoldDays.toFixed(2) + " days";
+        const tokenVelocity = averageHoldDays.toFixed(2);
 
         return tokenVelocity;
     } catch (error) {
@@ -269,4 +251,17 @@ export const generateTrendingData = (
     };
 
     return trendingData;
+};
+
+
+export const generateLatestMonths = () => {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, now.getDate());
+        months.push({ date, stakingAmount: 0 });
+    }
+
+    return months;
 };

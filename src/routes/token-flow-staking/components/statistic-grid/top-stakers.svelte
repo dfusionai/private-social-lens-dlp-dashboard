@@ -5,6 +5,8 @@
     import * as Tooltip from "$lib/components/ui/tooltip/index.js";
     import { buttonVariants } from "$lib/components/ui/button";
     import { getTopStakers } from "../../utils";
+    import { tokenSymbol } from "$lib/const";
+    import { formatDecimalNumber } from "$lib/utils";
 
     let loading = $state(false);
     let top5Stakers = $state<{ address: string; amount: string }[]>([]);
@@ -76,7 +78,12 @@
                                             <p>{member.address}</p>
 
                                             <b>Amount</b>
-                                            <p>{member.amount} VTK</p>
+                                            <p>
+                                                {formatDecimalNumber(
+                                                    Number(member.amount)
+                                                )}
+                                                {tokenSymbol}
+                                            </p>
                                         </div>
                                     </Tooltip.Content>
                                 </Tooltip.Root>
@@ -113,7 +120,12 @@
                                             <p>{member.address}</p>
 
                                             <b>Amount</b>
-                                            <p>{member.amount} VTK</p>
+                                            <p>
+                                                {formatDecimalNumber(
+                                                    Number(member.amount)
+                                                )}
+                                                {tokenSymbol}
+                                            </p>
                                         </div>
                                     </Tooltip.Content>
                                 </Tooltip.Root>

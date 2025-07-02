@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import teePoolAbi from "../assets/contracts/teepool-abi.json";
-import { ENV_CONFIG } from "$lib/const";
+import { blockRangeForAMonth, ENV_CONFIG, maxBlockRange } from "$lib/const";
 
 const provider = new ethers.JsonRpcProvider(ENV_CONFIG.VITE_RPC_URL);
 const teePoolContract = new ethers.Contract(
@@ -8,8 +8,6 @@ const teePoolContract = new ethers.Contract(
     teePoolAbi.abi,
     provider
 );
-const blockRangeForAMonth = 432000;
-const maxBlockRange = 10000;
 
 interface IFetchTotalDistributedForValidatorParams {
     months: number;
@@ -56,6 +54,8 @@ export async function fetchTotalDistributedForValidator(params: IFetchTotalDistr
             console.error("🚀 ~ fetchTotalDistributedForValidator ~ error:", error);
             throw error;
         }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     return allClaimedEvents;

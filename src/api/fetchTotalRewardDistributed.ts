@@ -8,12 +8,6 @@ const dlpContract = new ethers.Contract(
     dlpcAbi.abi,
     provider
 );
-// const blockRangeForAMonth = 432000;
-// const maxBlockRange = 10000;
-
-// interface IFetchTotalRewardDistributedParams {
-//     months: number;
-// }
 
 export async function fetchTotalRewardDistributed() {
     const filter = dlpContract.filters.RewardRequested();

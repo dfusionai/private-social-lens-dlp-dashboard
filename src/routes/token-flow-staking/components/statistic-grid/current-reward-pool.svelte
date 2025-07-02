@@ -4,6 +4,8 @@
     import * as Card from "$lib/components/ui/card/index.js";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { fetchBalance } from "../../../../api/fetchBalance";
+    import { tokenSymbol } from "$lib/const";
+    import { formatDecimalNumber } from "$lib/utils";
 
     let balance = $state("");
     let loading = $state(false);
@@ -11,13 +13,19 @@
     onMount(async () => {
         try {
             loading = true;
-            balance = await fetchBalance();
+            const result = await fetchBalance();
+            balance = formatDecimalNumber(result);
         } catch (error) {
             toast.error("Fetching balance failed!");
         } finally {
             loading = false;
         }
     });
+
+    const generateTokenText = (value: string) => {
+        if (!value) return "-";
+        return value + " " + tokenSymbol;
+    };
 </script>
 
 <Card.Root class="hover:shadow-lg transition-shadow">
@@ -37,7 +45,7 @@
         {:else}
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Balance:</span>
-                <span>{balance ? balance + "VTK" : "-"}</span>
+                <span>{generateTokenText(balance)}</span>
             </div>
         {/if}
     </Card.Content>

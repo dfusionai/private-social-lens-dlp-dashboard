@@ -12,6 +12,8 @@
     import { getRewardStatistics } from "../../utils";
     import StatisticsVisualization from "../statistics-visualization/statistics-visualization.svelte";
     import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
+    import { tokenSymbol } from "$lib/const";
+
     let totalRewards: ITotalRewards = $state({
         contributor: "",
         validator: "",
@@ -50,7 +52,7 @@
 
     const generateTokenText = (value: string) => {
         if (!value) return "-";
-        return formatDecimalNumber(Number(value)) + " VTK";
+        return formatDecimalNumber(Number(value)) + " " + tokenSymbol;
     };
 </script>
 
@@ -73,7 +75,8 @@
                         {generateTokenText(totalDistributed.toString())}
                     </div>
                     <p class="text-xs text-muted-foreground">
-                        +12.5% from last period
+                        Total VFSN distributed to contributors, validators, and
+                        owner
                     </p>
                 {/if}
             </CardContent>
@@ -127,7 +130,6 @@
             >
                 <CardTitle class="text-sm font-medium">Network Health</CardTitle
                 >
-                <ChevronDown class="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
                 {#if isLoading}
