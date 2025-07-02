@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { ethers } from "ethers";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -53,3 +54,9 @@ export const formatDecimalNumber = (num: number, decimals: number = 2) => {
 
 	return formatNumber(decimalNumber);
 };
+
+export const decodeHexData = (hexData: string) => {
+    const coder = new ethers.AbiCoder();
+    const decoded = coder.decode(["string"], hexData);
+    return decoded;
+}

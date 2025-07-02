@@ -6,7 +6,6 @@
     import CardTitle from "$lib/components/ui/card/card-title.svelte";
     import Card from "$lib/components/ui/card/card.svelte";
     import * as Chart from "$lib/components/ui/chart/index.js";
-    import { onMount } from "svelte";
     import { generateDataFor6Months } from "../../utils";
     import { rewardEventsStore } from "$lib/stores/rewardEventsStore";
     import { weiToEther } from "$lib/utils";

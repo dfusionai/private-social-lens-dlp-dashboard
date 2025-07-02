@@ -34,22 +34,23 @@ export const getRewardStatistics = ({
 };
 
 export const generateDataFor6Months = () => {
-    const currentDate = new Date();
-    const data = [];
-
+    const months = [];
+    const now = new Date();
+    
     // Sample contributor reward data for each month
-    for (let i = 0; i < queryMonthDuration; i++) {
+    for (let i = 5; i >= 0; i--) {
         const date = new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth() - i,
-            1
+            now.getFullYear(),
+            now.getMonth() - i,
+            now.getDate()
         );
-        data.push({
+        months.push({
             date,
             contributor: 0,
             validator: 0,
             owner: 0,
         });
     }
-    return data.reverse(); // Reverse to show oldest to newest
+    
+    return months; // Reverse to show oldest to newest
 };

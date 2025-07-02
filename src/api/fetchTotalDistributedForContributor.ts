@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import dlpAbi from "../assets/contracts/dlp-abi.json";
-import { ENV_CONFIG } from "$lib/const";
+import { blockRangeForAMonth, ENV_CONFIG, maxBlockRange } from "$lib/const";
 
 const provider = new ethers.JsonRpcProvider(ENV_CONFIG.VITE_RPC_URL);
 const dlpContract = new ethers.Contract(
@@ -8,8 +8,6 @@ const dlpContract = new ethers.Contract(
     dlpAbi.abi,
     provider
 );
-const blockRangeForAMonth = 432000;
-const maxBlockRange = 10000;
 
 interface IFetchTotalDistributedForContributorParams {
     months: number;
@@ -56,6 +54,8 @@ export async function fetchTotalDistributedForContributor(params: IFetchTotalDis
             console.error("🚀 ~ fetchTotalDistributedForContributor ~ error:", error);
             throw error;
         }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     return allClaimedEvents;
