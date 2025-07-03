@@ -9,11 +9,11 @@ const stakingContract = new ethers.Contract(
     provider
 );
 
-interface IFetchStakingParams {
+interface IFetchUnstakingParams {
     months: number;
 }
 
-export async function fetchUnstaking(params: IFetchStakingParams) {
+export async function fetchUnstaking(params: IFetchUnstakingParams) {
     const { months } = params;
     const currentBlock = await provider.getBlockNumber();
     const startBlock = Math.max(0, currentBlock - months * blockRangeForAMonth);
@@ -51,7 +51,6 @@ export async function fetchUnstaking(params: IFetchStakingParams) {
 
             allUnstakeEvents.push(unstakeEvents);
         } catch (error) {
-            console.error("🚀 ~ fetchUnstaking ~ error:", error);
             throw error;
         }
 

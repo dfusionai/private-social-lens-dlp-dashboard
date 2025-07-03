@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import dlpAbi from "../assets/contracts/dlp-abi.json";
-import { blockRangeForAMonth, ENV_CONFIG, maxBlockRange } from "$lib/const";
+import { blockRangeForAWeek, ENV_CONFIG, maxBlockRange } from "$lib/const";
 
 const provider = new ethers.JsonRpcProvider(ENV_CONFIG.VITE_RPC_URL);
 const dlpContract = new ethers.Contract(
@@ -9,21 +9,21 @@ const dlpContract = new ethers.Contract(
     provider
 );
 
-interface IFetchTotalDistributedForContributorParams {
-    months: number;
+interface IFetchContributorRewardsInWeeksParams {
+    weeks: number;
 }
 
-export async function fetchTotalDistributedForContributor(params: IFetchTotalDistributedForContributorParams) {
-    const { months } = params;
+export async function fetchContributorRewardsInWeeks(params: IFetchContributorRewardsInWeeksParams) {
+    const { weeks } = params;
     const currentBlock = await provider.getBlockNumber();
-    const startBlock = Math.max(0, currentBlock - months * blockRangeForAMonth);
+    const startBlock = Math.max(0, currentBlock - weeks * blockRangeForAWeek);
 
-    const allClaimedEvents = [];
+    const allContributorRewards = [];
 
-    for (let i = 0; i < months; i++) {
+    for (let i = 0; i < weeks; i++) {
         // Calculate block range
-        const fromBlock = startBlock + i * blockRangeForAMonth;
-        const toBlock = Math.min(fromBlock + blockRangeForAMonth, currentBlock);
+        const fromBlock = startBlock + i * blockRangeForAWeek;
+        const toBlock = Math.min(fromBlock + blockRangeForAWeek, currentBlock);
 
         if (fromBlock >= currentBlock) {
             break;
@@ -37,7 +37,7 @@ export async function fetchTotalDistributedForContributor(params: IFetchTotalDis
         }
 
         try {
-            const claimedPromises = blockRanges.map(({ from, to }) =>
+            const contributorRewardsPromises = blockRanges.map(({ from, to }) =>
                 dlpContract.queryFilter(
                     dlpContract.filters.RewardRequested(),
                     from,
@@ -45,18 +45,15 @@ export async function fetchTotalDistributedForContributor(params: IFetchTotalDis
                 )
             );
 
-                const claimedResults = await Promise.all(claimedPromises);
+            const contributorRewardsResults = await Promise.all(contributorRewardsPromises);
 
-            const claimedEvents = claimedResults.flat();
-
-            allClaimedEvents.push(claimedEvents);
+            allContributorRewards.push(contributorRewardsResults.flat());
         } catch (error) {
-            console.error("🚀 ~ fetchTotalDistributedForContributor ~ error:", error);
             throw error;
         }
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    return allClaimedEvents;
+    return allContributorRewards;
 }

@@ -44,11 +44,10 @@
     ];
 
     rewardEventsStore.subscribe((state) => {
-        const { contributorRewardEvents, validatorRewardEvents, loading } =
-            state;
+        const { contributorRewardEvents, loading } = state;
         isLoading = loading;
 
-        if (!contributorRewardEvents || !validatorRewardEvents) {
+        if (!contributorRewardEvents) {
             return;
         }
 

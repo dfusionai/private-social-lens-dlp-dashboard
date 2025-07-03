@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { curveNatural } from "d3-shape";
     import { scaleUtc } from "d3-scale";
     import * as Chart from "$lib/components/ui/chart/index.js";
     import * as Card from "$lib/components/ui/card/index.js";
@@ -7,6 +6,7 @@
     import { LineChart } from "layerchart";
     import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
     import { cn } from "$lib/utils";
+    import { defaultVisConfig } from "./const";
 
     const {
         title,
@@ -35,21 +35,7 @@
                     points={{ r: 4 }}
                     x="date"
                     xScale={scaleUtc()}
-                    props={{
-                        spline: {
-                            curve: curveNatural,
-                            motion: "tween",
-                            strokeWidth: 2,
-                        },
-                        xAxis: {
-                            format: (v: Date) =>
-                                v.toLocaleDateString("en-US", {
-                                    month: "short",
-                                }),
-                            ticks: 4,
-                        },
-                        highlight: { points: { r: 4 } },
-                    }}
+                    props={defaultVisConfig}
                     {...lineChartProps}
                 >
                     {#snippet tooltip()}

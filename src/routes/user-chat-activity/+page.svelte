@@ -60,7 +60,7 @@
             metrics[4].value = totalContributorsRewardAmount;
             metrics[5].value = averageRewardsPerChat;
         } catch (error) {
-            console.error("🚀 ~ onMount ~ error:", error);
+            throw error;
         } finally {
             isLoading = false;
         }

@@ -17,7 +17,6 @@ export async function fetchTotalContributorsRewardAmount() {
 
         return Number(totalContributorsRewardAmount) / Math.pow(10, 18);
     } catch (error) {
-        console.error("🚀 ~ fetchBalance ~ error:", error);
         throw error;
     }
 }

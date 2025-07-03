@@ -8,17 +8,26 @@ export interface StakeEvent {
     logIndex: number;
 }
 
+export interface ContributorRewardEventForDate {
+    totalReward: number;
+    totalEvents: number;
+}
+
 export interface RewardEventsState {
     contributorRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
+    contributorRewardEventsInWeeks: (ethers.Log | ethers.EventLog)[][] | null;
     validatorRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
     ownerRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
+    contributorRewardEventsForDate: ContributorRewardEventForDate | null;
     loading: boolean;
 }
 
 const initialState: RewardEventsState = {
     contributorRewardEvents: null,
+    contributorRewardEventsInWeeks: null,
     validatorRewardEvents: null,
     ownerRewardEvents: null,
+    contributorRewardEventsForDate: null,
     loading: false,
 };
 
@@ -51,6 +60,20 @@ export const rewardEventsActions = {
         }));
     },
 
+    setContributorRewardEventsInWeeks: (contributorRewardEventsInWeeks: (ethers.Log | ethers.EventLog)[][]) => {
+        rewardEventsStore.update(state => ({
+            ...state,
+            contributorRewardEventsInWeeks,
+        }));
+    },
+
+    setContributorRewardEventsForDate: (contributorRewardEventsForDate: ContributorRewardEventForDate) => {
+        rewardEventsStore.update(state => ({
+            ...state,
+            contributorRewardEventsForDate,
+        }));
+    },
+    
     clear: () => {
         rewardEventsStore.set(initialState);
     }

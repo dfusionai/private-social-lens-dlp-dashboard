@@ -15,13 +15,14 @@
             {:else}
                 down
             {/if}
-            by {trendingData.percent}% this month
+            by {trendingData.percent}% this week
             {#if trendingData.isUp}
                 <TrendingUpIcon class="size-4" />
             {:else}
                 <TrendingDownIcon class="size-4" />
             {/if}
         </div>
+
         <div class="text-muted-foreground flex items-center gap-2 leading-none">
             {trendingData.timeDuration.from} - {trendingData.timeDuration.to}
             {trendingData.timeDuration.year}

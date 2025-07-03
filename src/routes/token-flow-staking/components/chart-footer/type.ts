@@ -4,10 +4,12 @@ export interface ITrendingData {
     timeDuration: {
         from: string;
         to: string;
-        year: string;
+        year?: string;
     };
 }
 
 export interface IChartFooterProps {
     trendingData: ITrendingData;
 }
+
+

@@ -21,7 +21,6 @@ export async function fetchChatInfo() {
 
         return data;
     } catch (error) {
-        console.error("🚀 ~ fetchBalance ~ error:", error);
         throw error;
     }
 }

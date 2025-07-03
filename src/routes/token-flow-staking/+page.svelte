@@ -1,101 +1,149 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
-    import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
-    import * as Chart from "$lib/components/ui/chart/index.js";
     import {
         stakeEventsActions,
         stakeEventsStore,
     } from "$lib/stores/stakeEventsStore";
     import StatisticGrid from "./components/statistic-grid/statistic-grid.svelte";
-    import ChartFooter from "./components/chart-footer/chart-footer.svelte";
+    import { queryMonthDuration } from "$lib/const";
+    import StakingFlowChart from "./components/staking-flow-chart/staking-flow-chart.svelte";
+    import Tabs from "$lib/components/ui/tabs/tabs.svelte";
+    import TabsList from "$lib/components/ui/tabs/tabs-list.svelte";
+    import TabsTrigger from "$lib/components/ui/tabs/tabs-trigger.svelte";
+    import TabsContent from "$lib/components/ui/tabs/tabs-content.svelte";
+    import TrendingUp from "@lucide/svelte/icons/trending-up";
+    import Coins from "@lucide/svelte/icons/coins";
+    import { DurationType } from "./type";
     import { fetchStaking } from "../../api/fetchStakingEvents";
     import { fetchUnstaking } from "../../api/fetchUnstakingEvents";
+    import RewardContributorChart from "./components/reward-contributor-chart/reward-contributor-chart.svelte";
+    import StakingFlowChartWeek from "./components/staking-flow-chart-week/staking-flow-chart-week.svelte";
+    import RewardContributorChartWeek from "./components/reward-contributor-chart-week/reward-contributor-chart-week.svelte";
     import {
-        calculateStakeAmount,
-        generateLatestMonths,
-        generateTrendingData,
-    } from "./utils";
-    import type { ITrendingData } from "./components/chart-footer/type";
-    import { queryMonthDuration } from "$lib/const";
-
-    // Generate latest 6 months dynamically
-    let chartData: { date: Date; stakingAmount: number }[] = $state(
-        generateLatestMonths()
-    );
-    let trendingData: ITrendingData = $state({
-        percent: "0",
-        isUp: false,
-        timeDuration: {
-            from: "",
-            to: "",
-            year: "",
-        },
-    });
-    let isLoading = $state(false);
-
-    const ChartConfig = {
-        stakingAmount: { label: "Staking Amount", color: "var(--chart-1)" },
-    } satisfies Chart.ChartConfig;
-
-    const series = [
-        {
-            key: "stakingAmount",
-            label: "Staking Amount",
-            color: ChartConfig.stakingAmount.color,
-        },
-    ];
+        rewardEventsStore,
+        rewardEventsActions,
+    } from "$lib/stores/rewardEventsStore";
+    import { fetchContributorRewards } from "../../api/fetchContributorRewards";
+    import { fetchContributorRewardsInWeeks } from "../../api/fetchContributorRewardsInWeeks";
+    import { queryWeekDuration } from "$lib/const";
+    import { fetchStakingInWeeks } from "../../api/fetchStakingEventsInWeeks";
+    import { fetchContributorRewardForDate } from "../../api/fetchContributorRewardForDate";
 
     const store = $stakeEventsStore;
-
-    stakeEventsStore.subscribe((state) => {
-        if (!state.stakeEvents) return;
-
-        const stakeAmount = calculateStakeAmount(state.stakeEvents || []);
-        // Update chart data with calculated amounts
-        chartData = chartData.map((item, index) => ({
-            ...item,
-            stakingAmount: stakeAmount[index] || 0,
-        }));
-
-        trendingData = generateTrendingData(chartData);
-    });
+    const rewardStore = $rewardEventsStore;
 
     onMount(async () => {
         try {
-            if (!store.stakeEvents || !store.unstakeEvents) {
-                stakeEventsActions.setLoading(true);
-                isLoading = true;
-                const unstakeEvents = await fetchUnstaking({
-                    months: queryMonthDuration,
-                });
+            stakeEventsActions.setLoading(true);
+            rewardEventsActions.setLoading(true);
+
+            if (!store.stakeEvents) {
                 const stakeEvents = await fetchStaking({
                     months: queryMonthDuration,
                 });
                 stakeEventsActions.setStakeEvents(stakeEvents);
+            }
+
+            if (!store.unstakeEvents) {
+                const unstakeEvents = await fetchUnstaking({
+                    months: queryMonthDuration,
+                });
                 stakeEventsActions.setUnstakeEvents(unstakeEvents);
             }
+
+            if (!store.stakeEventsInWeeks) {
+                const stakeEventsInWeeks = await fetchStakingInWeeks({
+                    weeks: queryWeekDuration,
+                });
+                stakeEventsActions.setStakeEventsInWeeks(stakeEventsInWeeks);
+            }
+
+            if (!rewardStore.contributorRewardEvents) {
+                const contributorRewardEvents = await fetchContributorRewards({
+                    months: queryMonthDuration,
+                });
+                rewardEventsActions.setContributorRewardEvents(
+                    contributorRewardEvents
+                );
+            }
+
+            if (!rewardStore.contributorRewardEventsInWeeks) {
+                const contributorRewardEventsInWeeks =
+                    await fetchContributorRewardsInWeeks({
+                        weeks: queryWeekDuration,
+                    });
+                rewardEventsActions.setContributorRewardEventsInWeeks(
+                    contributorRewardEventsInWeeks
+                );
+            }
+
+            if (!rewardStore.contributorRewardEventsForDate?.totalReward) {
+                const contributorRewardEventsForDate =
+                    await fetchContributorRewardForDate({
+                        date: new Date(),
+                    });
+
+                rewardEventsActions.setContributorRewardEventsForDate(
+                    contributorRewardEventsForDate
+                );
+            }
         } catch (error) {
-            console.error("Error fetching stake events:", error);
             toast.error("Fetching stake events failed!");
+            throw error;
         } finally {
             stakeEventsActions.setLoading(false);
-            isLoading = false;
+            rewardEventsActions.setLoading(false);
         }
     });
 </script>
 
 <div>
     <div class="mb-8"><StatisticGrid /></div>
-    <LineChart
-        className="h-[300px] w-full"
-        title="Staking Through Time"
-        description="Showing total staking amount for the last year"
-        chartConfig={ChartConfig}
-        data={chartData}
-        {series}
-        {isLoading}
-    >
-        <ChartFooter slot="footer" {trendingData} />
-    </LineChart>
+    <Tabs value="staking" class="w-full">
+        <TabsList class="grid w-full grid-cols-2 h-20">
+            <TabsTrigger value="staking" class="flex flex-col">
+                <TrendingUp class="w-5 h-5" />
+                <div class="text-center">
+                    <div class="font-medium text-sm">Staking</div>
+                    <div class="text-xs opacity-75">Through Time</div>
+                </div>
+            </TabsTrigger>
+            <TabsTrigger value="rewards" class="flex flex-col">
+                <Coins class="w-5 h-5" />
+                <div class="text-center">
+                    <div class="font-medium text-sm">Rewards</div>
+                    <div class="text-xs opacity-75">Distribution</div>
+                </div>
+            </TabsTrigger>
+        </TabsList>
+        <TabsContent value="staking">
+            <Tabs value={DurationType.MONTH} class="w-full">
+                <TabsList class="grid w-44 grid-cols-2">
+                    <TabsTrigger value={DurationType.MONTH}>Month</TabsTrigger>
+                    <TabsTrigger value={DurationType.WEEK}>Week</TabsTrigger>
+                </TabsList>
+                <TabsContent value={DurationType.MONTH}>
+                    <StakingFlowChart />
+                </TabsContent>
+                <TabsContent value={DurationType.WEEK}>
+                    <StakingFlowChartWeek />
+                </TabsContent>
+            </Tabs>
+        </TabsContent>
+        <TabsContent value="rewards">
+            <Tabs value={DurationType.MONTH} class="w-full">
+                <TabsList class="grid w-44 grid-cols-2">
+                    <TabsTrigger value={DurationType.MONTH}>Month</TabsTrigger>
+                    <TabsTrigger value={DurationType.WEEK}>Week</TabsTrigger>
+                </TabsList>
+                <TabsContent value={DurationType.MONTH}>
+                    <RewardContributorChart />
+                </TabsContent>
+                <TabsContent value={DurationType.WEEK}>
+                    <RewardContributorChartWeek />
+                </TabsContent>
+            </Tabs>
+        </TabsContent>
+    </Tabs>
 </div>

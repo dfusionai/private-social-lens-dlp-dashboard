@@ -18,7 +18,6 @@ export async function fetchBalance() {
 
         return Number(BigInt(balData)) / 1e18;
     } catch (error) {
-        console.error("🚀 ~ fetchBalance ~ error:", error);
         throw error;
     }
 }

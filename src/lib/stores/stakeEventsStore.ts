@@ -9,12 +9,14 @@ export interface StakeEvent {
 }
 
 export interface StakeEventsState {
+    stakeEventsInWeeks: (ethers.Log | ethers.EventLog)[][] | null;
     stakeEvents: (ethers.Log | ethers.EventLog)[][] | null;
     unstakeEvents: (ethers.Log | ethers.EventLog)[][] | null;
     loading: boolean;
 }
 
 const initialState: StakeEventsState = {
+    stakeEventsInWeeks: null,
     stakeEvents: null,
     unstakeEvents: null,
     loading: false,
@@ -39,6 +41,13 @@ export const stakeEventsActions = {
         stakeEventsStore.update(state => ({
             ...state,
             unstakeEvents,
+        }));
+    },
+
+    setStakeEventsInWeeks: (stakeEventsInWeeks: (ethers.Log | ethers.EventLog)[][]) => {
+        stakeEventsStore.update(state => ({
+            ...state,
+            stakeEventsInWeeks,
         }));
     },
 
