@@ -1,6 +1,9 @@
 import { clsx, type ClassValue } from "clsx";
 import { ethers } from "ethers";
 import { twMerge } from "tailwind-merge";
+import { ENV_CONFIG, maxBlockRange } from "$lib/const";
+import dayjs from "dayjs";
+
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -59,4 +62,49 @@ export const decodeHexData = (hexData: string) => {
     const coder = new ethers.AbiCoder();
     const decoded = coder.decode(["string"], hexData);
     return decoded;
+}
+
+export const splitBlockRange = (startBlock: number, endBlock: number) => {
+    const ranges = [];
+    let currentStart = startBlock;
+    while (currentStart <= endBlock) {
+        const currentEnd = Math.min(currentStart + maxBlockRange - 1, endBlock);
+        ranges.push([currentStart, currentEnd]);
+        currentStart = currentEnd + 1;
+    }
+    return ranges;
+}
+
+export const getBlockRangeForDate = async (date: string, provider: ethers.JsonRpcProvider) => {
+    const startTimestamp = Math.floor(new Date(date + "T00:00:00Z").getTime() / 1000);
+    const endTimestamp = Math.floor(new Date(date + "T23:59:59Z").getTime() / 1000);
+
+    async function findBlockByTimestamp(targetTimestamp: number, startBlock: number, endBlock: number) {
+        while (startBlock < endBlock) {
+            const mid = Math.floor((startBlock + endBlock) / 2);
+            const block = await provider.getBlock(mid);
+            if (block && block.timestamp < targetTimestamp) {
+            startBlock = mid + 1;
+            } else {
+            endBlock = mid;
+            }
+        }
+        return startBlock;
+    }
+
+    const latestBlock = await provider.getBlockNumber();
+    const earliestBlock = 1;
+
+    const startBlock = await findBlockByTimestamp(startTimestamp, earliestBlock, latestBlock);
+    const endBlock = await findBlockByTimestamp(endTimestamp, startBlock, latestBlock);
+
+    return { startBlock, endBlock };
+}
+
+const DATE_FORMAT_CONST = {
+    YMD_DASH: "YYYY-MM-DD",
+}
+
+export const formatDate = (date: Date, format: keyof typeof DATE_FORMAT_CONST) => {
+    return dayjs(date).format(DATE_FORMAT_CONST[format]);
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import TokenFlowStaking from "./token-flow-staking/+page.svelte";
+    import TokenFlowStaking from "./staking-token-movement/+page.svelte";
 </script>
 
 <div>

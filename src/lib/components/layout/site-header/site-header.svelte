@@ -15,9 +15,6 @@
     >
         <div class="flex items-center gap-2">
             <Sidebar.Trigger class="-ml-1" />
-            <span class="text-sm font-medium text-muted-foreground"
-                >Data statistics within the lastest {queryMonthDuration} months</span
-            >
         </div>
 
         <Button onclick={toggleMode} variant="outline" size="icon">

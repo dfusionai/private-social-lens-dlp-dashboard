@@ -10,12 +10,12 @@ export const routes: Route[] = [
 	{
 		path: '/',
 		title: 'Token Flow Staking',
-		component: () => import('../routes/token-flow-staking/+page.svelte')
+		component: () => import('../routes/staking-token-movement/+page.svelte')
 	},
 	{
-		path: '/user-chat-activity',
-		title: 'User Chat Activity',
-		component: () => import('../routes/user-chat-activity/+page.svelte')
+		path: '/users-token-emission',
+		title: 'Users Token Emission',
+		component: () => import('../routes/users-token-emission/+page.svelte')
 	},
 	{
 		path: '/data-efficiency',

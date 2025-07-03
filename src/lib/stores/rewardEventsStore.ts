@@ -8,26 +8,22 @@ export interface StakeEvent {
     logIndex: number;
 }
 
-export interface ContributorRewardEventForDate {
-    totalReward: number;
-    totalEvents: number;
-}
-
 export interface RewardEventsState {
     contributorRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
-    contributorRewardEventsInWeeks: (ethers.Log | ethers.EventLog)[][] | null;
     validatorRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
     ownerRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
-    contributorRewardEventsForDate: ContributorRewardEventForDate | null;
+    rewardOnMonth: {
+        date: string;
+        amount: number;
+    }[] | null;
     loading: boolean;
 }
 
 const initialState: RewardEventsState = {
     contributorRewardEvents: null,
-    contributorRewardEventsInWeeks: null,
     validatorRewardEvents: null,
     ownerRewardEvents: null,
-    contributorRewardEventsForDate: null,
+    rewardOnMonth: null,
     loading: false,
 };
 
@@ -67,10 +63,10 @@ export const rewardEventsActions = {
         }));
     },
 
-    setContributorRewardEventsForDate: (contributorRewardEventsForDate: ContributorRewardEventForDate) => {
+    setRewardOnMonth: (rewardOnMonth: { date: string; amount: number }[]) => {
         rewardEventsStore.update(state => ({
             ...state,
-            contributorRewardEventsForDate,
+            rewardOnMonth,
         }));
     },
     
