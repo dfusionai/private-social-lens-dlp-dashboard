@@ -12,6 +12,6 @@ export interface IRewardStatisticsProps {
 
 export interface IGetRewardStatistics {
     contributorRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
-    validatorRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
+    // validatorRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
     // ownerRewardEvents: (ethers.Log | ethers.EventLog)[][] | null;
 }

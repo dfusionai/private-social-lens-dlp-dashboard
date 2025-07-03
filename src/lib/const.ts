@@ -7,6 +7,9 @@ export const ENV_CONFIG = {
 };
 
 export const queryMonthDuration = 6;
-export const blockRangeForAMonth = 432000;
+export const queryWeekDuration = 4;
+export const blockRangeForAMonth = 432000; // 60 * 60 * 24 * 30
+export const blockRangeForAWeek = 100800; // 60 * 60 * 24 * 7
+export const blockRangeForADay = 14400; // 60 * 60 * 24
 export const maxBlockRange = 10000;
 export const tokenSymbol = "VFSN";

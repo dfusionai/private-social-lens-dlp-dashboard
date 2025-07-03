@@ -27,7 +27,7 @@
                 state.unstakeEvents
             );
         } catch (error) {
-            console.error("Error fetching net flow info:", error);
+            throw error;
         }
     });
 

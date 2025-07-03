@@ -4,15 +4,15 @@ import type { IGetRewardStatistics } from "./components/reward-statistics/type";
 
 export const getRewardStatistics = ({
     contributorRewardEvents,
-    validatorRewardEvents,
+    // validatorRewardEvents,
 }: IGetRewardStatistics) => {
-    if (!validatorRewardEvents || !contributorRewardEvents) {
+    if (!contributorRewardEvents) {
         return;
     }
-    const allValidatorEvent = validatorRewardEvents.flat();
-    const allValidatorReward = allValidatorEvent.map(
-        (event) => (event as any).args[3]
-    );
+    // const allValidatorEvent = validatorRewardEvents.flat();
+    // const allValidatorReward = allValidatorEvent.map(
+    //     (event) => (event as any).args[3]
+    // );
     const allContributorEvent = contributorRewardEvents.flat();
     const allContributorReward = allContributorEvent.map(
         (event) => (event as any).args[3]
@@ -22,14 +22,14 @@ export const getRewardStatistics = ({
         (acc, curr) => acc + weiToEther(curr),
         0
     );
-    const validatorReward = allValidatorReward.reduce(
-        (acc, curr) => acc + weiToEther(curr),
-        0
-    );
+    // const validatorReward = allValidatorReward.reduce(
+    //     (acc, curr) => acc + weiToEther(curr),
+    //     0
+    // );
 
     return {
         contributorReward,
-        validatorReward,
+        // validatorReward,
     };
 };
 

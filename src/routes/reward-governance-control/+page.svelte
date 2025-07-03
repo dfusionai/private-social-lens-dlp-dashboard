@@ -1,7 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { fetchTotalDistributedForValidator } from "../../api/fetchTotalDistributedForValidator";
-    import { fetchTotalDistributedForContributor } from "../../api/fetchTotalDistributedForContributor";
+    import { fetchContributorRewards } from "../../api/fetchContributorRewards";
     import {
         rewardEventsActions,
         rewardEventsStore,
@@ -16,26 +15,26 @@
     onMount(async () => {
         try {
             if (
-                !store.contributorRewardEvents ||
-                !store.validatorRewardEvents
+                !store.contributorRewardEvents
+                // !store.validatorRewardEvents
             ) {
                 rewardEventsActions.setLoading(true);
-                const claimedEvents = await fetchTotalDistributedForValidator({
-                    months: queryMonthDuration,
-                });
+                // const claimedEvents = await fetchTotalDistributedForValidator({
+                //     months: queryMonthDuration,
+                // });
                 const totalDistributedForContributor =
-                    await fetchTotalDistributedForContributor({
+                    await fetchContributorRewards({
                         months: queryMonthDuration,
                     });
 
                 rewardEventsActions.setContributorRewardEvents(
                     totalDistributedForContributor
                 );
-                rewardEventsActions.setValidatorRewardEvents(claimedEvents);
+                // rewardEventsActions.setValidatorRewardEvents(claimedEvents);
             }
         } catch (error) {
-            console.error("Error fetching reward events:", error);
             toast.error("Error fetching reward events");
+            throw error;
         } finally {
             rewardEventsActions.setLoading(false);
         }

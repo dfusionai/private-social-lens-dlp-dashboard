@@ -17,7 +17,6 @@ export async function fetchTotalUniqueUsers() {
 
         return Number(totalUniqueUsers);
     } catch (error) {
-        console.error("🚀 ~ fetchBalance ~ error:", error);
         throw error;
     }
 }

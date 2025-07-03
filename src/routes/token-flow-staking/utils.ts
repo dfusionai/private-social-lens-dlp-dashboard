@@ -2,7 +2,7 @@ import type { ethers } from "ethers";
 import { formatNumberWithDecimals } from "$lib/utils";
 import { weiToEther } from "../../lib/utils";
 import type { ITrendingData } from "./components/chart-footer/type";
-import { queryMonthDuration } from "$lib/const";
+import { blockRangeForADay, queryMonthDuration, queryWeekDuration } from "$lib/const";
 
 export const calculateTotalFromEvents = (
     events: (ethers.Log | ethers.EventLog)[]
@@ -32,25 +32,22 @@ export const calculateNetFlowInfo = (
 } => {
     if (!stakeEvents || !unstakeEvents) {
         return {
-            netFlow: "-",
-            netFlowPerDay: "-",
-            netFlowPerWeek: "-",
-            totalStakeIn: "-",
-            totalUnstakeOut: "-",
+            netFlow: "",
+            netFlowPerDay: "",
+            netFlowPerWeek: "",
+            totalStakeIn: "",
+            totalUnstakeOut: "",
         };
     }
 
-    const totalStakeIn = stakeEvents.flat().reduce((total, event) => {
-        const eventLog = event as any;
-        const amount = weiToEther(eventLog.args?.[1] || 0);
-        return total + amount;
-    }, 0);
+    // Single flat operation for better performance
+    const flatStakeEvents = stakeEvents.flat();
+    const flatUnstakeEvents = unstakeEvents.flat();
 
-    const totalUnstakeOut = unstakeEvents.flat().reduce((total, event) => {
-        const eventLog = event as any;
-        const amount = weiToEther(eventLog.args?.[1] || 0);
-        return total + amount;
-    }, 0);
+    // Use reduce for O(n) calculation instead of multiple operations
+    const totalStakeIn = calculateTotalFromEvents(flatStakeEvents);
+
+    const totalUnstakeOut = calculateTotalFromEvents(flatUnstakeEvents);
 
     // Calculate net flow
     const netFlow = totalStakeIn - totalUnstakeOut;
@@ -79,32 +76,33 @@ export const getTopStakers = (
     if (!stakeEvents || !unstakeEvents) return;
 
     try {
-        const allStakers = stakeEvents
-            .flat()
-            .map((data) => (data as any).args[0]);
-        const allWithdrawers = unstakeEvents
-            .flat()
-            .map((data) => (data as any).args[0]);
+        // Single flat operation for better performance
+        const flatStakeEvents = stakeEvents.flat();
+        const flatUnstakeEvents = unstakeEvents.flat();
 
-        //get all addresses in the allStakers
-        const uniqueStakers = [...new Set(allStakers)];
-        const uniqueWithdrawers = [...new Set(allWithdrawers)];
-
-        // Calculate total staking amount for each unique address
+        // Use Maps for O(1) lookups instead of Sets and filters
         const stakerAmounts = new Map<string, number>();
-        uniqueStakers.forEach((address) => {
-            const totalAmount = stakeEvents
-                ?.flat()
-                .filter((event: any) => (event as any).args[0] === address)
-                .reduce(
-                    (sum: number, event: any) =>
-                        sum + weiToEther((event as any).args[1]),
-                    0
-                );
-            stakerAmounts.set(address, totalAmount || 0);
+        const withdrawerAmounts = new Map<string, number>();
+
+        // Process stake events in single pass - O(n)
+        flatStakeEvents.forEach((event) => {
+            const address = (event as any).args[0];
+            const amount = weiToEther((event as any).args[1]);
+            
+            const currentAmount = stakerAmounts.get(address) || 0;
+            stakerAmounts.set(address, currentAmount + amount);
         });
 
-        // Sort by amount and get top 5
+        // Process unstake events in single pass - O(n)
+        flatUnstakeEvents.forEach((event) => {
+            const address = (event as any).args[0];
+            const amount = weiToEther((event as any).args[1]);
+            
+            const currentAmount = withdrawerAmounts.get(address) || 0;
+            withdrawerAmounts.set(address, currentAmount + amount);
+        });
+
+        // Sort and get top 5 stakers - O(n log n) but n is small (unique addresses)
         const top5Stakers = Array.from(stakerAmounts.entries())
             .sort(([, a], [, b]) => b - a)
             .slice(0, 5)
@@ -113,21 +111,7 @@ export const getTopStakers = (
                 amount: amount.toFixed(2),
             }));
 
-        // find 5 top withdrawers from uniqueWithdrawers
-        const withdrawerAmounts = new Map<string, number>();
-        uniqueWithdrawers.forEach((address) => {
-            const totalAmount = unstakeEvents
-                ?.flat()
-                .filter((event: any) => (event as any).args[0] === address)
-                .reduce(
-                    (sum: number, event: any) =>
-                        sum + weiToEther((event as any).args[1]),
-                    0
-                );
-            withdrawerAmounts.set(address, totalAmount || 0);
-        });
-
-        // Sort by amount and get top 5
+        // Sort and get top 5 withdrawers - O(n log n) but n is small
         const top5Withdrawers = Array.from(withdrawerAmounts.entries())
             .sort(([, a], [, b]) => b - a)
             .slice(0, 5)
@@ -152,79 +136,93 @@ export const getTokenVelocity = (
     if (!stakeEvents || !unstakeEvents) return;
 
     try {
-        // Get all unique addresses that have both staked and unstaked
-        const allStakeAddresses = new Set(
-            stakeEvents.flat().map((event) => (event as any).args[0])
-        );
-        const allUnstakeAddresses = new Set(
-            unstakeEvents.flat().map((event) => (event as any).args[0])
-        );
-        const addressesWithBoth = [...allStakeAddresses].filter((addr) =>
-            allUnstakeAddresses.has(addr)
+        // Flatten events once - O(n)
+        const flatStakeEvents = stakeEvents.flat();
+        const flatUnstakeEvents = unstakeEvents.flat();
+
+        // Create Maps for O(1) lookups instead of Sets and filters - O(n)
+        const stakeAddressMap = new Map<string, Array<{blockNumber: number, amount: number}>>();
+        const unstakeAddressMap = new Map<string, Array<{blockNumber: number, amount: number}>>();
+
+        // Process stake events - O(n)
+        flatStakeEvents.forEach((event) => {
+            const address = (event as any).args[0];
+            const blockNumber = Number((event as any).blockNumber);
+            const amount = weiToEther((event as any).args[1]);
+            
+            if (!stakeAddressMap.has(address)) {
+                stakeAddressMap.set(address, []);
+            }
+            stakeAddressMap.get(address)!.push({ blockNumber, amount });
+        });
+
+        // Process unstake events - O(n)
+        flatUnstakeEvents.forEach((event) => {
+            const address = (event as any).args[0];
+            const blockNumber = Number((event as any).blockNumber);
+            const amount = weiToEther((event as any).args[1]);
+            
+            if (!unstakeAddressMap.has(address)) {
+                unstakeAddressMap.set(address, []);
+            }
+            unstakeAddressMap.get(address)!.push({ blockNumber, amount });
+        });
+
+        // Find addresses with both stake and unstake events - O(n)
+        const addressesWithBoth = Array.from(stakeAddressMap.keys()).filter(addr => 
+            unstakeAddressMap.has(addr)
         );
 
-        // Calculate hold durations for each address
+        // Calculate hold durations - O(n)
         const holdDurations: number[] = [];
 
         addressesWithBoth.forEach((address) => {
-            const allStakeEvents = stakeEvents
-                .flat()
-                .filter((event) => (event as any).args[0] === address)
-                .map((event) => ({
-                    blockNumber: Number((event as any).blockNumber),
-                    amount: weiToEther((event as any).args[1]),
-                }))
-                .sort((a, b) => a.blockNumber - b.blockNumber);
+            const stakeEvents = stakeAddressMap.get(address)!.sort((a, b) => a.blockNumber - b.blockNumber);
+            const unstakeEvents = unstakeAddressMap.get(address)!.sort((a, b) => a.blockNumber - b.blockNumber);
 
-            const allUnstakeEvents = unstakeEvents
-                .flat()
-                .filter((event) => (event as any).args[0] === address)
-                .map((event) => ({
-                    blockNumber: Number((event as any).blockNumber),
-                    amount: weiToEther((event as any).args[1]),
-                }))
-                .sort((a, b) => a.blockNumber - b.blockNumber);
+            // Use two pointers for O(n) matching instead of nested loops
+            let stakeIndex = 0;
+            let unstakeIndex = 0;
 
-            // Calculate hold duration for each stake that has been withdrawn
-            allStakeEvents.forEach((stake) => {
-                // Find matching unstake event (same amount, later block)
-                const matchingUnstake = allUnstakeEvents.find(
-                    (unstake) =>
-                        unstake.blockNumber > stake.blockNumber &&
-                        Math.abs(unstake.amount - stake.amount) < 0.000001 // Account for rounding
-                );
+            while (stakeIndex < stakeEvents.length && unstakeIndex < unstakeEvents.length) {
+                const stake = stakeEvents[stakeIndex];
+                const unstake = unstakeEvents[unstakeIndex];
 
-                if (matchingUnstake) {
-                    // Calculate hold duration in blocks
-                    const holdTime =
-                        matchingUnstake.blockNumber - stake.blockNumber;
+                if (unstake.blockNumber > stake.blockNumber && 
+                    Math.abs(unstake.amount - stake.amount) < 0.000001) {
+                    // Found matching pair
+                    const holdTime = unstake.blockNumber - stake.blockNumber;
                     holdDurations.push(holdTime);
+                    stakeIndex++;
+                    unstakeIndex++;
+                } else if (unstake.blockNumber <= stake.blockNumber) {
+                    unstakeIndex++;
+                } else {
+                    stakeIndex++;
                 }
-            });
+            }
         });
 
-        // Calculate average token velocity (average hold duration)
-        const averageHoldDuration =
-            holdDurations.length > 0
-                ? holdDurations.reduce((sum, duration) => sum + duration, 0) /
-                    holdDurations.length
-                : 0;
+        // Calculate average - O(n)
+        const averageHoldDuration = holdDurations.length > 0
+            ? holdDurations.reduce((sum, duration) => sum + duration, 0) / holdDurations.length
+            : 0;
 
         // Convert to days (assuming 12 second block time)
-        const blocksPerDay = 7200; // 24 * 60 * 60 / 12
+        const blocksPerDay = blockRangeForADay; // 24 * 60 * 60 / 6
         const averageHoldDays = averageHoldDuration / blocksPerDay;
         const tokenVelocity = averageHoldDays.toFixed(2);
 
         return tokenVelocity;
     } catch (error) {
-        console.error("Error calculating token velocity:", error);
+        throw error;
     }
 };
 
 export const generateTrendingData = (
     chartData: {
         date: Date;
-        stakingAmount: number;
+        amount: number;
     }[]
 ) => {
     const latestMonth = chartData[chartData.length - 1];
@@ -232,8 +230,8 @@ export const generateTrendingData = (
     const farestMonth = chartData[0];
 
     const percent =
-        ((latestMonth.stakingAmount - previousMonth.stakingAmount) /
-            previousMonth.stakingAmount) *
+        ((latestMonth.amount - previousMonth.amount) /
+            previousMonth.amount) *
         100;
 
     const trendingData: ITrendingData = {
@@ -253,15 +251,87 @@ export const generateTrendingData = (
     return trendingData;
 };
 
+export const generateWeekTrendingData = (
+    chartData: {
+        date: Date;
+        amount: number;
+    }[]
+) => {
+    const latestWeek = chartData[chartData.length - 1];
+    const previousWeek = chartData[chartData.length - 2];
+    const farestWeek = chartData[0];
+
+    const percent =
+        ((latestWeek.amount - previousWeek.amount) /
+        previousWeek.amount) *
+        100;
+
+
+    const trendingData: ITrendingData = {
+        percent: percent.toFixed(2),
+        isUp: percent > 0,
+        timeDuration: {
+            from: farestWeek.date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+            }),
+            to: latestWeek.date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+            }),
+        },
+    };
+
+    return trendingData;
+};
 
 export const generateLatestMonths = () => {
     const months = [];
     const now = new Date();
     
-    for (let i = 5; i >= 0; i--) {
+    for (let i = queryMonthDuration - 1; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, now.getDate());
-        months.push({ date, stakingAmount: 0 });
+        months.push({ date, amount: 0 });
     }
 
     return months;
+};
+export const generateRewardLatestMonths = () => {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = queryMonthDuration - 1; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, now.getDate());
+        months.push({ date, amount: 0 });
+    }
+
+    return months;
+};
+
+export const generateLatestWeeks = () => {
+    const weeks = [];
+    const now = new Date();
+
+    for (let i = queryWeekDuration - 1; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i * 7);
+        weeks.push({ date, amount: 0 });
+    }
+
+    return weeks;
+};
+
+export const generateRewardLatestWeeks = () => {
+    const weeks = [];
+    const now = new Date();
+
+    for (let i = queryWeekDuration - 1; i >= 0; i--) {
+        const date = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() - i * 7
+        );
+        weeks.push({ date, amount: 0 });
+    }
+
+    return weeks;
 };

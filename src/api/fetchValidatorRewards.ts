@@ -9,11 +9,11 @@ const teePoolContract = new ethers.Contract(
     provider
 );
 
-interface IFetchTotalDistributedForValidatorParams {
+interface IFetchValidatorRewardsParams {
     months: number;
 }
 
-export async function fetchTotalDistributedForValidator(params: IFetchTotalDistributedForValidatorParams) {
+export async function fetchValidatorRewards(params: IFetchValidatorRewardsParams) {
     const { months } = params;
     const currentBlock = await provider.getBlockNumber();
     const startBlock = Math.max(0, currentBlock - months * blockRangeForAMonth);
@@ -47,11 +47,8 @@ export async function fetchTotalDistributedForValidator(params: IFetchTotalDistr
 
             const claimedResults = await Promise.all(claimedPromises);
 
-            const claimedEvents = claimedResults.flat();
-
-            allClaimedEvents.push(claimedEvents);
+            allClaimedEvents.push(claimedResults.flat());
         } catch (error) {
-            console.error("🚀 ~ fetchTotalDistributedForValidator ~ error:", error);
             throw error;
         }
 

@@ -17,7 +17,6 @@ export async function fetchTotalUniqueChat() {
 
         return Number(totalUniqueChats);
     } catch (error) {
-        console.error("🚀 ~ fetchBalance ~ error:", error);
         throw error;
     }
 }

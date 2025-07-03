@@ -8,7 +8,6 @@
     import TrendingUp from "@lucide/svelte/icons/trending-up";
     import CardContent from "$lib/components/ui/card/card-content.svelte";
     import Users from "@lucide/svelte/icons/users";
-    import ChevronDown from "@lucide/svelte/icons/chevron-down";
     import { getRewardStatistics } from "../../utils";
     import StatisticsVisualization from "../statistics-visualization/statistics-visualization.svelte";
     import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
@@ -29,17 +28,16 @@
     );
 
     rewardEventsStore.subscribe((state) => {
-        const { contributorRewardEvents, validatorRewardEvents, loading } =
-            state;
+        const { contributorRewardEvents, loading } = state;
         isLoading = loading;
 
-        if (!contributorRewardEvents || !validatorRewardEvents) {
+        if (!contributorRewardEvents) {
             return;
         }
 
         const rewardInfo = getRewardStatistics({
             contributorRewardEvents,
-            validatorRewardEvents,
+            // validatorRewardEvents,
         });
 
         if (!rewardInfo) {
@@ -47,7 +45,7 @@
         }
 
         totalRewards.contributor = String(rewardInfo.contributorReward);
-        totalRewards.validator = String(rewardInfo.validatorReward);
+        // totalRewards.validator = String(rewardInfo.validatorReward);
     });
 
     const generateTokenText = (value: string) => {

@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import stakingAbi from "../assets/contracts/staking-abi.json";
-import { blockRangeForAMonth, ENV_CONFIG, maxBlockRange } from "$lib/const";
+import { blockRangeForAWeek, ENV_CONFIG, maxBlockRange } from "$lib/const";
 
 const provider = new ethers.JsonRpcProvider(ENV_CONFIG.VITE_RPC_URL);
 const stakingContract = new ethers.Contract(
@@ -9,21 +9,21 @@ const stakingContract = new ethers.Contract(
     provider
 );
 
-interface IFetchStakingParams {
-    months: number;
+interface IFetchStakingInWeeksParams {
+    weeks: number;
 }
 
-export async function fetchStaking(params: IFetchStakingParams) {
-    const { months } = params;
+export async function fetchStakingInWeeks(params: IFetchStakingInWeeksParams) {
+    const { weeks } = params;
     const currentBlock = await provider.getBlockNumber();
-    const startBlock = Math.max(0, currentBlock - months * blockRangeForAMonth);
+    const startBlock = Math.max(0, currentBlock - weeks * blockRangeForAWeek);
 
     const allStakesEvents = [];
 
-    for (let i = 0; i < months; i++) {
+    for (let i = 0; i < weeks; i++) {
         // Calculate block range
-        const fromBlock = startBlock + i * blockRangeForAMonth;
-        const toBlock = Math.min(fromBlock + blockRangeForAMonth, currentBlock);
+        const fromBlock = startBlock + i * blockRangeForAWeek;
+        const toBlock = Math.min(fromBlock + blockRangeForAWeek, currentBlock);
 
         if (fromBlock >= currentBlock) {
             break;
@@ -47,11 +47,8 @@ export async function fetchStaking(params: IFetchStakingParams) {
 
             const stakeResults = await Promise.all(stakePromises);
 
-            const stakeEvents = stakeResults.flat();
-            
-            allStakesEvents.push(stakeEvents);
+            allStakesEvents.push(stakeResults.flat());
         } catch (error) {
-            console.error("🚀 ~ fetchStaking ~ error:", error);
             throw error;
         }
 
