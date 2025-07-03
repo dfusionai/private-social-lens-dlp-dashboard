@@ -13,8 +13,13 @@ export const data = {
     },
     navMain: [
         {
-            title: "Token Flow Staking",
+            title: "Staking Token Movement",
             url: "/",
+            icon: BankNoteArrowUp,
+        },
+        {
+            title: "Users Token Emission",
+            url: "/users-token-emission",
             icon: BankNoteArrowUp,
         },
         // {

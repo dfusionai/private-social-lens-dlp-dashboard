@@ -296,17 +296,6 @@ export const generateLatestMonths = () => {
 
     return months;
 };
-export const generateRewardLatestMonths = () => {
-    const months = [];
-    const now = new Date();
-    
-    for (let i = queryMonthDuration - 1; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, now.getDate());
-        months.push({ date, amount: 0 });
-    }
-
-    return months;
-};
 
 export const generateLatestWeeks = () => {
     const weeks = [];
@@ -320,18 +309,31 @@ export const generateLatestWeeks = () => {
     return weeks;
 };
 
-export const generateRewardLatestWeeks = () => {
-    const weeks = [];
+export const generateRewardAMonth = () => {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = queryMonthDuration - 1; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, now.getDate());
+        months.push({ date, amount: 0 });
+    }
+
+    return months;
+};
+
+
+export const generateDailyChartData = (from: number, to: number) => {
+    const week = [];
     const now = new Date();
 
-    for (let i = queryWeekDuration - 1; i >= 0; i--) {
+    for (let i = to; i >= from; i--) {
         const date = new Date(
             now.getFullYear(),
             now.getMonth(),
-            now.getDate() - i * 7
+            now.getDate() - i
         );
-        weeks.push({ date, amount: 0 });
+        week.push({ date, amount: 0 });
     }
 
-    return weeks;
-};
+    return week;
+};  

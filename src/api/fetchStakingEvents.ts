@@ -48,7 +48,7 @@ export async function fetchStaking(params: IFetchStakingParams) {
             const stakeResults = await Promise.all(stakePromises);
 
             const stakeEvents = stakeResults.flat();
-            
+
             allStakesEvents.push(stakeEvents);
         } catch (error) {
             console.error("🚀 ~ fetchStaking ~ error:", error);

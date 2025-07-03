@@ -1,6 +1,5 @@
 <script lang="ts">
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
-    import type { ITrendingData } from "../chart-footer/type";
     import * as Chart from "$lib/components/ui/chart/index.js";
     import { stakeEventsStore } from "$lib/stores/stakeEventsStore";
     import { weekVisConfig } from "../../const";
@@ -10,6 +9,7 @@
         generateLatestWeeks,
         generateWeekTrendingData,
     } from "../../utils";
+    import type { ITrendingData } from "../../type";
 
     let weekChartData: { date: Date; amount: number }[] = $state(
         generateLatestWeeks()

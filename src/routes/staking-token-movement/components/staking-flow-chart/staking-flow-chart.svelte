@@ -6,10 +6,10 @@
         generateLatestMonths,
         generateTrendingData,
     } from "../../utils";
-    import type { ITrendingData } from "../chart-footer/type";
     import * as Chart from "$lib/components/ui/chart/index.js";
     import { stakeEventsStore } from "$lib/stores/stakeEventsStore";
     import { defaultVisConfig } from "$lib/components/common/line-chart/const";
+    import type { ITrendingData } from "../../type";
 
     let chartData: { date: Date; amount: number }[] = $state(
         generateLatestMonths()

@@ -51,8 +51,6 @@ export async function fetchContributorRewardsInWeeks(params: IFetchContributorRe
         } catch (error) {
             throw error;
         }
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     return allContributorRewards;
