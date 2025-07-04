@@ -108,3 +108,11 @@ const DATE_FORMAT_CONST = {
 export const formatDate = (date: Date, format: keyof typeof DATE_FORMAT_CONST) => {
     return dayjs(date).format(DATE_FORMAT_CONST[format]);
 }
+
+export const getDateGap = (from: Date, to: Date) => {
+    const fromDate = dayjs(from);
+
+    const gap = fromDate.diff(to, "day");
+
+    return gap;
+};

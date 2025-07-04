@@ -1,7 +1,7 @@
 <script lang="ts">
     import TrendingUpIcon from "@lucide/svelte/icons/trending-up";
     import TrendingDownIcon from "@lucide/svelte/icons/trending-down";
-    import type { IChartFooterProps } from "./type";
+    import type { IChartFooterProps } from "../../type";
 
     const { trendingData }: IChartFooterProps = $props();
 </script>

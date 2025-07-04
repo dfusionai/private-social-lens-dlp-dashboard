@@ -1,25 +1,17 @@
 <script lang="ts">
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
-    import * as Chart from "$lib/components/ui/chart/index.js";
-    import { formatDate } from "$lib/utils";
-    import { generateDailyChartData } from "../../utils";
     import type { LineChartPropsObjProp } from "layerchart";
     import { defaultVisConfig } from "$lib/components/common/line-chart/const";
-    import { tokenEmissionStore } from "$lib/stores/tokenEmissionStore";
+    import {
+        tokenEmissionActions,
+        tokenEmissionStore,
+    } from "$lib/stores/tokenEmissionStore";
+    import { onMount } from "svelte";
+    import { fetchRewardRequestForDate } from "../../../../api/fetchRewardRequestForDate";
+    import { generateDailyChartData } from "../../utils";
+    import { ChartConfig, series } from "../../const";
 
-    let chartWeekData = $state(generateDailyChartData(0, 6));
-
-    const ChartConfig = {
-        amount: { label: "Token Emission", color: "var(--chart-1)" },
-    } satisfies Chart.ChartConfig;
-
-    const series = [
-        {
-            key: "amount",
-            label: "Token Emission",
-            color: ChartConfig.amount.color,
-        },
-    ];
+    let chartData = $state(generateDailyChartData(0, 6));
 
     const weekVisConfig: LineChartPropsObjProp = {
         ...defaultVisConfig,
@@ -35,20 +27,52 @@
     };
 
     let isLoading = $state(false);
+    const store = $tokenEmissionStore;
 
-    tokenEmissionStore.subscribe((state) => {
-        const { rewardOnMonth, loading } = state;
-
-        isLoading = loading;
-
-        if (!rewardOnMonth) {
+    onMount(async () => {
+        if (store.rewardOnWeek) {
             return;
         }
 
-        chartWeekData = rewardOnMonth.slice(
-            rewardOnMonth.length - 7,
-            rewardOnMonth.length
-        );
+        try {
+            isLoading = true;
+
+            let chartWeekData = generateDailyChartData(0, 6);
+
+            const mid = Math.ceil(chartWeekData.length / 2);
+
+            const [firstHalf, secondHalf] = [
+                chartWeekData.slice(0, mid),
+                chartWeekData.slice(mid),
+            ];
+
+            const promises = firstHalf.map((item) =>
+                fetchRewardRequestForDate(item.date)
+            );
+
+            const weekData = await Promise.all(promises);
+
+            const nextPromises = secondHalf.map((item) =>
+                fetchRewardRequestForDate(item.date)
+            );
+
+            const nextWeekData = await Promise.all(nextPromises);
+
+            const mergedWeekData = [...weekData, ...nextWeekData];
+
+            chartWeekData = chartWeekData.map((item, index) => ({
+                ...item,
+                amount: mergedWeekData[index].totalReward || 0,
+            }));
+
+            chartData = chartWeekData;
+            tokenEmissionActions.setRewardOnWeek(chartWeekData);
+        } catch (error) {
+            throw error;
+        } finally {
+            isLoading = false;
+            tokenEmissionActions.setLoading(false);
+        }
     });
 </script>
 
@@ -57,7 +81,7 @@
     title="Token Emission Through A Week"
     description="Total token rewards distributed per day"
     chartConfig={ChartConfig}
-    data={chartWeekData}
+    data={chartData}
     props={weekVisConfig}
     {series}
     {isLoading}
