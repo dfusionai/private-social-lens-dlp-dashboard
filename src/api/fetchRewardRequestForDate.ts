@@ -16,7 +16,6 @@ export async function fetchRewardRequestForDate(date: Date) {
     const formattedDate = formatDate(date, "YMD_DASH");
     const { startBlock, endBlock } = await getBlockRangeForDate(formattedDate, provider);
     const blockRanges = splitBlockRange(startBlock, endBlock);
-    console.log("🚀 ~ fetchRewardRequestForDate ~ blockRanges:", blockRanges)
 
     let totalReward = 0n; // Use native BigInt for summation
     let totalEvents = 0;

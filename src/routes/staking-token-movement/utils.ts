@@ -251,39 +251,6 @@ export const generateTrendingData = (
     return trendingData;
 };
 
-export const generateWeekTrendingData = (
-    chartData: {
-        date: Date;
-        amount: number;
-    }[]
-) => {
-    const latestWeek = chartData[chartData.length - 1];
-    const previousWeek = chartData[chartData.length - 2];
-    const farestWeek = chartData[0];
-
-    const percent =
-        ((latestWeek.amount - previousWeek.amount) /
-        previousWeek.amount) *
-        100;
-
-
-    const trendingData: ITrendingData = {
-        percent: percent.toFixed(2),
-        isUp: percent > 0,
-        timeDuration: {
-            from: farestWeek.date.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-            }),
-            to: latestWeek.date.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-            }),
-        },
-    };
-
-    return trendingData;
-};
 
 export const generateLatestMonths = () => {
     const months = [];
@@ -296,42 +263,3 @@ export const generateLatestMonths = () => {
 
     return months;
 };
-export const generateRewardLatestMonths = () => {
-    const months = [];
-    const now = new Date();
-    
-    for (let i = queryMonthDuration - 1; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, now.getDate());
-        months.push({ date, amount: 0 });
-    }
-
-    return months;
-};
-
-export const generateLatestWeeks = () => {
-    const weeks = [];
-    const now = new Date();
-
-    for (let i = queryWeekDuration - 1; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i * 7);
-        weeks.push({ date, amount: 0 });
-    }
-
-    return weeks;
-};
-
-export const generateRewardAWeek = () => {
-    const week = [];
-    const now = new Date();
-
-    for (let i = 6; i >= 0; i--) {
-        const date = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate() - i
-        );
-        week.push({ date, amount: 0 });
-    }
-
-    return week;
-};  

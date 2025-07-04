@@ -3,10 +3,6 @@ export enum DurationType {
     WEEK = "week",
 }
 
-export interface IStakingFlowChartProps {
-    durationType: DurationType;
-}
-
 export interface ITrendingData {
     percent: string;
     isUp: boolean;
