@@ -1,3 +1,4 @@
+import { http, type ApiResponse } from "../lib/http/http";
 
 interface IResponse {
     totalAccounts: number;
@@ -7,19 +8,9 @@ interface IResponse {
 
 export async function fetchChatInfo() {
     try {
-        const chatInfo = await fetch(
-            "https://api.vana.genesis.dfusion.ai/api/submissions/submission-data",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        );
+        const response: ApiResponse<IResponse> = await http.get("/api/submissions/submission-data");
 
-        const data: IResponse = await chatInfo.json();
-
-        return data;
+        return response;
     } catch (error) {
         throw error;
     }

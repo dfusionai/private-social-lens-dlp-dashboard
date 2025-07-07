@@ -8,5 +8,5 @@ export default defineConfig({
     tailwindcss(),
     svelte({ compilerOptions: { runes: true } })
   ],
-  resolve: { alias: { $lib: path.resolve("./src/lib") } }
+  resolve: { alias: { $lib: path.resolve("./src/lib"), $src: path.resolve("./src") } }
 });

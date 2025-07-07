@@ -1,23 +1,23 @@
 <script lang="ts">
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
-    import {
-        tokenEmissionActions,
-        tokenEmissionStore,
-    } from "$lib/stores/tokenEmissionStore";
     import { onMount } from "svelte";
-    import { fetchRewardRequestForDate } from "../../../../api/fetchRewardRequestForDate";
-    import { ChartConfig, series, weekVisConfig } from "../../const";
     import { generateDailyChartData } from "$lib/utils";
+    import { fetchStakingEventForDate } from "../../../../api/fetchStakingEventForDate";
+    import { ChartConfig, series, weekVisConfig } from "../../const";
+    import {
+        stakeEventsActions,
+        stakeEventsStore,
+    } from "$lib/stores/stakeEventsStore";
 
     let chartData = $state(generateDailyChartData(0, 6));
 
     let isLoading = $state(false);
 
-    const store = $tokenEmissionStore;
+    const store = $stakeEventsStore;
 
     onMount(async () => {
-        if (store.rewardOnWeek) {
-            chartData = store.rewardOnWeek;
+        if (store.stakeOnWeek) {
+            chartData = store.stakeOnWeek;
             return;
         }
 
@@ -34,13 +34,13 @@
             ];
 
             const promises = firstHalf.map((item) =>
-                fetchRewardRequestForDate(item.date)
+                fetchStakingEventForDate(item.date)
             );
 
             const weekData = await Promise.all(promises);
 
             const nextPromises = secondHalf.map((item) =>
-                fetchRewardRequestForDate(item.date)
+                fetchStakingEventForDate(item.date)
             );
 
             const nextWeekData = await Promise.all(nextPromises);
@@ -49,24 +49,24 @@
 
             chartWeekData = chartWeekData.map((item, index) => ({
                 ...item,
-                amount: mergedWeekData[index].totalReward || 0,
+                amount: mergedWeekData[index].totalStake || 0,
             }));
 
             chartData = chartWeekData;
-            tokenEmissionActions.setRewardOnWeek(chartWeekData);
+            stakeEventsActions.setStakeOnWeek(chartWeekData);
         } catch (error) {
             throw error;
         } finally {
             isLoading = false;
-            tokenEmissionActions.setLoading(false);
+            stakeEventsActions.setLoading(false);
         }
     });
 </script>
 
 <LineChart
     className="h-[300px] w-full"
-    title="Token Emission Through A Week"
-    description="Total token rewards distributed per day"
+    title="Staking Token Movement Through A Week"
+    description="Total staking token movement per day"
     chartConfig={ChartConfig}
     data={chartData}
     props={weekVisConfig}

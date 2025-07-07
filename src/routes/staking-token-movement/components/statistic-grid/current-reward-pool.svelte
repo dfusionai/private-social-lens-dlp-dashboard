@@ -3,9 +3,9 @@
     import { toast } from "svelte-sonner";
     import * as Card from "$lib/components/ui/card/index.js";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
-    import { fetchBalance } from "../../../../api/fetchBalance";
     import { tokenSymbol } from "$lib/const";
     import { formatDecimalNumber } from "$lib/utils";
+    import { fetchBalance } from "../../../../api/fetchBalance";
 
     let balance = $state("");
     let loading = $state(false);

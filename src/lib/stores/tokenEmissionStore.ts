@@ -1,16 +1,22 @@
 import { writable } from 'svelte/store';
 
+interface IReward {
+    date: Date;
+    amount: number;
+}
+
 export interface TokenEmissionState {
-    rewardOnMonth: {
-        date: Date;
-        amount: number;
-    }[] | null;
+    rewardOnMonth: IReward[] | null;
+    rewardOnWeek: IReward[] | null;
     loading: boolean;
+    selectedDateIndex: number;
 }
 
 const initialState: TokenEmissionState = {
     rewardOnMonth: null,
+    rewardOnWeek: null,
     loading: false,
+    selectedDateIndex: 0,
 };
 
 export const tokenEmissionStore = writable<TokenEmissionState>(initialState);
@@ -27,8 +33,22 @@ export const tokenEmissionActions = {
             rewardOnMonth,
         }));
     },
-    
+
+    setSelectedDateIndex: (selectedDateIndex: number) => {
+        tokenEmissionStore.update(state => ({
+            ...state,
+            selectedDateIndex,
+        }));
+    },
+
+    setRewardOnWeek: (rewardOnWeek: { date: Date; amount: number }[]) => {
+        tokenEmissionStore.update(state => ({
+            ...state,
+            rewardOnWeek,
+        }));
+    },
+
     clear: () => {
         tokenEmissionStore.set(initialState);
-    }
+    },
 };

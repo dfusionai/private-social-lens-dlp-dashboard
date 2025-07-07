@@ -1,6 +1,13 @@
 import { writable } from 'svelte/store';
 import type { ethers } from 'ethers';
 
+interface IStake {
+    date: Date;
+    amount: number;
+}
+
+type TEventLog = ethers.Log | ethers.EventLog;
+
 export interface StakeEvent {
     blockNumber: number;
     args: any[];
@@ -9,14 +16,16 @@ export interface StakeEvent {
 }
 
 export interface StakeEventsState {
-    stakeEventsInWeeks: (ethers.Log | ethers.EventLog)[][] | null;
-    stakeEvents: (ethers.Log | ethers.EventLog)[][] | null;
-    unstakeEvents: (ethers.Log | ethers.EventLog)[][] | null;
+    stakeOnMonth: IStake[] | null;
+    stakeOnWeek: IStake[] | null;
+    stakeEvents: TEventLog[][] | null;
+    unstakeEvents: TEventLog[][] | null;
     loading: boolean;
 }
 
 const initialState: StakeEventsState = {
-    stakeEventsInWeeks: null,
+    stakeOnMonth: null,
+    stakeOnWeek: null,
     stakeEvents: null,
     unstakeEvents: null,
     loading: false,
@@ -29,28 +38,30 @@ export const stakeEventsActions = {
     setLoading: (loading: boolean) => {
         stakeEventsStore.update(state => ({ ...state, loading }));
     },
-
     setStakeEvents: (stakeEvents: (ethers.Log | ethers.EventLog)[][]) => {
         stakeEventsStore.update(state => ({
             ...state,
             stakeEvents,
         }));
     },
-
     setUnstakeEvents: (unstakeEvents: (ethers.Log | ethers.EventLog)[][]) => {
         stakeEventsStore.update(state => ({
             ...state,
             unstakeEvents,
         }));
     },
-
-    setStakeEventsInWeeks: (stakeEventsInWeeks: (ethers.Log | ethers.EventLog)[][]) => {
+    setStakeOnMonth: (stakeOnMonth: IStake[]) => {
         stakeEventsStore.update(state => ({
             ...state,
-            stakeEventsInWeeks,
+            stakeOnMonth,
         }));
     },
-
+    setStakeOnWeek: (stakeOnWeek: IStake[]) => {
+        stakeEventsStore.update(state => ({
+            ...state,
+            stakeOnWeek,
+        }));
+    },
     clear: () => {
         stakeEventsStore.set(initialState);
     }

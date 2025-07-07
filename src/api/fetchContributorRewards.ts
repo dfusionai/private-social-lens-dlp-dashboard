@@ -18,7 +18,7 @@ export async function fetchContributorRewards(params: IFetchContributorRewardsPa
     const currentBlock = await provider.getBlockNumber();
     const startBlock = Math.max(0, currentBlock - months * blockRangeForAMonth);
 
-    const allClaimedEvents = [];
+    const allContributorRewards = [];
 
     for (let i = 0; i < months; i++) {
         // Calculate block range
@@ -47,7 +47,7 @@ export async function fetchContributorRewards(params: IFetchContributorRewardsPa
 
             const claimedResults = await Promise.all(claimedPromises);
 
-            allClaimedEvents.push(claimedResults.flat());
+            allContributorRewards.push(claimedResults.flat());
         } catch (error) {
             throw error;
         }
@@ -55,5 +55,5 @@ export async function fetchContributorRewards(params: IFetchContributorRewardsPa
         await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    return allClaimedEvents;
+    return allContributorRewards;
 }

@@ -1,6 +1,6 @@
-import type { LineChartPropsObjProp } from "layerchart";
 import { defaultVisConfig } from "$lib/components/common/line-chart/const";
 import * as Chart from "$lib/components/ui/chart/index.js";
+import type { LineChartPropsObjProp } from "layerchart";
 
 export const ChartConfig = {
     amount: { label: "Token Emission", color: "var(--chart-1)" },
@@ -14,18 +14,6 @@ export const series = [
     },
 ];
 
-export const weekVisConfig: LineChartPropsObjProp = {
-    ...defaultVisConfig,
-    xAxis: {
-        format: (v: Date) =>
-            v.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-            }),
-        ticks: 7,
-    },
-};
-
 export const monthVisConfig: LineChartPropsObjProp = {
     ...defaultVisConfig,
     xAxis: {
@@ -36,5 +24,18 @@ export const monthVisConfig: LineChartPropsObjProp = {
             });
         },
         ticks: 30,
+    },
+};
+
+export const weekVisConfig: LineChartPropsObjProp = {
+    ...defaultVisConfig,
+    xAxis: {
+        format: (v: Date) => {
+            return v.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+            });
+        },
+        ticks: 7,
     },
 };
