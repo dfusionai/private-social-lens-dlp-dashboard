@@ -13,8 +13,8 @@
     let isLoading = $state(false);
 
     const params = {
-        startDate: "2025-01-01",
-        endDate: "2025-06-31",
+        startDate: "2025-06-01",
+        endDate: "2025-06-30",
     };
 
     onMount(async () => {
