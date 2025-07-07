@@ -1,7 +1,7 @@
 import type { ethers } from "ethers";
 import { formatNumberWithDecimals } from "$lib/utils";
 import { weiToEther } from "../../lib/utils";
-import { blockRangeForADay, queryMonthDuration, queryWeekDuration } from "$lib/const";
+import { blockRangeForADay, queryMonthDuration, daysPerMonth, weeksPerMonth } from "$lib/const";
 import type { ITrendingData } from "./type";
 
 export const calculateTotalFromEvents = (
@@ -53,11 +53,11 @@ export const calculateNetFlowInfo = (
     const netFlow = totalStakeIn - totalUnstakeOut;
 
     // Calculate per day (assuming 6 months = 180 days)
-    const daysInPeriod = queryMonthDuration * 30;
+    const daysInPeriod = daysPerMonth * queryMonthDuration;
     const netFlowPerDay = netFlow / daysInPeriod;
 
     // Calculate per week
-    const weeksInPeriod = 4 * queryMonthDuration; // 6 months ≈ 26 weeks
+    const weeksInPeriod = weeksPerMonth * queryMonthDuration;
     const netFlowPerWeek = netFlow / weeksInPeriod;
 
     return {
@@ -208,7 +208,7 @@ export const getTokenVelocity = (
             ? holdDurations.reduce((sum, duration) => sum + duration, 0) / holdDurations.length
             : 0;
 
-        // Convert to days (assuming 12 second block time)
+        // Convert to days (assuming 6 second block time)
         const blocksPerDay = blockRangeForADay; // 24 * 60 * 60 / 6
         const averageHoldDays = averageHoldDuration / blocksPerDay;
         const tokenVelocity = averageHoldDays.toFixed(2);
@@ -217,49 +217,4 @@ export const getTokenVelocity = (
     } catch (error) {
         throw error;
     }
-};
-
-export const generateTrendingData = (
-    chartData: {
-        date: Date;
-        amount: number;
-    }[]
-) => {
-    const latestMonth = chartData[chartData.length - 1];
-    const previousMonth = chartData[chartData.length - 2];
-    const farestMonth = chartData[0];
-
-    const percent =
-        ((latestMonth.amount - previousMonth.amount) /
-            previousMonth.amount) *
-        100;
-
-    const trendingData: ITrendingData = {
-        percent: percent.toFixed(2),
-        isUp: percent > 0,
-        timeDuration: {
-            from: farestMonth.date.toLocaleDateString("en-US", {
-                month: "long",
-            }),
-            to: latestMonth.date.toLocaleDateString("en-US", {
-                month: "long",
-            }),
-            year: latestMonth.date.getFullYear().toString(),
-        },
-    };
-
-    return trendingData;
-};
-
-
-export const generateLatestMonths = () => {
-    const months = [];
-    const now = new Date();
-    
-    for (let i = queryMonthDuration - 1; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, now.getDate());
-        months.push({ date, amount: 0 });
-    }
-
-    return months;
 };

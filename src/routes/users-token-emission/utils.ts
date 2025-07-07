@@ -1,15 +1,11 @@
-export const generateDailyChartData = (from: number, to: number) => {
-    const week = [];
-    const now = new Date();
+import { formatDecimalNumber, formatNumberIntoShort } from "../../lib/utils";
 
-    for (let i = to; i >= from; i--) {
-        const date = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate() - i
-        );
-        week.push({ date, amount: 0 });
-    }
+export const generateValueString = (value: string) => {
+    if (!value) return "-";
+    return formatNumberIntoShort(Number(value));
+};
 
-    return week;
-};  
+export const generatePercentString = (value: string) => {
+    if (!value) return "-";
+    return formatDecimalNumber(Number(value)) + "%";
+};

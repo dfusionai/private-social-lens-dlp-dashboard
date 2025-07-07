@@ -1,19 +1,19 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
-    import {
-        tokenEmissionActions,
-        tokenEmissionStore,
-    } from "$lib/stores/tokenEmissionStore";
     import DatePicker from "$lib/components/common/date-picker/date-picker.svelte";
     import { generateDailyChartData, getDateGap } from "$lib/utils.js";
-    import { fetchRewardRequestForDate } from "../../../../api/fetchRewardRequestForDate";
     import { ChartConfig, series, monthVisConfig } from "../../const";
+    import { fetchStakingEventForDate } from "../../../../api/fetchStakingEventForDate";
+    import {
+        stakeEventsActions,
+        stakeEventsStore,
+    } from "$lib/stores/stakeEventsStore";
+    import { daysPerMonth } from "$lib/const";
 
-    let chartData = $state(generateDailyChartData(0, 30));
+    let chartData = $state(generateDailyChartData(0, daysPerMonth));
 
-    const store = $tokenEmissionStore;
-
+    const store = $stakeEventsStore;
     let isLoading = $state(false);
     let selectedDateIndex = $state<number>(0);
 
@@ -24,13 +24,13 @@
 
         if (dateGap !== selectedDateIndex) {
             selectedDateIndex = dateGap;
-            store.rewardOnMonth = null;
+            store.stakeOnMonth = null;
         }
     };
 
     const fetchData = async (selectedDateIndex: number) => {
-        if (store.rewardOnMonth) {
-            chartData = store.rewardOnMonth;
+        if (store.stakeOnMonth) {
+            chartData = store.stakeOnMonth;
             return;
         }
 
@@ -50,13 +50,13 @@
             ];
 
             const promises = firstHalf.map((item) =>
-                fetchRewardRequestForDate(item.date)
+                fetchStakingEventForDate(item.date)
             );
 
             const monthData = await Promise.all(promises);
 
             const nextPromises = secondHalf.map((item) =>
-                fetchRewardRequestForDate(item.date)
+                fetchStakingEventForDate(item.date)
             );
 
             const nextMonthData = await Promise.all(nextPromises);
@@ -65,10 +65,10 @@
 
             chartMonthData = chartMonthData.map((item, index) => ({
                 ...item,
-                amount: mergedMonthData[index].totalReward || 0,
+                amount: mergedMonthData[index].totalStake || 0,
             }));
 
-            tokenEmissionActions.setRewardOnMonth(chartMonthData);
+            stakeEventsActions.setStakeOnMonth(chartMonthData);
             chartData = chartMonthData;
         } catch (error) {
             throw error;
@@ -95,8 +95,8 @@
 
     <LineChart
         className="h-[300px] w-full"
-        title="Token Emission Through A Month"
-        description="Total token rewards distributed per day"
+        title="Staking Token Movement Through A Month"
+        description="Total staking token movement per day"
         chartConfig={ChartConfig}
         data={chartData}
         props={monthVisConfig}

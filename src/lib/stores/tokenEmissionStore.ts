@@ -1,14 +1,13 @@
 import { writable } from 'svelte/store';
 
+interface IReward {
+    date: Date;
+    amount: number;
+}
+
 export interface TokenEmissionState {
-    rewardOnMonth: {
-        date: Date;
-        amount: number;
-    }[] | null;
-    rewardOnWeek: {
-        date: Date;
-        amount: number;
-    }[] | null;
+    rewardOnMonth: IReward[] | null;
+    rewardOnWeek: IReward[] | null;
     loading: boolean;
     selectedDateIndex: number;
 }

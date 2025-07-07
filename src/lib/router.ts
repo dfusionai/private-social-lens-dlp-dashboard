@@ -18,6 +18,11 @@ export const routes: Route[] = [
 		component: () => import('../routes/users-token-emission/+page.svelte')
 	},
 	{
+		path: '/user-chat-activity',
+		title: 'User Chat Activity',
+		component: () => import('../routes/user-chat-activity/+page.svelte')
+	},
+	{
 		path: '/data-efficiency',
 		title: 'Data Efficiency',
 		component: () => import('../routes/data-efficiency/+page.svelte')

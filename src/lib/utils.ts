@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { twMerge } from "tailwind-merge";
 import { ENV_CONFIG, maxBlockRange } from "$lib/const";
 import dayjs from "dayjs";
-
+import { DATE_FORMAT_CONST } from "./const";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -101,10 +101,6 @@ export const getBlockRangeForDate = async (date: string, provider: ethers.JsonRp
     return { startBlock, endBlock };
 }
 
-const DATE_FORMAT_CONST = {
-    YMD_DASH: "YYYY-MM-DD",
-}
-
 export const formatDate = (date: Date, format: keyof typeof DATE_FORMAT_CONST) => {
     return dayjs(date).format(DATE_FORMAT_CONST[format]);
 }
@@ -115,4 +111,28 @@ export const getDateGap = (from: Date, to: Date) => {
     const gap = fromDate.diff(to, "day");
 
     return gap;
+};
+
+export const generateDailyChartData = (from: number, to: number) => {
+    const week = [];
+    const now = new Date();
+
+    for (let i = to; i >= from; i--) {
+        const date = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() - i
+        );
+        week.push({ date, amount: 0 });
+    }
+
+    return week;
+};  
+
+export const generateQuery = (params: Record<string, string>) => {
+    const queryString= Object.entries(params)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('&');
+
+    return `?${queryString}`
 };
