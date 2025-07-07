@@ -1,5 +1,6 @@
 import type { LineChartPropsObjProp } from "layerchart";
 import { defaultVisConfig } from "$lib/components/common/line-chart/const";
+import * as Chart from "$lib/components/ui/chart/index.js";
 
 export const ChartConfig = {
     amount: { label: "Token Emission", color: "var(--chart-1)" },

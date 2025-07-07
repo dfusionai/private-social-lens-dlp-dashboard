@@ -2,7 +2,6 @@ import type { ethers } from "ethers";
 import { formatNumberWithDecimals } from "$lib/utils";
 import { weiToEther } from "../../lib/utils";
 import { blockRangeForADay, queryMonthDuration, daysPerMonth, weeksPerMonth } from "$lib/const";
-import type { ITrendingData } from "./type";
 
 export const calculateTotalFromEvents = (
     events: (ethers.Log | ethers.EventLog)[]
