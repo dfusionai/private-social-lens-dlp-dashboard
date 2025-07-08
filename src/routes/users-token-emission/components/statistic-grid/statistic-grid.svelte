@@ -1,40 +1,66 @@
 <script lang="ts">
     import * as Card from "$lib/components/ui/card";
     import { Skeleton } from "$lib/components/ui/skeleton";
-    import { metrics } from "./const";
     import { onMount } from "svelte";
-    import { fetchTotalUniqueUsers } from "../../../../api/fetchTotalUniqueUsers";
-    import { fetchChatInfo } from "../../../../api/fetchChatInfo";
-    import { fetchNewChatsPerDay } from "../../../../api/fetchNewChatsPerDay";
-    import { fetchRefreshedChatsCount } from "../../../../api/fetchRefreshedChatsCount";
-    import { fetchTotalUniqueChatIds } from "../../../../api/fetchTotalUniqueChatIds";
-    import { fetchUsersByAppDaily } from "../../../../api/fetchUsersByAppDaily";
+    import { formatDate, generateDailyChartData } from "$lib/utils";
+    import { daysPerMonth, fromIndex } from "$lib/const";
+    import { Users, BarChart3 } from "@lucide/svelte";
+    import UniqueChatId from "./unique-chat-id.svelte";
+    import UserDistribution from "./user-distribution.svelte";
+    import { fetchAvgChatsPerContributor } from "../../../../api/fetchAvgChatsPerContributor";
+    import {
+        fetchDailyUniqueContributors,
+        type IDailyUniqueContributorsItem,
+    } from "../../../../api/fetchDailyUniqueContributors";
+    import { generateValueString } from "../../utils";
+
+    export const metrics = [
+        {
+            label: "Daily unique contributors",
+            value: "",
+            description:
+                "Number of unique contributors who participated in token emission on a daily basis",
+            icon: Users,
+            helper: generateValueString,
+        },
+        {
+            label: "Average charts per contributor",
+            value: "",
+            description:
+                "Average number of charts generated per contributor over time",
+            icon: BarChart3,
+            helper: generateValueString,
+        },
+    ];
 
     let isLoading = $state(false);
 
-    const params = {
-        startDate: "2025-06-01",
-        endDate: "2025-06-30",
+    let monthData = generateDailyChartData(fromIndex, daysPerMonth);
+
+    let params = {
+        startDate: formatDate(monthData[0].date, "YMD_DASH"),
+        endDate: formatDate(monthData[monthData.length - 1].date, "YMD_DASH"),
+    };
+
+    const sum = (data: IDailyUniqueContributorsItem[]) => {
+        return data.reduce(
+            (acc, curr) => acc + curr.dailyUniqueContributors,
+            0
+        );
     };
 
     onMount(async () => {
         try {
             isLoading = true;
-            const newChatsPerDay = await fetchNewChatsPerDay(params);
-            const refreshedChatCount = await fetchRefreshedChatsCount(params);
-            const totalUniqueChatIds = await fetchTotalUniqueChatIds();
-            const userByAppDaily = await fetchUsersByAppDaily(params);
-            console.log("🚀 ~ onMount ~ newChatsPerDay:", {
-                newChatsPerDay,
-                refreshedChatCount,
-                totalUniqueChatIds,
-                userByAppDaily,
-            });
-            const totalUniqueUsers = await fetchTotalUniqueUsers();
-            const chatInfo = await fetchChatInfo();
-            const totalChats = chatInfo.data.totalChats;
-            const avgChatsPerUser = totalChats / totalUniqueUsers;
-            metrics[1].value = String(avgChatsPerUser);
+            const dailyUniqueContributors =
+                await fetchDailyUniqueContributors(params);
+            const sumDailyUniqueContributors = sum(
+                dailyUniqueContributors.data
+            );
+            const avgChatsPerContributor = await fetchAvgChatsPerContributor();
+
+            metrics[0].value = String(sumDailyUniqueContributors);
+            metrics[1].value = String(avgChatsPerContributor);
         } catch (error) {
             throw error;
         } finally {
@@ -43,7 +69,12 @@
     });
 </script>
 
-<div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
+<div class="grid grid-cols-2 gap-8">
+    <UniqueChatId />
+    <UserDistribution />
+</div>
+
+<div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8">
     {#each metrics as metric}
         <Card.Root>
             <Card.Header
