@@ -2,6 +2,7 @@
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
     import { onMount } from "svelte";
     import { generateDailyChartData } from "$lib/utils";
+    import { fromIndex, lastWeekDayInx } from "$lib/const";
     import { fetchStakingEventForDate } from "../../../../api/fetchStakingEventForDate";
     import { ChartConfig, series, weekVisConfig } from "../../const";
     import {
@@ -9,7 +10,7 @@
         stakeEventsStore,
     } from "$lib/stores/stakeEventsStore";
 
-    let chartData = $state(generateDailyChartData(0, 6));
+    let chartData = $state(generateDailyChartData(fromIndex, lastWeekDayInx));
 
     let isLoading = $state(false);
 
@@ -24,7 +25,10 @@
         try {
             isLoading = true;
 
-            let chartWeekData = generateDailyChartData(0, 6);
+            let chartWeekData = generateDailyChartData(
+                fromIndex,
+                lastWeekDayInx
+            );
 
             const mid = Math.ceil(chartWeekData.length / 2);
 

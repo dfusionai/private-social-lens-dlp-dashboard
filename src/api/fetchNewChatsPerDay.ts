@@ -8,12 +8,17 @@ export interface INewChatsPerDayParams {
     endDate: string;
 }
 
+export interface INewChatsPerDayItem {
+    firstSeenDate: string;
+    newChats: number;
+}
+
 export async function fetchNewChatsPerDay(params: INewChatsPerDayParams) {
     const { startDate, endDate } = params;
     const query = generateQuery({ startDate, endDate });
 
     try {
-        const response: ApiResponse<any> = await http.get(`/api/stats/new-chats-per-day${query}`);
+        const response: ApiResponse<INewChatsPerDayItem[]> = await http.get(`/api/stats/new-chats-per-day${query}`);
 
         return response;
     } catch (error) {

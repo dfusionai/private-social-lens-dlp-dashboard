@@ -17,6 +17,8 @@ export const maxBlockRange = 10000;
 export const tokenSymbol = "VFSN";
 export const weeksPerMonth = 4;
 export const daysPerMonth = 30; 
+export const fromIndex = 0
+export const lastWeekDayInx = 6
 
 export const DATE_FORMAT_CONST = {
     YMD_DASH: "YYYY-MM-DD",

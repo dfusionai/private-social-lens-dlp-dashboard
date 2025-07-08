@@ -1,7 +1,7 @@
-import type { LineChartProps } from "layerchart";
+import type { PieChartProps } from "layerchart";
 import type { ChartConfig } from "$lib/components/ui/chart/index.js";
 
-export interface Props extends LineChartProps<Record<string, any>> {
+export interface Props extends PieChartProps<Record<string, any>> {
     title?: string;
     description?: string;
     chartConfig: ChartConfig;

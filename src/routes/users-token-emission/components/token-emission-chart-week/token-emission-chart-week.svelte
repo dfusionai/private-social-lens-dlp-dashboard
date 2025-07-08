@@ -8,8 +8,9 @@
     import { fetchRewardRequestForDate } from "../../../../api/fetchRewardRequestForDate";
     import { ChartConfig, series, weekVisConfig } from "../../const";
     import { generateDailyChartData } from "$lib/utils";
+    import { fromIndex, lastWeekDayInx } from "$lib/const";
 
-    let chartData = $state(generateDailyChartData(0, 6));
+    let chartData = $state(generateDailyChartData(fromIndex, lastWeekDayInx));
 
     let isLoading = $state(false);
 
@@ -24,7 +25,10 @@
         try {
             isLoading = true;
 
-            let chartWeekData = generateDailyChartData(0, 6);
+            let chartWeekData = generateDailyChartData(
+                fromIndex,
+                lastWeekDayInx
+            );
 
             const mid = Math.ceil(chartWeekData.length / 2);
 

@@ -7,10 +7,11 @@
     } from "$lib/stores/tokenEmissionStore";
     import DatePicker from "$lib/components/common/date-picker/date-picker.svelte";
     import { generateDailyChartData, getDateGap } from "$lib/utils.js";
+    import { daysPerMonth, fromIndex } from "$lib/const";
     import { fetchRewardRequestForDate } from "../../../../api/fetchRewardRequestForDate";
     import { ChartConfig, series, monthVisConfig } from "../../const";
 
-    let chartData = $state(generateDailyChartData(0, 30));
+    let chartData = $state(generateDailyChartData(fromIndex, daysPerMonth));
 
     const store = $tokenEmissionStore;
 
@@ -39,7 +40,7 @@
 
             let chartMonthData = generateDailyChartData(
                 selectedDateIndex,
-                selectedDateIndex + 30
+                selectedDateIndex + daysPerMonth
             );
 
             const mid = Math.ceil(chartMonthData.length / 2);

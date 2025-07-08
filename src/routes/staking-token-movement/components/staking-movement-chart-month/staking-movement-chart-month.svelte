@@ -9,9 +9,9 @@
         stakeEventsActions,
         stakeEventsStore,
     } from "$lib/stores/stakeEventsStore";
-    import { daysPerMonth } from "$lib/const";
+    import { daysPerMonth, fromIndex } from "$lib/const";
 
-    let chartData = $state(generateDailyChartData(0, daysPerMonth));
+    let chartData = $state(generateDailyChartData(fromIndex, daysPerMonth));
 
     const store = $stakeEventsStore;
     let isLoading = $state(false);
@@ -39,7 +39,7 @@
 
             let chartMonthData = generateDailyChartData(
                 selectedDateIndex,
-                selectedDateIndex + 30
+                selectedDateIndex + daysPerMonth
             );
 
             const mid = Math.ceil(chartMonthData.length / 2);
