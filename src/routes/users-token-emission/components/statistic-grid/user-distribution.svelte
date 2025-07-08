@@ -42,7 +42,7 @@
 </script>
 
 {#if isEmpty}
-    <EmptyDonutChart />
+    <EmptyDonutChart title="Total Users" />
 {:else}
     <DonutChart
         {chartConfig}

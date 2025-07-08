@@ -75,7 +75,7 @@
 </script>
 
 {#if isEmpty}
-    <EmptyDonutChart />
+    <EmptyDonutChart title="Total Unique Chat IDs" />
 {:else}
     <DonutChart
         {isLoading}
