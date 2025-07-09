@@ -69,7 +69,7 @@
 
 <LineChart
     className="h-[300px] w-full"
-    title="Token Emission Through A Week"
+    title="Token Emission Through A Week (7 latest days)"
     description="Total token rewards distributed per day"
     chartConfig={ChartConfig}
     data={chartData}

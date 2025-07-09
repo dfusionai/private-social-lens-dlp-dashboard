@@ -81,8 +81,6 @@
     $effect(() => {
         fetchData(selectedDateIndex);
     });
-
-    onMount(async () => {});
 </script>
 
 <div>

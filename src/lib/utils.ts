@@ -114,7 +114,7 @@ export const getDateGap = (from: Date, to: Date) => {
 };
 
 export const generateDailyChartData = (from: number, to: number) => {
-    const week = [];
+    const data = [];
     const now = new Date();
 
     for (let i = to; i >= from; i--) {
@@ -123,10 +123,10 @@ export const generateDailyChartData = (from: number, to: number) => {
             now.getMonth(),
             now.getDate() - i
         );
-        week.push({ date, amount: 0 });
+        data.push({ date, amount: 0 });
     }
 
-    return week;
+    return data;
 };  
 
 export const generateQuery = (params: Record<string, string>) => {

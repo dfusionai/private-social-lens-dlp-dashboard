@@ -24,6 +24,7 @@
         <Card.Title class="text-sm font-medium">{label}</Card.Title>
         <Button
             class="bg-transparent cursor-pointer hover:bg-background"
+            disabled={isLoading}
             onclick={reloadHandler}
         >
             <RefreshCwIcon class="h-4 w-4 text-foreground" />

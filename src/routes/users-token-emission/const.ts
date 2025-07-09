@@ -6,11 +6,23 @@ export const ChartConfig = {
     amount: { label: "Token Emission", color: "var(--chart-1)" },
 } satisfies Chart.ChartConfig;
 
+export const ChartConfigDailyContributor = {
+    amount: { label: "Daily Unique Contributors", color: "var(--chart-1)" },
+} satisfies Chart.ChartConfig;
+
 export const series = [
     {
         key: "amount",
         label: "Token Emission",
         color: ChartConfig.amount.color,
+    },
+];
+
+export const seriesDailyContributor = [
+    {
+        key: "amount",
+        label: "Daily Unique Contributors",
+        color: ChartConfigDailyContributor.amount.color,
     },
 ];
 
