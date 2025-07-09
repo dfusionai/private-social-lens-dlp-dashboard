@@ -16,7 +16,7 @@ interface RequestOptions extends Omit<RequestInit, 'method' | 'body'> {
     retries?: number;
 }
 
-const DEFAULT_TIMEOUT = 10000; // 10 seconds
+const DEFAULT_TIMEOUT = 60 * 1000; // 1 minute
 const DEFAULT_RETRIES = 1;
 const BASE_URL = ENV_CONFIG.VITE_DF_BASE_URL;
 

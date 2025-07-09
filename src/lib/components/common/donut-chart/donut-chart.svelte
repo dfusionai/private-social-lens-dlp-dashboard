@@ -17,7 +17,7 @@
     }: Props = $props();
 </script>
 
-<Card.Root class="flex flex-col">
+<Card.Root class="flex flex-col h-full">
     <Card.Header class="items-center">
         <Card.Title>{title || "Pie Chart - Donut with Text"}</Card.Title>
         <Card.Description
