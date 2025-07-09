@@ -54,14 +54,14 @@
 
 <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8">
     <CardInfo
-        label="Total unique chat Ids (30 latest days)"
+        label="Total unique chat Ids"
         value={data.totalChatsId}
         description="Total number of unique chat Ids"
         isLoading={isTotalChatsIdLoading}
         reloadHandler={queryTotalUniqueChats}
     />
     <CardInfo
-        label="Average chats per contributor (30 latest days)"
+        label="Average chats per contributor"
         value={data.avgChatsPerContributor}
         description="Average number of chats generated per contributor over time"
         isLoading={isAvgChatsPerContributorLoading}
