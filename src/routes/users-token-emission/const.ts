@@ -10,6 +10,11 @@ export const ChartConfigDailyContributor = {
     amount: { label: "Daily Unique Contributors", color: "var(--chart-1)" },
 } satisfies Chart.ChartConfig;
 
+export const ChartConfigChatStats = {
+    newChats: { label: "New Chats", color: "var(--chart-1)" },
+    refreshedChats: { label: "Refreshed Chats", color: "var(--chart-2)" },
+} satisfies Chart.ChartConfig;
+
 export const series = [
     {
         key: "amount",
@@ -23,6 +28,19 @@ export const seriesDailyContributor = [
         key: "amount",
         label: "Daily Unique Contributors",
         color: ChartConfigDailyContributor.amount.color,
+    },
+];
+
+export const seriesChatStats = [
+    {
+        key: "newChats",
+        label: "New Chats",
+        color: ChartConfigChatStats.newChats.color,
+    },
+    {
+        key: "refreshedChats",
+        label: "Refreshed Chats",
+        color: ChartConfigChatStats.refreshedChats.color,
     },
 ];
 

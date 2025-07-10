@@ -136,3 +136,9 @@ export const generateQuery = (params: Record<string, string>) => {
 
     return `?${queryString}`
 };
+
+export const addDays = (date: Date, days: number) => {
+    const newDate = dayjs(date).add(days, "day");
+
+    return newDate;
+};

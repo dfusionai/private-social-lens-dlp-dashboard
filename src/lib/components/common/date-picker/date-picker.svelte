@@ -11,10 +11,7 @@
     import * as Popover from "$lib/components/ui/popover/index.js";
     import Button from "$lib/components/ui/button/button.svelte";
     import type { ComponentProps } from "svelte";
-
-    type IDatePickerProps = Omit<ComponentProps<typeof Calendar>, "type"> & {
-        onChooseDate?: (date: string) => void;
-    };
+    import type { IDatePickerProps } from "./type";
 
     const { onChooseDate, disabled, ...restProps }: IDatePickerProps = $props();
 
@@ -25,7 +22,6 @@
     let shownValue = $state<string>(
         df.format(today(getLocalTimeZone()).toDate(getLocalTimeZone()))
     );
-
     let dropdown =
         $state<ComponentProps<typeof Calendar>["captionLayout"]>("dropdown");
 

@@ -19,3 +19,36 @@ export const getDateParams = (selectedDateIndex: number) => {
 
     return params
 };
+
+
+export const generateChatStatsData = (from: number, to: number) => {
+    const data = [];
+    const now = new Date();
+
+    for (let i = to; i >= from; i--) {
+        const date = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() - i
+        );
+        data.push({ date, newChats: 0, refreshedChats: 0 });
+    }
+
+    return data;
+};
+
+export const generateChatStatsParams = (from: number, to: number) => {
+    const weekData = generateChatStatsData(from, to);
+
+    const params: { startDate: string, endDate: string }[] = [];
+
+    for (let i = 0; i < weekData.length - 1; i++) {
+        const startDate = formatDate(weekData[i].date, "YMD_DASH");
+        const endDate = formatDate(weekData[i + 1].date, "YMD_DASH");
+
+        params.push({ startDate, endDate });
+    }
+
+    return params;
+}
+
