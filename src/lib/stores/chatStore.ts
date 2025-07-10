@@ -1,16 +1,21 @@
 import { writable } from 'svelte/store';
 
+interface IChatDataItem {
+    date: Date;
+    newChats: number;
+    refreshedChats: number;
+}
 
 export interface ChatState {
     totalChatIds: string;
     avgChatsPerContributor: string;
-    selectedDateIndex: number;
+    chatData: IChatDataItem[] | null;
 }
 
 const initialState: ChatState = {
     totalChatIds: "",
     avgChatsPerContributor: "",
-    selectedDateIndex: 0,
+    chatData: null,
 };
 
 export const chatStore = writable<ChatState>(initialState);
@@ -29,10 +34,10 @@ export const chatActions = {
             avgChatsPerContributor,
         }));
     },
-    setSelectedDateIndex: (selectedDateIndex: number) => {
+    setChatData: (chatData: IChatDataItem[]) => {
         chatStore.update(state => ({
             ...state,
-            selectedDateIndex,
+            chatData,
         }));
     },
     clear: () => {
