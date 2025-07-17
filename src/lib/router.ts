@@ -8,7 +8,7 @@ export type Route = {
 
 export const routes: Route[] = [
 	{
-		path: '/',
+		path: '/staking-token-movement',
 		title: 'Token Flow Staking',
 		component: () => import('../routes/staking-token-movement/+page.svelte')
 	},
@@ -46,12 +46,20 @@ export const routes: Route[] = [
 
 export const currentRoute = writable<Route>(routes[0]);
 
-export function navigate(path: string) {
-	const route = routes.find(r => r.path === path);
-	if (route) {
-		currentRoute.set(route);
-		window.history.pushState({}, '', path);
-	}
+export function navigate(path: string, replace = false) {
+    const route = routes.find(r => r.path === path);
+    if (route) {
+        currentRoute.set(route);
+        if (replace) {
+            window.history.replaceState({}, '', path);
+        } else {
+            window.history.pushState({}, '', path);
+        }
+    } else {
+        // handle 404
+        // currentRoute.set({ path: '/404', title: 'Not Found', component: () => import('../routes/404/+page.svelte') });
+        window.history.pushState({}, '', '/404');
+    }
 }
 
 export function initRouter() {

@@ -6,11 +6,13 @@
     import { tokenSymbol } from "$lib/const";
     import { formatDecimalNumber } from "$lib/utils";
     import { fetchBalance } from "../../../../api/fetchBalance";
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { RefreshCwIcon } from "@lucide/svelte";
 
     let balance = $state("");
     let loading = $state(false);
 
-    onMount(async () => {
+    const fetchData = async () => {
         try {
             loading = true;
             const result = await fetchBalance();
@@ -20,6 +22,10 @@
         } finally {
             loading = false;
         }
+    };
+
+    onMount(() => {
+        fetchData();
     });
 
     const generateTokenText = (value: string) => {
@@ -29,14 +35,23 @@
 </script>
 
 <Card.Root class="hover:shadow-lg transition-shadow">
-    <Card.Header>
-        <div class="flex items-center justify-between">
-            <Card.Title>Current Reward Pool Balance</Card.Title>
-        </div>
-        <Card.Description>
-            Current reward pool balance in the system
-        </Card.Description>
-    </Card.Header>
+    <div class="relative">
+        <Card.Header>
+            <div class="flex items-center justify-between">
+                <Card.Title>Current Reward Pool Balance</Card.Title>
+            </div>
+            <Card.Description>
+                Current reward pool balance in the system
+            </Card.Description>
+        </Card.Header>
+        <Button
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
+            disabled={loading}
+            onclick={() => fetchData()}
+        >
+            <RefreshCwIcon class="h-4 w-4 text-foreground" />
+        </Button>
+    </div>
     <Card.Content class="space-y-4">
         {#if loading}
             <div class="flex flex-col gap-2">

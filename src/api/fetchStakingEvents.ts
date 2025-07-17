@@ -30,12 +30,12 @@ export async function fetchStaking(params: IFetchStakingParams) {
         }
 
         const blockRanges = [];
-        
+
         for (let from = fromBlock; from <= toBlock; from += maxBlockRange) {
             const to = Math.min(from + maxBlockRange - 1, toBlock);
             blockRanges.push({ from, to });
         }
-        
+
         try {
             const stakePromises = blockRanges.map(({ from, to }) => {
                 return stakingContract.queryFilter(

@@ -3,6 +3,10 @@
     import { stakeEventsStore } from "$lib/stores/stakeEventsStore";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { getTokenVelocity } from "../../utils";
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { RefreshCwIcon } from "@lucide/svelte";
+
+    const { fetchData }: { fetchData: () => void } = $props();
 
     let tokenVelocity = $state("");
     let loading = $state(false);
@@ -18,14 +22,24 @@
 </script>
 
 <Card.Root class="hover:shadow-lg transition-shadow">
-    <Card.Header>
-        <div class="flex items-center justify-between">
-            <Card.Title>Token Velocity</Card.Title>
-        </div>
-        <Card.Description>
-            average hold duration before movement
-        </Card.Description>
-    </Card.Header>
+    <div class="relative">
+        <Card.Header>
+            <div class="flex items-center justify-between">
+                <Card.Title>Token Velocity</Card.Title>
+            </div>
+            <Card.Description>
+                average hold duration before movement
+            </Card.Description>
+        </Card.Header>
+
+        <Button
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
+            disabled={loading}
+            onclick={() => fetchData()}
+        >
+            <RefreshCwIcon class="h-4 w-4 text-foreground" />
+        </Button>
+    </div>
     <Card.Content class="space-y-4">
         {#if loading}
             <Skeleton class="h-7 w-full" />

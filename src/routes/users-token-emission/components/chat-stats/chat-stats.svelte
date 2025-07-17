@@ -3,6 +3,10 @@
     import { Button } from "$lib/components/ui/button";
     import { RefreshCwIcon } from "@lucide/svelte";
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
+    import { onMount } from "svelte";
+    import DateJump from "$lib/components/common/date-jump/date-jump.svelte";
+    import { formatDate, getDateGap } from "$lib/utils";
+    import { chatStore, chatActions } from "$lib/stores/chatStore";
     import {
         ChartConfigChatStats,
         seriesChatStats,
@@ -12,28 +16,34 @@
         generateChatStatsData,
         generateChatStatsParams,
     } from "../../utils";
-    import { onMount } from "svelte";
     import { fetchChatStats } from "../../../../api/fetchChatStats";
-    import DateJump from "$lib/components/common/date-jump/date-jump.svelte";
-    import { getDateGap } from "$lib/utils";
-    import { chatStore, chatActions } from "$lib/stores/chatStore";
+    import type { DateValue } from "@internationalized/date";
+    import {
+        getLocalTimeZone,
+        parseDate,
+        today,
+        type CalendarDate,
+    } from "@internationalized/date";
 
     let chartData = $state(generateChatStatsData(fromIndex, lastWeekDayInx));
+    let currentDate = $state(today(getLocalTimeZone()));
     let selectedDateIndex = $state<number>(0);
     let isLoading = $state(false);
 
     const store = $chatStore;
 
     const queryHandler = async (dateIndex: number) => {
+        const newChartData = generateChatStatsData(
+            dateIndex,
+            dateIndex + lastWeekDayInx
+        );
+
         try {
             isLoading = true;
+
             const params = generateChatStatsParams(
                 dateIndex,
                 dateIndex + daysPerWeek
-            );
-            const newChartData = generateChatStatsData(
-                dateIndex,
-                dateIndex + lastWeekDayInx
             );
 
             const chatData: { newChats: number; refreshedChats: number }[] = [];
@@ -54,6 +64,7 @@
 
             chatActions.setChatData(chartData);
         } catch (error) {
+            chartData = newChartData;
             throw error;
         } finally {
             isLoading = false;
@@ -61,17 +72,23 @@
     };
 
     onMount(() => {
-        if (!store.chatData) {
-            queryHandler(selectedDateIndex);
+        if (store.chatData) {
+            chartData = store.chatData;
+            const lastDate = formatDate(
+                chartData[chartData.length - 1].date,
+                "YMD_DASH"
+            );
+            currentDate = parseDate(lastDate);
             return;
         }
 
-        chartData = store.chatData;
+        queryHandler(selectedDateIndex);
     });
 
-    const handleDateChange = (date: string) => {
-        const gap = getDateGap(new Date(), new Date(date));
+    const handleDateChange = (date: DateValue) => {
+        const gap = getDateGap(new Date(), date.toDate(getLocalTimeZone()));
         selectedDateIndex = gap;
+        currentDate = date as CalendarDate;
         queryHandler(gap);
     };
 </script>
@@ -86,6 +103,7 @@
             jumpDay={7}
             onChooseDate={handleDateChange}
             disabled={isLoading}
+            value={currentDate}
         />
     </div>
 

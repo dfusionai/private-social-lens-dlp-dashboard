@@ -5,10 +5,12 @@
         tokenEmissionStore,
     } from "$lib/stores/tokenEmissionStore";
     import { onMount } from "svelte";
-    import { fetchRewardRequestForDate } from "../../../../api/fetchRewardRequestForDate";
-    import { ChartConfig, series, weekVisConfig } from "../../const";
     import { generateDailyChartData } from "$lib/utils";
     import { fromIndex, lastWeekDayInx } from "$lib/const";
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { RefreshCwIcon } from "@lucide/svelte";
+    import { fetchRewardRequestForDate } from "../../../../api/fetchRewardRequestForDate";
+    import { ChartConfig, series, weekVisConfig } from "../../const";
 
     let chartData = $state(generateDailyChartData(fromIndex, lastWeekDayInx));
 
@@ -16,19 +18,11 @@
 
     const store = $tokenEmissionStore;
 
-    onMount(async () => {
-        if (store.rewardOnWeek) {
-            chartData = store.rewardOnWeek;
-            return;
-        }
+    const fetchData = async () => {
+        let chartWeekData = generateDailyChartData(fromIndex, lastWeekDayInx);
 
         try {
             isLoading = true;
-
-            let chartWeekData = generateDailyChartData(
-                fromIndex,
-                lastWeekDayInx
-            );
 
             const mid = Math.ceil(chartWeekData.length / 2);
 
@@ -59,21 +53,40 @@
             chartData = chartWeekData;
             tokenEmissionActions.setRewardOnWeek(chartWeekData);
         } catch (error) {
+            chartData = chartWeekData;
             throw error;
         } finally {
             isLoading = false;
             tokenEmissionActions.setLoading(false);
         }
+    };
+
+    onMount(() => {
+        if (store.rewardOnWeek) {
+            chartData = store.rewardOnWeek;
+            return;
+        }
+        fetchData();
     });
 </script>
 
-<LineChart
-    className="h-[300px] w-full"
-    title="Token Emission Through A Week (7 latest days)"
-    description="Total token rewards distributed per day"
-    chartConfig={ChartConfig}
-    data={chartData}
-    props={weekVisConfig}
-    {series}
-    {isLoading}
-/>
+<div class="relative">
+    <LineChart
+        className="h-[300px] w-full"
+        title="Token Emission Through A Week (7 latest days)"
+        description="Total token rewards distributed per day"
+        chartConfig={ChartConfig}
+        data={chartData}
+        props={weekVisConfig}
+        {series}
+        {isLoading}
+    />
+
+    <Button
+        class="bg-transparent cursor-pointer hover:bg-background absolute top-4 right-4"
+        disabled={isLoading}
+        onclick={() => fetchData()}
+    >
+        <RefreshCwIcon class="h-4 w-4 text-foreground" />
+    </Button>
+</div>

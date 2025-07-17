@@ -7,6 +7,10 @@
     import { getTopStakers } from "../../utils";
     import { tokenSymbol } from "$lib/const";
     import { formatDecimalNumber } from "$lib/utils";
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { RefreshCwIcon } from "@lucide/svelte";
+
+    const { fetchData }: { fetchData: () => void } = $props();
 
     let loading = $state(false);
     let top5Stakers = $state<{ address: string; amount: string }[]>([]);
@@ -30,14 +34,24 @@
 </script>
 
 <Card.Root class="hover:shadow-lg transition-shadow">
-    <Card.Header>
-        <div class="flex items-center justify-between">
-            <Card.Title>Top Stakers / Withdrawers</Card.Title>
-        </div>
-        <Card.Description
-            >Automated verification pipeline for uploaded documents</Card.Description
+    <div class="relative">
+        <Card.Header>
+            <div class="flex items-center justify-between">
+                <Card.Title>Top Stakers / Withdrawers</Card.Title>
+            </div>
+            <Card.Description
+                >Automated verification pipeline for uploaded documents</Card.Description
+            >
+        </Card.Header>
+
+        <Button
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
+            disabled={loading}
+            onclick={() => fetchData()}
         >
-    </Card.Header>
+            <RefreshCwIcon class="h-4 w-4 text-foreground" />
+        </Button>
+    </div>
     <Card.Content class="space-y-4">
         {#if loading}
             <div class="flex flex-col gap-3">

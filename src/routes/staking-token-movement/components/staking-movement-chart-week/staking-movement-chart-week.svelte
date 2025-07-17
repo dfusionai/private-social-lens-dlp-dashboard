@@ -9,6 +9,8 @@
         stakeEventsActions,
         stakeEventsStore,
     } from "$lib/stores/stakeEventsStore";
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { RefreshCwIcon } from "@lucide/svelte";
 
     let chartData = $state(generateDailyChartData(fromIndex, lastWeekDayInx));
 
@@ -16,12 +18,7 @@
 
     const store = $stakeEventsStore;
 
-    onMount(async () => {
-        if (store.stakeOnWeek) {
-            chartData = store.stakeOnWeek;
-            return;
-        }
-
+    const fetchData = async () => {
         try {
             isLoading = true;
 
@@ -64,16 +61,34 @@
             isLoading = false;
             stakeEventsActions.setLoading(false);
         }
+    };
+
+    onMount(() => {
+        if (store.stakeOnWeek) {
+            chartData = store.stakeOnWeek;
+            return;
+        }
+        fetchData();
     });
 </script>
 
-<LineChart
-    className="h-[300px] w-full"
-    title="Staking Token Movement Through A Week"
-    description="Total staking token movement per day"
-    chartConfig={ChartConfig}
-    data={chartData}
-    props={weekVisConfig}
-    {series}
-    {isLoading}
-/>
+<div class="relative">
+    <LineChart
+        className="h-[300px] w-full"
+        title="Staking Token Movement Through A Week"
+        description="Total staking token movement per day"
+        chartConfig={ChartConfig}
+        data={chartData}
+        props={weekVisConfig}
+        {series}
+        {isLoading}
+    />
+
+    <Button
+        class="bg-transparent cursor-pointer hover:bg-background absolute top-4 right-4"
+        disabled={isLoading}
+        onclick={() => fetchData()}
+    >
+        <RefreshCwIcon class="h-4 w-4 text-foreground" />
+    </Button>
+</div>
