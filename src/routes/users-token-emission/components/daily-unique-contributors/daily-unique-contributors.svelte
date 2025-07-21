@@ -1,41 +1,52 @@
 <script lang="ts">
     import { daysPerMonth, fromIndex } from "$lib/const";
-    import { generateDailyChartData, getDateGap } from "$lib/utils";
+    import { formatDate, generateDailyChartData, getDateGap } from "$lib/utils";
     import { fetchDailyUniqueContributors } from "../../../../api/fetchDailyUniqueContributors";
     import { Button } from "$lib/components/ui/button";
     import { RefreshCwIcon } from "@lucide/svelte";
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
-    import {
-        ChartConfigDailyContributor,
-        monthVisConfig,
-        seriesDailyContributor,
-    } from "../../const";
     import DatePicker from "$lib/components/common/date-picker/date-picker.svelte";
-    import { getDateParams } from "../../utils";
     import {
         tokenEmissionStore,
         tokenEmissionActions,
     } from "$lib/stores/tokenEmissionStore";
     import { onMount } from "svelte";
+    import {
+        getLocalTimeZone,
+        parseDate,
+        today,
+        type DateValue,
+        type CalendarDate,
+    } from "@internationalized/date";
+    import {
+        ChartConfigDailyContributor,
+        monthVisConfig,
+        seriesDailyContributor,
+    } from "../../const";
+    import { getDateParams } from "../../utils";
 
     let chartData = $state(generateDailyChartData(fromIndex, daysPerMonth));
+    // date index from today, ex: 30 --> 30 days ago
     let selectedDateIndex = $state<number>(0);
+    let currentDate = $state(today(getLocalTimeZone()));
     let isLoading = $state(false);
 
     const store = $tokenEmissionStore;
 
-    const onChooseDate = (date: string) => {
+    const onChooseDate = (date: DateValue) => {
         if (!date) return;
 
-        const dateGap = getDateGap(new Date(), new Date(date));
+        const dateValue = date.toDate(getLocalTimeZone());
+        const dateGap = getDateGap(new Date(), dateValue);
 
         if (dateGap !== selectedDateIndex) {
             selectedDateIndex = dateGap;
-            queryHandler(dateGap);
+            currentDate = date as CalendarDate;
+            fetchData(dateGap);
         }
     };
 
-    const queryHandler = async (dateIndex: number) => {
+    const fetchData = async (dateIndex: number) => {
         try {
             isLoading = true;
             const params = getDateParams(dateIndex);
@@ -58,9 +69,16 @@
     };
 
     onMount(() => {
-        if (!store.dailyContributor) {
-            queryHandler(selectedDateIndex);
+        if (store.dailyContributor) {
+            chartData = store.dailyContributor;
+            const lastDate = formatDate(
+                chartData[chartData.length - 1].date,
+                "YMD_DASH"
+            );
+            currentDate = parseDate(lastDate);
+            return;
         }
+        fetchData(selectedDateIndex);
     });
 </script>
 
@@ -70,7 +88,11 @@
             >Data shown 30 days back from
         </span>
 
-        <DatePicker {onChooseDate} disabled={isLoading} />
+        <DatePicker
+            {onChooseDate}
+            disabled={isLoading}
+            value={currentDate as DateValue}
+        />
     </div>
 
     <div class="relative">
@@ -88,7 +110,7 @@
         <Button
             class="bg-transparent cursor-pointer hover:bg-background absolute top-4 right-4"
             disabled={isLoading}
-            onclick={() => queryHandler(selectedDateIndex)}
+            onclick={() => fetchData(selectedDateIndex)}
         >
             <RefreshCwIcon class="h-4 w-4 text-foreground" />
         </Button>

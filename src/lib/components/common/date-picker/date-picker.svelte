@@ -13,32 +13,42 @@
     import type { ComponentProps } from "svelte";
     import type { IDatePickerProps } from "./type";
 
-    const { onChooseDate, disabled, ...restProps }: IDatePickerProps = $props();
+    const { onChooseDate, disabled, value, ...restProps }: IDatePickerProps =
+        $props();
 
     const df = new DateFormatter("en-US", {
         dateStyle: "long",
     });
 
-    let shownValue = $state<string>(
-        df.format(today(getLocalTimeZone()).toDate(getLocalTimeZone()))
-    );
+    const todayDate = today(getLocalTimeZone());
+
+    let shownValue = $state<DateValue>(todayDate);
+
     let dropdown =
         $state<ComponentProps<typeof Calendar>["captionLayout"]>("dropdown");
 
     function handleMonthSelect(date: DateValue | undefined) {
         if (!date) {
-            shownValue = "";
             return;
         }
 
-        const chosenDate = df.format(date.toDate(getLocalTimeZone()));
-
-        shownValue = chosenDate;
+        shownValue = date;
 
         if (onChooseDate) {
-            onChooseDate(chosenDate);
+            onChooseDate(date);
         }
     }
+
+    const formatDateHandler = (date: DateValue | DateValue[]) => {
+        // this is a single date component
+        if (Array.isArray(date)) {
+            return;
+        }
+
+        if (!date) return "Select a date";
+
+        return df.format(date.toDate(getLocalTimeZone()));
+    };
 </script>
 
 <Popover.Root>
@@ -55,7 +65,7 @@
                 {...props}
             >
                 <CalendarIcon class="mr-2 size-4" />
-                {shownValue || "Select a date"}
+                {formatDateHandler(value || shownValue)}
             </Button>
         {/snippet}
     </Popover.Trigger>
@@ -65,6 +75,7 @@
             captionLayout={dropdown}
             onValueChange={handleMonthSelect}
             maxValue={today(getLocalTimeZone())}
+            value={value || shownValue}
             {disabled}
             type="single"
             {...restProps as any}

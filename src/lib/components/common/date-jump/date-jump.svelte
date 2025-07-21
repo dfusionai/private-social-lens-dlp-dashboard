@@ -8,28 +8,28 @@
     import {
         DateFormatter,
         getLocalTimeZone,
+        parseDate,
         today,
         type DateValue,
     } from "@internationalized/date";
     import { Calendar } from "$lib/components/ui/calendar";
     import * as Popover from "$lib/components/ui/popover/index.js";
-    import { addDays, cn } from "$lib/utils";
+    import { addDays, cn, formatDate } from "$lib/utils";
     import type { ComponentProps } from "svelte";
     import { isFdDisabled } from "./utils";
     import type { IDateJumpProps } from "./type";
 
-    const { jumpDay, disabled, onChooseDate }: IDateJumpProps = $props();
+    const { jumpDay, disabled, value, onChooseDate }: IDateJumpProps = $props();
 
-    const maxDate = new Date().toDateString();
     const df = new DateFormatter("en-US", {
         dateStyle: "long",
     });
-
     let dropdown =
         $state<ComponentProps<typeof Calendar>["captionLayout"]>("dropdown");
-    let shownValue = $state<string>(maxDate);
+    const todayDate = today(getLocalTimeZone());
+    let shownValue = $state<DateValue>(todayDate);
     let shouldDisabledForward = $derived<boolean>(
-        isFdDisabled(shownValue, jumpDay, maxDate)
+        isFdDisabled(shownValue, jumpDay, todayDate)
     );
 
     const onForward = () => {
@@ -37,17 +37,19 @@
             return;
         }
 
-        const newDate = addDays(new Date(shownValue), jumpDay);
+        const newDate = addDays(shownValue.toDate(getLocalTimeZone()), jumpDay);
+        const formattedDate = parseDate(
+            formatDate(newDate.toDate(), "YMD_DASH")
+        );
 
-        if (newDate.isAfter(maxDate)) {
+        if (newDate.isAfter(todayDate.toDate(getLocalTimeZone()))) {
             return;
         }
 
-        const chosenDate = df.format(newDate.toDate());
-        shownValue = chosenDate;
+        shownValue = formattedDate;
 
         if (onChooseDate) {
-            onChooseDate(chosenDate);
+            onChooseDate(formattedDate);
         }
     };
 
@@ -56,30 +58,43 @@
             return;
         }
 
-        const newDate = addDays(new Date(shownValue), -jumpDay);
+        const newDate = addDays(
+            shownValue.toDate(getLocalTimeZone()),
+            -jumpDay
+        );
+        const formattedDate = parseDate(
+            formatDate(newDate.toDate(), "YMD_DASH")
+        );
 
-        const chosenDate = df.format(newDate.toDate());
-        shownValue = chosenDate;
+        shownValue = formattedDate;
 
         if (onChooseDate) {
-            onChooseDate(chosenDate);
+            onChooseDate(formattedDate);
         }
     };
 
     function handleMonthSelect(date: DateValue | undefined) {
         if (!date) {
-            shownValue = "";
             return;
         }
 
-        const chosenDate = df.format(date.toDate(getLocalTimeZone()));
-
-        shownValue = chosenDate;
+        shownValue = date;
 
         if (onChooseDate) {
-            onChooseDate(chosenDate);
+            onChooseDate(date);
         }
     }
+
+    const formatDateHandler = (date: DateValue | DateValue[]) => {
+        // this is a single date component
+        if (Array.isArray(date)) {
+            return;
+        }
+
+        if (!date) return "Select a date";
+
+        return df.format(date.toDate(getLocalTimeZone()));
+    };
 </script>
 
 <div class="flex items-center gap-2">
@@ -105,7 +120,7 @@
                     {...props}
                 >
                     <CalendarIcon class="mr-2 size-4" />
-                    {shownValue || "Select a date"}
+                    {formatDateHandler(value || shownValue)}
                 </Button>
             {/snippet}
         </Popover.Trigger>
@@ -115,6 +130,7 @@
                 captionLayout={dropdown}
                 onValueChange={handleMonthSelect}
                 maxValue={today(getLocalTimeZone())}
+                value={value || shownValue}
                 {disabled}
                 type="single"
             />

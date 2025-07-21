@@ -14,7 +14,7 @@ export const data = {
     navMain: [
         {
             title: "Staking Token Movement",
-            url: "/",
+            url: "/staking-token-movement",
             icon: BankNoteArrowUp,
         },
         {

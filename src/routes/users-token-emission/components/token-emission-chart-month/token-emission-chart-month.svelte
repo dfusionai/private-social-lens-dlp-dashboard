@@ -6,42 +6,53 @@
         tokenEmissionStore,
     } from "$lib/stores/tokenEmissionStore";
     import DatePicker from "$lib/components/common/date-picker/date-picker.svelte";
-    import { generateDailyChartData, getDateGap } from "$lib/utils.js";
+    import {
+        formatDate,
+        generateDailyChartData,
+        getDateGap,
+    } from "$lib/utils.js";
     import { daysPerMonth, fromIndex } from "$lib/const";
     import { fetchRewardRequestForDate } from "../../../../api/fetchRewardRequestForDate";
     import { ChartConfig, series, monthVisConfig } from "../../const";
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { RefreshCwIcon } from "@lucide/svelte";
+    import {
+        today,
+        getLocalTimeZone,
+        parseDate,
+        type DateValue,
+        CalendarDate,
+    } from "@internationalized/date";
 
     let chartData = $state(generateDailyChartData(fromIndex, daysPerMonth));
 
     const store = $tokenEmissionStore;
-
-    let isLoading = $state(false);
+    // date index from today, ex: 30 --> 30 days ago
     let selectedDateIndex = $state<number>(0);
+    let currentDate = $state(today(getLocalTimeZone()));
+    let isLoading = $state(false);
 
-    const onChooseDate = (date: string) => {
+    const onChooseDate = (date: DateValue) => {
         if (!date) return;
 
-        const dateGap = getDateGap(new Date(), new Date(date));
+        const dateValue = date.toDate(getLocalTimeZone());
+        const dateGap = getDateGap(new Date(), dateValue);
 
         if (dateGap !== selectedDateIndex) {
             selectedDateIndex = dateGap;
-            store.rewardOnMonth = null;
+            currentDate = date as CalendarDate;
+            fetchData(dateGap);
         }
     };
 
     const fetchData = async (selectedDateIndex: number) => {
-        if (store.rewardOnMonth) {
-            chartData = store.rewardOnMonth;
-            return;
-        }
+        let chartMonthData = generateDailyChartData(
+            selectedDateIndex,
+            selectedDateIndex + daysPerMonth
+        );
 
         try {
             isLoading = true;
-
-            let chartMonthData = generateDailyChartData(
-                selectedDateIndex,
-                selectedDateIndex + daysPerMonth
-            );
 
             const mid = Math.ceil(chartMonthData.length / 2);
 
@@ -72,13 +83,23 @@
             tokenEmissionActions.setRewardOnMonth(chartMonthData);
             chartData = chartMonthData;
         } catch (error) {
+            chartData = chartMonthData;
             throw error;
         } finally {
             isLoading = false;
         }
     };
 
-    $effect(() => {
+    onMount(() => {
+        if (store.rewardOnMonth) {
+            chartData = store.rewardOnMonth;
+            const lastDate = formatDate(
+                chartData[chartData.length - 1].date,
+                "YMD_DASH"
+            );
+            currentDate = parseDate(lastDate);
+            return;
+        }
         fetchData(selectedDateIndex);
     });
 </script>
@@ -89,17 +110,31 @@
             >Data shown 30 days back from
         </span>
 
-        <DatePicker {onChooseDate} disabled={isLoading} />
+        <DatePicker
+            {onChooseDate}
+            disabled={isLoading}
+            value={currentDate as DateValue}
+        />
     </div>
 
-    <LineChart
-        className="h-[300px] w-full"
-        title="Token Emission Through A Month"
-        description="Total token rewards distributed per day"
-        chartConfig={ChartConfig}
-        data={chartData}
-        props={monthVisConfig}
-        {series}
-        {isLoading}
-    />
+    <div class="relative">
+        <LineChart
+            className="h-[300px] w-full"
+            title="Token Emission Through A Month"
+            description="Total token rewards distributed per day"
+            chartConfig={ChartConfig}
+            data={chartData}
+            props={monthVisConfig}
+            {series}
+            {isLoading}
+        />
+
+        <Button
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-4 right-4"
+            disabled={isLoading}
+            onclick={() => fetchData(selectedDateIndex)}
+        >
+            <RefreshCwIcon class="h-4 w-4 text-foreground" />
+        </Button>
+    </div>
 </div>

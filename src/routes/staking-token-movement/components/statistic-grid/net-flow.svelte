@@ -5,6 +5,10 @@
     import { calculateNetFlowInfo } from "../../utils";
     import { tokenSymbol } from "$lib/const";
     import { formatDecimalNumber } from "$lib/utils";
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { RefreshCwIcon } from "@lucide/svelte";
+
+    const { fetchData }: { fetchData: () => void } = $props();
 
     let netFlowInfo = $state({
         netFlow: "",
@@ -38,14 +42,24 @@
 </script>
 
 <Card.Root class="hover:shadow-lg transition-shadow">
-    <Card.Header>
-        <div class="flex items-center justify-between">
-            <Card.Title>Net Token Flow</Card.Title>
-        </div>
-        <Card.Description>
-            Net token flow is the sum of all token flows in the system.
-        </Card.Description>
-    </Card.Header>
+    <div class="relative">
+        <Card.Header>
+            <div class="flex items-center justify-between">
+                <Card.Title>Net Token Flow</Card.Title>
+            </div>
+            <Card.Description>
+                Net token flow is the sum of all token flows in the system.
+            </Card.Description>
+        </Card.Header>
+
+        <Button
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
+            disabled={loading}
+            onclick={() => fetchData()}
+        >
+            <RefreshCwIcon class="h-4 w-4 text-foreground" />
+        </Button>
+    </div>
     <Card.Content class="space-y-4">
         {#if loading}
             <div class="flex flex-col gap-2">

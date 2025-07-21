@@ -38,13 +38,13 @@ export const stakeEventsActions = {
     setLoading: (loading: boolean) => {
         stakeEventsStore.update(state => ({ ...state, loading }));
     },
-    setStakeEvents: (stakeEvents: (ethers.Log | ethers.EventLog)[][]) => {
+    setStakeEvents: (stakeEvents: TEventLog[][]) => {
         stakeEventsStore.update(state => ({
             ...state,
             stakeEvents,
         }));
     },
-    setUnstakeEvents: (unstakeEvents: (ethers.Log | ethers.EventLog)[][]) => {
+    setUnstakeEvents: (unstakeEvents: TEventLog[][]) => {
         stakeEventsStore.update(state => ({
             ...state,
             unstakeEvents,

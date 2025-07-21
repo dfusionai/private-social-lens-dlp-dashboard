@@ -2,7 +2,11 @@
     import { onMount } from "svelte";
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
     import DatePicker from "$lib/components/common/date-picker/date-picker.svelte";
-    import { generateDailyChartData, getDateGap } from "$lib/utils.js";
+    import {
+        formatDate,
+        generateDailyChartData,
+        getDateGap,
+    } from "$lib/utils.js";
     import { ChartConfig, series, monthVisConfig } from "../../const";
     import { fetchStakingEventForDate } from "../../../../api/fetchStakingEventForDate";
     import {
@@ -10,37 +14,45 @@
         stakeEventsStore,
     } from "$lib/stores/stakeEventsStore";
     import { daysPerMonth, fromIndex } from "$lib/const";
+    import Button from "$lib/components/ui/button/button.svelte";
+    import { RefreshCwIcon } from "@lucide/svelte";
+    import {
+        getLocalTimeZone,
+        parseDate,
+        today,
+        type DateValue,
+        CalendarDate,
+    } from "@internationalized/date";
 
     let chartData = $state(generateDailyChartData(fromIndex, daysPerMonth));
 
     const store = $stakeEventsStore;
-    let isLoading = $state(false);
+    // date index from today, ex: 30 --> 30 days ago
     let selectedDateIndex = $state<number>(0);
+    let isLoading = $state(false);
+    let currentDate = $state(today(getLocalTimeZone()));
 
-    const onChooseDate = (date: string) => {
+    const onChooseDate = (date: DateValue) => {
         if (!date) return;
 
-        const dateGap = getDateGap(new Date(), new Date(date));
+        const dateValue = date.toDate(getLocalTimeZone());
+        const dateGap = getDateGap(new Date(), dateValue);
 
         if (dateGap !== selectedDateIndex) {
             selectedDateIndex = dateGap;
-            store.stakeOnMonth = null;
+            currentDate = date as CalendarDate;
+            fetchData(dateGap);
         }
     };
 
     const fetchData = async (selectedDateIndex: number) => {
-        if (store.stakeOnMonth) {
-            chartData = store.stakeOnMonth;
-            return;
-        }
+        let chartMonthData = generateDailyChartData(
+            selectedDateIndex,
+            selectedDateIndex + daysPerMonth
+        );
 
         try {
             isLoading = true;
-
-            let chartMonthData = generateDailyChartData(
-                selectedDateIndex,
-                selectedDateIndex + daysPerMonth
-            );
 
             const mid = Math.ceil(chartMonthData.length / 2);
 
@@ -71,17 +83,25 @@
             stakeEventsActions.setStakeOnMonth(chartMonthData);
             chartData = chartMonthData;
         } catch (error) {
+            chartData = chartMonthData;
             throw error;
         } finally {
             isLoading = false;
         }
     };
 
-    $effect(() => {
+    onMount(() => {
+        if (store.stakeOnMonth) {
+            chartData = store.stakeOnMonth;
+            const lastDate = formatDate(
+                chartData[chartData.length - 1].date,
+                "YMD_DASH"
+            );
+            currentDate = parseDate(lastDate);
+            return;
+        }
         fetchData(selectedDateIndex);
     });
-
-    onMount(async () => {});
 </script>
 
 <div>
@@ -90,17 +110,31 @@
             >Data shown 30 days back from
         </span>
 
-        <DatePicker {onChooseDate} disabled={isLoading} />
+        <DatePicker
+            {onChooseDate}
+            disabled={isLoading}
+            value={currentDate as DateValue}
+        />
     </div>
 
-    <LineChart
-        className="h-[300px] w-full"
-        title="Staking Token Movement Through A Month"
-        description="Total staking token movement per day"
-        chartConfig={ChartConfig}
-        data={chartData}
-        props={monthVisConfig}
-        {series}
-        {isLoading}
-    />
+    <div class="relative">
+        <LineChart
+            className="h-[300px] w-full"
+            title="Staking Token Movement Through A Month"
+            description="Total staking token movement per day"
+            chartConfig={ChartConfig}
+            data={chartData}
+            props={monthVisConfig}
+            {series}
+            {isLoading}
+        />
+
+        <Button
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-4 right-4"
+            disabled={isLoading}
+            onclick={() => fetchData(selectedDateIndex)}
+        >
+            <RefreshCwIcon class="h-4 w-4 text-foreground" />
+        </Button>
+    </div>
 </div>
