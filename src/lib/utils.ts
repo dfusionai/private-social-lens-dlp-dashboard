@@ -142,3 +142,20 @@ export const addDays = (date: Date, days: number) => {
 
     return newDate;
 };
+
+export const getDateParams = (
+    chartData: {
+        date: Date;
+        amount: number;
+    }[],
+) => {
+    const params = {
+        startDate: formatDate(chartData[0].date, "YMD_DASH"),
+        endDate: formatDate(
+            chartData[chartData.length - 1].date,
+            "YMD_DASH",
+        ),
+    };
+
+    return params;
+};

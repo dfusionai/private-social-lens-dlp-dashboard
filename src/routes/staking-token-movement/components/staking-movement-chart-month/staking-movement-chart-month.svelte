@@ -6,12 +6,11 @@
         formatDate,
         generateDailyChartData,
         getDateGap,
+        getDateParams,
     } from "$lib/utils.js";
-    import { ChartConfig, series, monthVisConfig } from "../../const";
-    import { fetchStakingEventForDate } from "../../../../api/fetchStakingEventForDate";
     import {
-        stakeEventsActions,
         stakeEventsStore,
+        stakeEventsActions,
     } from "$lib/stores/stakeEventsStore";
     import { daysPerMonth, fromIndex } from "$lib/const";
     import Button from "$lib/components/ui/button/button.svelte";
@@ -23,6 +22,9 @@
         type DateValue,
         CalendarDate,
     } from "@internationalized/date";
+    import { toast } from "svelte-sonner";
+    import { ChartConfig, series, monthVisConfig } from "../../const";
+    import { fetchStakingMovement } from "../../../../api/fetchStakingMovement";
 
     let chartData = $state(generateDailyChartData(fromIndex, daysPerMonth));
 
@@ -48,46 +50,34 @@
     const fetchData = async (selectedDateIndex: number) => {
         let chartMonthData = generateDailyChartData(
             selectedDateIndex,
-            selectedDateIndex + daysPerMonth
+            selectedDateIndex + daysPerMonth,
         );
+
+        const params = getDateParams(chartMonthData)
 
         try {
             isLoading = true;
+            const response = await fetchStakingMovement(params);
 
-            const mid = Math.ceil(chartMonthData.length / 2);
+            chartData = response?.map((item, index) => {
+                return {
+                    date: chartMonthData[index].date,
+                    amount: Number(item.stakeamount),
+                };
+            });
 
-            const [firstHalf, secondHalf] = [
-                chartMonthData.slice(0, mid),
-                chartMonthData.slice(mid),
-            ];
-
-            const promises = firstHalf.map((item) =>
-                fetchStakingEventForDate(item.date)
-            );
-
-            const monthData = await Promise.all(promises);
-
-            const nextPromises = secondHalf.map((item) =>
-                fetchStakingEventForDate(item.date)
-            );
-
-            const nextMonthData = await Promise.all(nextPromises);
-
-            const mergedMonthData = [...monthData, ...nextMonthData];
-
-            chartMonthData = chartMonthData.map((item, index) => ({
-                ...item,
-                amount: mergedMonthData[index].totalStake || 0,
-            }));
-
-            stakeEventsActions.setStakeOnMonth(chartMonthData);
+            stakeEventsActions.setStakeOnMonth(chartData);
+        } catch (err) {
+            toast.error("Fetching month token movement Failed!");
             chartData = chartMonthData;
-        } catch (error) {
-            chartData = chartMonthData;
-            throw error;
         } finally {
             isLoading = false;
         }
+    };
+
+    const reloadHandler = () => {
+        fetchData(fromIndex);
+        currentDate = today(getLocalTimeZone());
     };
 
     onMount(() => {
@@ -95,11 +85,12 @@
             chartData = store.stakeOnMonth;
             const lastDate = formatDate(
                 chartData[chartData.length - 1].date,
-                "YMD_DASH"
+                "YMD_DASH",
             );
             currentDate = parseDate(lastDate);
             return;
         }
+
         fetchData(selectedDateIndex);
     });
 </script>
@@ -132,7 +123,7 @@
         <Button
             class="bg-transparent cursor-pointer hover:bg-background absolute top-4 right-4"
             disabled={isLoading}
-            onclick={() => fetchData(selectedDateIndex)}
+            onclick={reloadHandler}
         >
             <RefreshCwIcon class="h-4 w-4 text-foreground" />
         </Button>
