@@ -45,7 +45,7 @@
             </Card.Description>
         </Card.Header>
         <Button
-            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-[-10px] right-4"
             disabled={loading}
             onclick={() => fetchData()}
         >

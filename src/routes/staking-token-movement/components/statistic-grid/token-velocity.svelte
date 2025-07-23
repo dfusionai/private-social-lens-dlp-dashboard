@@ -1,23 +1,40 @@
 <script lang="ts">
     import * as Card from "$lib/components/ui/card/index.js";
-    import { stakeEventsStore } from "$lib/stores/stakeEventsStore";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
-    import { getTokenVelocity } from "../../utils";
     import Button from "$lib/components/ui/button/button.svelte";
     import { RefreshCwIcon } from "@lucide/svelte";
-
-    const { fetchData }: { fetchData: () => void } = $props();
+    import { formatDate, formatDecimalNumber } from "$lib/utils";
+    import { toast } from "svelte-sonner";
+    import { onMount } from "svelte";
+    import { daysPerMonth } from "$lib/const";
+    import { fetchTokenVelocity } from "../../../../api/fetchTokenVelocity";
 
     let tokenVelocity = $state("");
     let loading = $state(false);
 
-    stakeEventsStore.subscribe((state) => {
-        loading = state.loading;
+    const fetchData = async () => {
+        try {
+            loading = true;
+            const today = new Date();
+            const daysBack30 = new Date(
+                new Date().setDate(new Date().getDay() - daysPerMonth),
+            );
 
-        if (!state.stakeEvents || !state.unstakeEvents) return;
+            const params = {
+                startDate: formatDate(daysBack30, "YMD_DASH"),
+                endDate: formatDate(today, "YMD_DASH"),
+            };
+            const response = await fetchTokenVelocity(params);
+            tokenVelocity = response.tokenVelocity;
+        } catch (err) {
+            toast.error("Fetching token velocity Failed!");
+        } finally {
+            loading = false;
+        }
+    };
 
-        tokenVelocity =
-            getTokenVelocity(state.stakeEvents, state.unstakeEvents) || "";
+    onMount(() => {
+        fetchData();
     });
 </script>
 
@@ -33,7 +50,7 @@
         </Card.Header>
 
         <Button
-            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-[-10px] right-4"
             disabled={loading}
             onclick={() => fetchData()}
         >
@@ -46,7 +63,11 @@
         {:else}
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Token Velocity:</span>
-                <span>{tokenVelocity ? tokenVelocity + " days" : "-"}</span>
+                <span
+                    >{tokenVelocity
+                        ? formatDecimalNumber(Number(tokenVelocity)) + " days"
+                        : "-"}</span
+                >
             </div>
         {/if}
     </Card.Content>
