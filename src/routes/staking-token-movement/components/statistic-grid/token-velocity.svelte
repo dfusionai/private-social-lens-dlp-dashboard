@@ -6,7 +6,7 @@
     import { formatDate, formatDecimalNumber } from "$lib/utils";
     import { toast } from "svelte-sonner";
     import { onMount } from "svelte";
-    import { daysPerMonth } from "$lib/const";
+    import { daysPerMonth, DECIMAL_OPS } from "$lib/const";
     import { fetchTokenVelocity } from "../../../../api/fetchTokenVelocity";
 
     let tokenVelocity = $state("");
@@ -65,7 +65,7 @@
                 <span class="text-sm font-medium mb-2">Token Velocity:</span>
                 <span
                     >{tokenVelocity
-                        ? formatDecimalNumber(Number(tokenVelocity)) + " days"
+                        ? formatDecimalNumber(Number(tokenVelocity), DECIMAL_OPS.TWO) + " days"
                         : "-"}</span
                 >
             </div>

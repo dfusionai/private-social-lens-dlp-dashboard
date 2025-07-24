@@ -16,7 +16,7 @@
         try {
             loading = true;
             const result = await fetchBalance();
-            balance = formatDecimalNumber(result);
+            balance = String(formatDecimalNumber(result));
         } catch (error) {
             toast.error("Fetching balance failed!");
         } finally {
