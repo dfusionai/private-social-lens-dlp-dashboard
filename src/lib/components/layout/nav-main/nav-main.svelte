@@ -1,5 +1,6 @@
 <script lang="ts">
     import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+    import { currentRoute } from "$lib/router";
     import { cn } from "$lib/utils";
     let {
         items,
@@ -10,6 +11,10 @@
     } = $props();
 
     let currentUrl = $state(window.location.pathname);
+    
+    $effect(() => {
+        currentUrl = $currentRoute.path;
+    })
 
     function handleClick(url: string) {
         if (onNavigate) {

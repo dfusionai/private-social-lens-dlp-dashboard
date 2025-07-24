@@ -46,21 +46,22 @@ export const routes: Route[] = [
     },
 ];
 
+const notFoundRoute = {
+    path: "/404",
+    title: "Not Found",
+    component: () => import("../routes/not-found/page.svelte"),
+};
+
 export const currentRoute = writable<Route>(routes[0]);
 
 export function navigate(path: string, replace = false) {
     const route = routes.find((r) => r.path === path);
-    if (route) {
-        currentRoute.set(route);
-        if (replace) {
-            window.history.replaceState({}, "", path);
-        } else {
-            window.history.pushState({}, "", path);
-        }
+    const toRoute = route ? route : notFoundRoute;
+    currentRoute.set(toRoute);
+    if (replace) {
+        window.history.replaceState({}, "", path);
     } else {
-        // handle 404
-        // currentRoute.set({ path: '/404', title: 'Not Found', component: () => import('../routes/404/+page.svelte') });
-        window.history.pushState({}, "", "/404");
+        window.history.pushState({}, "", path);
     }
 }
 
@@ -68,12 +69,15 @@ export function initRouter() {
     // Handle browser back/forward buttons
     window.addEventListener("popstate", () => {
         const path = window.location.pathname;
-        const route = routes.find((r) => r.path === path) || routes[0];
-        currentRoute.set(route);
+        const route = routes.find((r) => r.path === path);
+        const toRoute = route ? route : notFoundRoute;
+        currentRoute.set(toRoute);
+        window.history.pushState({}, "", path);
     });
 
     // Set initial route based on current path
     const path = window.location.pathname;
-    const route = routes.find((r) => r.path === path) || routes[0];
-    currentRoute.set(route);
+    const route = routes.find((r) => r.path === path);
+    const toRoute = route ? route : notFoundRoute;
+    currentRoute.set(toRoute);
 }
