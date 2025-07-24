@@ -5,7 +5,7 @@
     import type { Props } from "./type";
     import { LineChart } from "layerchart";
     import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
-    import { cn } from "$lib/utils";
+    import { cn, formatDecimalNumber } from "$lib/utils";
     import { defaultVisConfig } from "./const";
 
     const {
@@ -15,9 +15,16 @@
         className,
         isLoading,
         skeletonClass,
+        formatter,
         ...lineChartProps
-    }: Props = $props();
+    }: Props = $props()
 </script>
+
+{#snippet defaultFormatter(tooltipProps: any)}
+    <div>
+        <strong>{tooltipProps.name}:</strong> {formatDecimalNumber(tooltipProps.value)}
+    </div>
+{/snippet}
 
 <Card.Root>
     <Card.Header>
@@ -39,7 +46,7 @@
                     {...lineChartProps}
                 >
                     {#snippet tooltip()}
-                        <Chart.Tooltip hideLabel />
+                        <Chart.Tooltip hideLabel formatter={formatter || defaultFormatter} />
                     {/snippet}
                 </LineChart>
             </Chart.Container>

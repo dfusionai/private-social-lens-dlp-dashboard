@@ -19,11 +19,12 @@ interface RequestOptions extends Omit<RequestInit, 'method' | 'body'> {
 const DEFAULT_TIMEOUT = 60 * 1000; // 1 minute
 const DEFAULT_RETRIES = 1;
 const BASE_URL = ENV_CONFIG.VITE_DF_BASE_URL;
+const INDEXER_URL = ENV_CONFIG.VITE_INDEXER_BASE_URL;
 
 // util funcs
-const buildUrl = (path: string): string => {
+const buildUrl = (path: string, baseUrl: string): string => {
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    const cleanBase = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
+    const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     return `${cleanBase}${cleanPath}`;
 };
 
@@ -43,7 +44,8 @@ const createAbortController = (timeout: number): AbortController => {
 // Main fetch function
 export async function fetchDirect<T>(
     path: string, 
-    options: RequestInit & RequestOptions = {}
+    options: RequestInit & RequestOptions = {},
+    baseUrl: string,
 ): Promise<ApiResponse<T>> {
     const {
         timeout = DEFAULT_TIMEOUT,
@@ -52,7 +54,7 @@ export async function fetchDirect<T>(
         ...fetchOptions
     } = options;
 
-    const url = buildUrl(path);
+    const url = buildUrl(path, baseUrl);
 
     const headers = {
         'Content-Type': 'application/json',
@@ -119,26 +121,52 @@ export async function fetchDirect<T>(
 }
 
 export const http = {
-    get: <T>(path: string, options?: RequestOptions): Promise<ApiResponse<T>> =>
-        fetchDirect<T>(path, { ...options, method: 'GET' }),
+    get: <T>(path: string, body?: any, options?: RequestOptions): Promise<ApiResponse<T>> =>
+        fetchDirect<T>(path, { ...options, method: 'GET' }, BASE_URL),
     post: <T>(path: string, body?: any, options?: RequestOptions): Promise<ApiResponse<T>> =>
         fetchDirect<T>(path, { 
             ...options, 
             method: 'POST', 
             body: JSON.stringify(body) 
-        }),
+        }, BASE_URL),
     put: <T>(path: string, body?: any, options?: RequestOptions): Promise<ApiResponse<T>> =>
         fetchDirect<T>(path, { 
             ...options, 
             method: 'PUT', 
             body: JSON.stringify(body) 
-        }),
+        }, BASE_URL),
     patch: <T>(path: string, body?: any, options?: RequestOptions): Promise<ApiResponse<T>> =>
         fetchDirect<T>(path, { 
             ...options, 
             method: 'PATCH', 
             body: JSON.stringify(body) 
-        }),
+        }, BASE_URL),
     delete: <T>(path: string, options?: RequestOptions): Promise<ApiResponse<T>> =>
-        fetchDirect<T>(path, { ...options, method: 'DELETE' }),
+        fetchDirect<T>(path, { ...options, method: 'DELETE' }, BASE_URL),
+};
+
+
+export const httpIndexRequest = {
+    get: <T>(path: string, body?: any, options?: RequestOptions): Promise<ApiResponse<T>> =>
+        fetchDirect<T>(path, { ...options, method: 'GET' }, INDEXER_URL),
+    post: <T>(path: string, body?: any, options?: RequestOptions): Promise<ApiResponse<T>> =>
+        fetchDirect<T>(path, { 
+            ...options, 
+            method: 'POST', 
+            body: JSON.stringify(body) 
+        }, INDEXER_URL),
+    put: <T>(path: string, body?: any, options?: RequestOptions): Promise<ApiResponse<T>> =>
+        fetchDirect<T>(path, { 
+            ...options, 
+            method: 'PUT', 
+            body: JSON.stringify(body) 
+        }, INDEXER_URL),
+    patch: <T>(path: string, body?: any, options?: RequestOptions): Promise<ApiResponse<T>> =>
+        fetchDirect<T>(path, { 
+            ...options, 
+            method: 'PATCH', 
+            body: JSON.stringify(body) 
+        }, INDEXER_URL),
+    delete: <T>(path: string, options?: RequestOptions): Promise<ApiResponse<T>> =>
+        fetchDirect<T>(path, { ...options, method: 'DELETE' }, INDEXER_URL),
 };

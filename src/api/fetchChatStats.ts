@@ -18,7 +18,7 @@ export async function fetchChatStats(params: IChatStatsParams) {
     const queryString = generateQuery({ startDate, endDate });
 
     try {
-        const response: ApiResponse<IChatStatItem> = await http.get(`/api/stats/chats-stats${queryString}`);
+        const response: ApiResponse<IChatStatItem> = await http.get(`/stats/chats-stats${queryString}`);
 
         return response.data;
     } catch (error) {

@@ -10,10 +10,9 @@
         formatDate,
         generateDailyChartData,
         getDateGap,
+        getDateParams,
     } from "$lib/utils.js";
     import { daysPerMonth, fromIndex } from "$lib/const";
-    import { fetchRewardRequestForDate } from "../../../../api/fetchRewardRequestForDate";
-    import { ChartConfig, series, monthVisConfig } from "../../const";
     import Button from "$lib/components/ui/button/button.svelte";
     import { RefreshCwIcon } from "@lucide/svelte";
     import {
@@ -23,6 +22,9 @@
         type DateValue,
         CalendarDate,
     } from "@internationalized/date";
+    import { toast } from "svelte-sonner";
+    import { fetchTokenEmissionMovement } from "../../../../api/fetchTokenEmissionMovement";
+    import { ChartConfig, series, monthVisConfig } from "../../const";
 
     let chartData = $state(generateDailyChartData(fromIndex, daysPerMonth));
 
@@ -51,44 +53,32 @@
             selectedDateIndex + daysPerMonth
         );
 
+        const params = getDateParams(chartMonthData)
+
         try {
             isLoading = true;
+        
+            const response = await fetchTokenEmissionMovement(params);
 
-            const mid = Math.ceil(chartMonthData.length / 2);
-
-            const [firstHalf, secondHalf] = [
-                chartMonthData.slice(0, mid),
-                chartMonthData.slice(mid),
-            ];
-
-            const promises = firstHalf.map((item) =>
-                fetchRewardRequestForDate(item.date)
-            );
-
-            const monthData = await Promise.all(promises);
-
-            const nextPromises = secondHalf.map((item) =>
-                fetchRewardRequestForDate(item.date)
-            );
-
-            const nextMonthData = await Promise.all(nextPromises);
-
-            const mergedMonthData = [...monthData, ...nextMonthData];
-
-            chartMonthData = chartMonthData.map((item, index) => ({
-                ...item,
-                amount: mergedMonthData[index].totalReward || 0,
-            }));
-
-            tokenEmissionActions.setRewardOnMonth(chartMonthData);
+            chartData = response?.map((item, index) => {
+                return {
+                    date: chartMonthData[index].date,
+                    amount: Number(item.reqrewardamount),
+                };
+            });
+            tokenEmissionActions.setRewardOnMonth(chartData);
+        } catch (err) {
+            toast.error("Fetching month token emission movement Failed!");
             chartData = chartMonthData;
-        } catch (error) {
-            chartData = chartMonthData;
-            throw error;
         } finally {
             isLoading = false;
         }
     };
+
+    const reloadHandler = () => {
+        fetchData(fromIndex)
+        currentDate = today(getLocalTimeZone());
+    }
 
     onMount(() => {
         if (store.rewardOnMonth) {
@@ -100,6 +90,7 @@
             currentDate = parseDate(lastDate);
             return;
         }
+
         fetchData(selectedDateIndex);
     });
 </script>
@@ -132,7 +123,7 @@
         <Button
             class="bg-transparent cursor-pointer hover:bg-background absolute top-4 right-4"
             disabled={isLoading}
-            onclick={() => fetchData(selectedDateIndex)}
+            onclick={reloadHandler}
         >
             <RefreshCwIcon class="h-4 w-4 text-foreground" />
         </Button>

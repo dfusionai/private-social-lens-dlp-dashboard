@@ -16,7 +16,7 @@
         try {
             loading = true;
             const result = await fetchBalance();
-            balance = formatDecimalNumber(result);
+            balance = String(formatDecimalNumber(result));
         } catch (error) {
             toast.error("Fetching balance failed!");
         } finally {
@@ -45,7 +45,7 @@
             </Card.Description>
         </Card.Header>
         <Button
-            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-[-10px] right-4"
             disabled={loading}
             onclick={() => fetchData()}
         >

@@ -1,7 +1,6 @@
 <script lang="ts">
     import { daysPerMonth, fromIndex } from "$lib/const";
-    import { formatDate, generateDailyChartData, getDateGap } from "$lib/utils";
-    import { fetchDailyUniqueContributors } from "../../../../api/fetchDailyUniqueContributors";
+    import { formatDate, generateDailyChartData, getDateGap, getDateParams } from "$lib/utils";
     import { Button } from "$lib/components/ui/button";
     import { RefreshCwIcon } from "@lucide/svelte";
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
@@ -18,17 +17,18 @@
         type DateValue,
         type CalendarDate,
     } from "@internationalized/date";
+    import { toast } from "svelte-sonner";
     import {
         ChartConfigDailyContributor,
         monthVisConfig,
         seriesDailyContributor,
     } from "../../const";
-    import { getDateParams } from "../../utils";
-
+    import { fetchDailyUniqueContributors } from "../../../../api/fetchDailyUniqueContributors";
+    
     let chartData = $state(generateDailyChartData(fromIndex, daysPerMonth));
     // date index from today, ex: 30 --> 30 days ago
     let selectedDateIndex = $state<number>(0);
-    let currentDate = $state(today(getLocalTimeZone()));
+        let currentDate = $state(today(getLocalTimeZone()));
     let isLoading = $state(false);
 
     const store = $tokenEmissionStore;
@@ -46,10 +46,17 @@
         }
     };
 
-    const fetchData = async (dateIndex: number) => {
+    const fetchData = async (selectedDateIndex: number) => {
+        let chartMonthData = generateDailyChartData(
+            selectedDateIndex,
+            selectedDateIndex + daysPerMonth
+        );
+
+        const params = getDateParams(chartMonthData)
+
         try {
             isLoading = true;
-            const params = getDateParams(dateIndex);
+
             const dailyUniqueContributors =
                 await fetchDailyUniqueContributors(params);
 
@@ -62,11 +69,18 @@
 
             tokenEmissionActions.setDailyContributor(chartData);
         } catch (error) {
-            throw error;
+            toast.error("Fetching daily unique contributor Failed!");
+            chartData = chartMonthData;
         } finally {
             isLoading = false;
         }
     };
+
+    const reloadHandler = () => {
+        fetchData(fromIndex)
+        currentDate = today(getLocalTimeZone());
+    }
+
 
     onMount(() => {
         if (store.dailyContributor) {
@@ -110,7 +124,7 @@
         <Button
             class="bg-transparent cursor-pointer hover:bg-background absolute top-4 right-4"
             disabled={isLoading}
-            onclick={() => fetchData(selectedDateIndex)}
+            onclick={reloadHandler}
         >
             <RefreshCwIcon class="h-4 w-4 text-foreground" />
         </Button>

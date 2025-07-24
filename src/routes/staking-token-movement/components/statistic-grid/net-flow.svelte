@@ -1,39 +1,46 @@
 <script lang="ts">
     import * as Card from "$lib/components/ui/card/index.js";
-    import { stakeEventsStore } from "$lib/stores/stakeEventsStore";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
-    import { calculateNetFlowInfo } from "../../utils";
-    import { tokenSymbol } from "$lib/const";
-    import { formatDecimalNumber } from "$lib/utils";
+    import { daysPerMonth, tokenSymbol } from "$lib/const";
+    import { formatDate, formatDecimalNumber } from "$lib/utils";
     import Button from "$lib/components/ui/button/button.svelte";
     import { RefreshCwIcon } from "@lucide/svelte";
+    import { toast } from "svelte-sonner";
+    import { onMount } from "svelte";
+    import { fetchNetTokenFlow, type INetTokenFlowResponse } from "../../../../api/fetchNetTokenFlow";
 
-    const { fetchData }: { fetchData: () => void } = $props();
-
-    let netFlowInfo = $state({
+    let netFlowInfo: INetTokenFlowResponse = $state({
+        dailyNetFlow: "",
+        totalStakeAmount: "",
+        totalUnstakeAmount: "",
+        weeklyNetFlow: "",
         netFlow: "",
-        netFlowPerDay: "",
-        netFlowPerWeek: "",
-        totalStakeIn: "",
-        totalUnstakeOut: "",
     });
 
     let loading = $state(false);
 
-    stakeEventsStore.subscribe((state) => {
-        loading = state.loading;
-
-        if (!state.stakeEvents || !state.unstakeEvents) return;
-
+    const fetchData = async () => {
         try {
-            netFlowInfo = calculateNetFlowInfo(
-                state.stakeEvents,
-                state.unstakeEvents
-            );
-        } catch (error) {
-            throw error;
+            loading = true
+            const today = new Date()
+            const daysBack30 = new Date(new Date().setDate(new Date().getDay() - daysPerMonth))
+    
+            const params = {
+                startDate: formatDate(daysBack30, "YMD_DASH"),
+                endDate: formatDate(today, "YMD_DASH"),
+            }
+            const netTokenFLow = await fetchNetTokenFlow(params);
+            netFlowInfo = netTokenFLow
+        } catch (err) {
+            toast.error('Fetching Net Token Flow Failed!')
+        } finally {
+            loading = false
         }
-    });
+    }
+
+    onMount(() => {
+        fetchData()
+    })
 
     const generateTokenText = (value: string) => {
         if (!value) return "-";
@@ -53,7 +60,7 @@
         </Card.Header>
 
         <Button
-            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-[-10px] right-4"
             disabled={loading}
             onclick={() => fetchData()}
         >
@@ -77,22 +84,22 @@
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Net Flow Per Day:</span>
-                <span>{generateTokenText(netFlowInfo.netFlowPerDay)}</span>
+                <span>{generateTokenText(netFlowInfo.dailyNetFlow)}</span>
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Net Flow Per Week:</span>
-                <span>{generateTokenText(netFlowInfo.netFlowPerWeek)}</span>
+                <span>{generateTokenText(netFlowInfo.weeklyNetFlow)}</span>
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Total Stake In:</span>
-                <span>{generateTokenText(netFlowInfo.totalStakeIn)}</span>
+                <span>{generateTokenText(netFlowInfo.totalStakeAmount)}</span>
             </div>
 
             <div class="flex justify-between text-sm mb-2">
                 <span class="text-sm font-medium mb-2">Total Unstake Out:</span>
-                <span>{generateTokenText(netFlowInfo.totalUnstakeOut)}</span>
+                <span>{generateTokenText(netFlowInfo.totalUnstakeAmount)}</span>
             </div>
         {/if}
     </Card.Content>

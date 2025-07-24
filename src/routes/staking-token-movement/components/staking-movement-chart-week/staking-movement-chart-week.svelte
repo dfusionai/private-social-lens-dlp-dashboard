@@ -1,18 +1,19 @@
 <script lang="ts">
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
     import { onMount } from "svelte";
-    import { generateDailyChartData } from "$lib/utils";
-    import { fromIndex, lastWeekDayInx } from "$lib/const";
-    import { fetchStakingEventForDate } from "../../../../api/fetchStakingEventForDate";
-    import { ChartConfig, series, weekVisConfig } from "../../const";
+    import { formatDate, generateDailyChartData } from "$lib/utils";
+    import { daysPerWeek, fromIndex } from "$lib/const";
     import {
         stakeEventsActions,
         stakeEventsStore,
     } from "$lib/stores/stakeEventsStore";
     import Button from "$lib/components/ui/button/button.svelte";
     import { RefreshCwIcon } from "@lucide/svelte";
+    import { toast } from "svelte-sonner";
+    import { ChartConfig, series, weekVisConfig } from "../../const";
+    import { fetchStakingMovement } from "../../../../api/fetchStakingMovement";
 
-    let chartData = $state(generateDailyChartData(fromIndex, lastWeekDayInx));
+    let chartData = $state(generateDailyChartData(fromIndex, daysPerWeek));
 
     let isLoading = $state(false);
 
@@ -21,45 +22,30 @@
     const fetchData = async () => {
         try {
             isLoading = true;
-
-            let chartWeekData = generateDailyChartData(
-                fromIndex,
-                lastWeekDayInx
+            const today = new Date();
+            const daysBack7 = new Date(
+                new Date().setDate(new Date().getDate() - daysPerWeek),
             );
 
-            const mid = Math.ceil(chartWeekData.length / 2);
+            const params = {
+                startDate: formatDate(daysBack7, "YMD_DASH"),
+                endDate: formatDate(today, "YMD_DASH"),
+            };
 
-            const [firstHalf, secondHalf] = [
-                chartWeekData.slice(0, mid),
-                chartWeekData.slice(mid),
-            ];
+            const response = await fetchStakingMovement(params);
 
-            const promises = firstHalf.map((item) =>
-                fetchStakingEventForDate(item.date)
-            );
+            chartData = response?.map((item, index) => {
+                return {
+                    date: chartData[index].date,
+                    amount: Number(item.stakeamount),
+                };
+            });
 
-            const weekData = await Promise.all(promises);
-
-            const nextPromises = secondHalf.map((item) =>
-                fetchStakingEventForDate(item.date)
-            );
-
-            const nextWeekData = await Promise.all(nextPromises);
-
-            const mergedWeekData = [...weekData, ...nextWeekData];
-
-            chartWeekData = chartWeekData.map((item, index) => ({
-                ...item,
-                amount: mergedWeekData[index].totalStake || 0,
-            }));
-
-            chartData = chartWeekData;
-            stakeEventsActions.setStakeOnWeek(chartWeekData);
-        } catch (error) {
-            throw error;
+            stakeEventsActions.setStakeOnWeek(chartData);
+        } catch (err) {
+            toast.error("Fetching week token movement Failed!");
         } finally {
             isLoading = false;
-            stakeEventsActions.setLoading(false);
         }
     };
 
