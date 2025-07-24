@@ -28,7 +28,7 @@ export const generateChatStatsData = (from: number, to: number) => {
 };
 
 export const generateChatStatsParams = (chatStatsData: IChatItem[]) => {
-    const params: { startDate: string, endDate: string }[] = [];
+    const params: { startDate: string; endDate: string }[] = [];
 
     for (let i = 0; i < chatStatsData.length - 1; i++) {
         const startDate = formatDate(chatStatsData[i].date, "YMD_DASH");
@@ -38,5 +38,4 @@ export const generateChatStatsParams = (chatStatsData: IChatItem[]) => {
     }
 
     return params;
-}
-
+};

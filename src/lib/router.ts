@@ -1,9 +1,9 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
 export type Route = {
-	path: string;
-	title: string;
-	component: any;
+    path: string;
+    title: string;
+    component: any;
 };
 
 export const routes: Route[] = [
@@ -62,31 +62,31 @@ export const routes: Route[] = [
 export const currentRoute = writable<Route>(routes[0]);
 
 export function navigate(path: string, replace = false) {
-    const route = routes.find(r => r.path === path);
+    const route = routes.find((r) => r.path === path);
     if (route) {
         currentRoute.set(route);
         if (replace) {
-            window.history.replaceState({}, '', path);
+            window.history.replaceState({}, "", path);
         } else {
-            window.history.pushState({}, '', path);
+            window.history.pushState({}, "", path);
         }
     } else {
         // handle 404
         // currentRoute.set({ path: '/404', title: 'Not Found', component: () => import('../routes/404/+page.svelte') });
-        window.history.pushState({}, '', '/404');
+        window.history.pushState({}, "", "/404");
     }
 }
 
 export function initRouter() {
-	// Handle browser back/forward buttons
-	window.addEventListener('popstate', () => {
-		const path = window.location.pathname;
-		const route = routes.find(r => r.path === path) || routes[0];
-		currentRoute.set(route);
-	});
+    // Handle browser back/forward buttons
+    window.addEventListener("popstate", () => {
+        const path = window.location.pathname;
+        const route = routes.find((r) => r.path === path) || routes[0];
+        currentRoute.set(route);
+    });
 
-	// Set initial route based on current path
-	const path = window.location.pathname;
-	const route = routes.find(r => r.path === path) || routes[0];
-	currentRoute.set(route);
+    // Set initial route based on current path
+    const path = window.location.pathname;
+    const route = routes.find((r) => r.path === path) || routes[0];
+    currentRoute.set(route);
 }

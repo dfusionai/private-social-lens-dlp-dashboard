@@ -17,11 +17,19 @@ export const blockRangeForADay = 14400; // 60 * 60 * 24 / 6
 export const maxBlockRange = 10000;
 export const tokenSymbol = "VFSN";
 export const weeksPerMonth = 4;
-export const daysPerMonth = 30; 
-export const fromIndex = 0
-export const lastWeekDayInx = 6
-export const daysPerWeek = 7
+export const daysPerMonth = 30;
+export const fromIndex = 0;
+export const lastWeekDayInx = 6;
+export const daysPerWeek = 7;
 
 export const DATE_FORMAT_CONST = {
     YMD_DASH: "YYYY-MM-DD",
-}
+};
+
+export const DECIMAL_OPS = {
+    ONE: 1,
+    TWO: 2,
+    THREE: 3,
+    FOUR: 4,
+    FIVE: 5,
+};
