@@ -109,7 +109,10 @@
   });
 </script>
 
-<Card.Root>
+<div class={cn("w-full", className)}>
+    <canvas class="h-full w-full" bind:this={canvas}></canvas>
+</div>
+<!-- <Card.Root>
   <Card.Header>
     <Card.Title>{title}</Card.Title>
     <Card.Description>{description}</Card.Description>
@@ -121,8 +124,7 @@
     </div>
   </Card.Content>
 
-  <!-- svelte-ignore slot_element_deprecated -->
   <Card.Footer>
     <slot name="footer" />
   </Card.Footer>
-</Card.Root>
+</Card.Root> -->
