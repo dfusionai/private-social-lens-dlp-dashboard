@@ -38,11 +38,11 @@
     <div class="relative">
         <Card.Header>
             <div class="flex items-center justify-between">
-                <Card.Title>Current Reward Pool Balance</Card.Title>
+                <Card.Title>$VFSN Balance</Card.Title>
             </div>
-            <Card.Description>
+            <!-- <Card.Description>
                 Current reward pool balance in the system
-            </Card.Description>
+            </Card.Description> -->
         </Card.Header>
         <Button
             class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"

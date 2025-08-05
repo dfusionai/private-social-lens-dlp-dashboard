@@ -8,14 +8,14 @@ export type Route = {
 
 export const routes: Route[] = [
 	{
-		path: '/staking-token-movement',
-		title: 'Token Flow Staking',
-		component: () => import('../routes/staking-token-movement/+page.svelte')
-	},
-	{
 		path: '/users-token-emission',
 		title: 'Users Token Emission',
 		component: () => import('../routes/users-token-emission/+page.svelte')
+	},
+	{
+		path: '/staking-token-movement',
+		title: 'Token Flow Staking',
+		component: () => import('../routes/staking-token-movement/+page.svelte')
 	},
 	{
 		path: '/user-chat-activity',
@@ -74,4 +74,4 @@ export function initRouter() {
 	const path = window.location.pathname;
 	const route = routes.find(r => r.path === path) || routes[0];
 	currentRoute.set(route);
-} 
+}
