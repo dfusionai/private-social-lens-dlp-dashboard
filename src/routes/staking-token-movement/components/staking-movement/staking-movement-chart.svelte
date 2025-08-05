@@ -75,6 +75,12 @@
           tooltip: {
             mode: "index",
             intersect: false,
+            callbacks: {
+              title: (tooltipItems) => {
+                const ts = tooltipItems[0].parsed.x;
+                return new Date(ts).toDateString();
+              },
+            },
           },
         },
         interaction: {
@@ -126,7 +132,10 @@
   });
 </script>
 
-<Card.Root>
+<div class={cn("w-full", className)}>
+    <canvas class="h-full w-full" bind:this={canvas}></canvas>
+</div>
+<!-- <Card.Root>
   <Card.Header>
     <Card.Title>{title || "Staking"}</Card.Title>
     <Card.Description>
@@ -140,8 +149,7 @@
     </div>
   </Card.Content>
 
-  <!-- svelte-ignore slot_element_deprecated -->
   <Card.Footer>
     <slot name="footer" />
   </Card.Footer>
-</Card.Root>
+</Card.Root> -->
