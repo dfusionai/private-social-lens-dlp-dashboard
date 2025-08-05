@@ -13,13 +13,13 @@ export const data = {
     },
     navMain: [
         {
-            title: "Staking Token Movement",
-            url: "/staking-token-movement",
+            title: "$VFSN Token",
+            url: "/users-token-emission",
             icon: BankNoteArrowUp,
         },
         {
-            title: "Users Token Emission",
-            url: "/users-token-emission",
+            title: "Staking",
+            url: "/staking-token-movement",
             icon: BankNoteArrowUp,
         },
         // {

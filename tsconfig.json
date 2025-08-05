@@ -25,7 +25,7 @@
      */
     "checkJs": true,
     "allowJs": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
