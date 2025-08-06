@@ -13,6 +13,16 @@ export const data = {
     },
     navMain: [
         {
+            title: "Staking Token Movement",
+            url: "/staking-token-movement",
+            icon: BankNoteArrowUp,
+        },
+        {
+            title: "Users Token Emission",
+            url: "/users-token-emission",
+            icon: BankNoteArrowUp,
+        },
+        {
             title: "$VFSN Token",
             url: "/token",
             icon: BankNoteArrowUp,
@@ -22,16 +32,6 @@ export const data = {
             url: "/staking",
             icon: BankNoteArrowUp,
         },
-        // {
-        //     title: "Staking Token Movement",
-        //     url: "/staking-token-movement",
-        //     icon: BankNoteArrowUp,
-        // },
-        // {
-        //     title: "Users Token Emission",
-        //     url: "/users-token-emission",
-        //     icon: BankNoteArrowUp,
-        // },
         // {
         //     title: "User Chat Activity",
         //     url: "/user-chat-activity",
