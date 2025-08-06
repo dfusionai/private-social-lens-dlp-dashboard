@@ -4,7 +4,7 @@
   import { RefreshCwIcon } from "@lucide/svelte";
   import dayjs from "dayjs";
   import { onMount } from "svelte";
-  import { fetchStakingGraph } from "../../../../api/subgraph-staking";
+  import { fetchStakingGraph } from "../../../api/subgraph-staking";
   import StakingMovementChart from "./staking-movement-chart.svelte";
   import * as Card from "$lib/components/ui/card/index.js";
   import { ToggleGroup } from "bits-ui";

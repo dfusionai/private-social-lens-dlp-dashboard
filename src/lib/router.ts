@@ -8,14 +8,24 @@ export type Route = {
 
 export const routes: Route[] = [
 	{
-		path: '/users-token-emission',
-		title: 'Users Token Emission',
-		component: () => import('../routes/users-token-emission/+page.svelte')
+		path: '/token',
+		title: '$VFSN Token',
+		component: () => import('../routes/vfsn-token/+page.svelte')
+	},
+	{
+		path: '/staking',
+		title: 'Staking',
+		component: () => import('../routes/staking/+page.svelte')
 	},
 	{
 		path: '/staking-token-movement',
 		title: 'Token Flow Staking',
 		component: () => import('../routes/staking-token-movement/+page.svelte')
+	},
+	{
+		path: '/users-token-emission',
+		title: 'Users Token Emission',
+		component: () => import('../routes/users-token-emission/+page.svelte')
 	},
 	{
 		path: '/user-chat-activity',

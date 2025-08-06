@@ -1,8 +1,6 @@
 <script lang="ts">
-  import * as Card from "$lib/components/ui/card/index.js";
   import { cn } from "$lib/utils";
   import { onDestroy, onMount } from "svelte";
-
   import { CategoryScale, Chart, Legend, LinearScale, LineController, LineElement, PointElement, TimeScale, Title, Tooltip } from "chart.js";
   import "chartjs-adapter-date-fns";
 
@@ -10,16 +8,19 @@
 
   const {
     data = [],
-    title = "VFSN Token Emission",
-    description = "Total VFSN rewards per day (last 30 days)",
+    title = "",
+    description = "",
     className = "",
   } = $props<{
-    data: Array<{ date: Date; rewardAmount: number }>;
+    data: Array<{
+      date: Date;
+      stakedAmount: number;
+      unstakedAmount: number;
+      netMovement: number;
+    }>;
     title?: string;
     description?: string;
     isLoading?: boolean;
-    skeletonClass?: string;
-    className?: string;
   }>();
 
   let canvas: HTMLCanvasElement;
@@ -34,10 +35,26 @@
         labels: data.map((d) => d.date),
         datasets: [
           {
-            label: "Daily Rewards ($VFSN)",
-            data: data.map((d) => d.rewardAmount),
+            label: "Staked Amount",
+            data: data.map((d) => d.stakedAmount),
             borderColor: "#4ade80",
             backgroundColor: "#4ade80",
+            tension: 0.4,
+            pointRadius: 2,
+          },
+          {
+            label: "Unstaked Amount",
+            data: data.map((d) => d.unstakedAmount),
+            borderColor: "#f87171",
+            backgroundColor: "#f87171",
+            tension: 0.4,
+            pointRadius: 2,
+          },
+          {
+            label: "Net Movement",
+            data: data.map((d) => d.netMovement),
+            borderColor: "#60a5fa",
+            backgroundColor: "#60a5fa",
             tension: 0.4,
             pointRadius: 2,
           },
@@ -48,7 +65,7 @@
         plugins: {
           title: {
             display: !!title,
-            // text: title
+            text: title,
           },
           legend: {
             position: "top",
@@ -59,7 +76,7 @@
             callbacks: {
               title: (tooltipItems) => {
                 const ts = tooltipItems[0].parsed.x;
-                return new Date(ts).toDateString(); // e.g., "8/4/2025"
+                return new Date(ts).toDateString();
               },
             },
           },
@@ -73,7 +90,6 @@
             type: "time",
             time: {
               unit: "day",
-              //   tooltipFormat: 'yyyy-MMMM-dddd',
             },
             title: {
               display: true,
@@ -83,7 +99,7 @@
           y: {
             title: {
               display: true,
-              text: "$VFSN",
+              text: "Amount ($VFSN)",
             },
             beginAtZero: true,
           },
@@ -92,14 +108,19 @@
     });
   };
 
-  onMount(buildChart);
+  onMount(() => {
+    buildChart();
+  });
 
   $effect(() => {
     if (!chart && data.length) {
       buildChart();
-    } else if (chart && data.length && chart.data.datasets.length > 0) {
+    } else if (chart && data.length) {
+      // Update only datasets and labels
       chart.data.labels = data.map((d) => d.date);
-      chart.data.datasets[0].data = data.map((d) => d.rewardAmount);
+      chart.data.datasets[0].data = data.map((d) => d.stakedAmount);
+      chart.data.datasets[1].data = data.map((d) => d.unstakedAmount);
+      chart.data.datasets[2].data = data.map((d) => d.netMovement);
       chart.update();
     }
   });
@@ -112,19 +133,3 @@
 <div class={cn("w-full", className)}>
     <canvas class="h-full w-full" bind:this={canvas}></canvas>
 </div>
-<!-- <Card.Root>
-  <Card.Header>
-    <Card.Title>{title}</Card.Title>
-    <Card.Description>{description}</Card.Description>
-  </Card.Header>
-
-  <Card.Content>
-    <div class={cn("w-full", className)}>
-      <canvas class="h-full w-full" bind:this={canvas}></canvas>
-    </div>
-  </Card.Content>
-
-  <Card.Footer>
-    <slot name="footer" />
-  </Card.Footer>
-</Card.Root> -->
