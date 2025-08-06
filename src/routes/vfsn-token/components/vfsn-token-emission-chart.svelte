@@ -1,5 +1,4 @@
 <script lang="ts">
-  import * as Card from "$lib/components/ui/card/index.js";
   import { cn } from "$lib/utils";
   import { onDestroy, onMount } from "svelte";
 
@@ -10,19 +9,16 @@
 
   const {
     data = [],
-    title = "",
-    description = "",
+    title = "VFSN Token Emission",
+    description = "Total VFSN rewards per day (last 30 days)",
     className = "",
   } = $props<{
-    data: Array<{
-      date: Date;
-      stakedAmount: number;
-      unstakedAmount: number;
-      netMovement: number;
-    }>;
+    data: Array<{ date: Date; rewardAmount: number }>;
     title?: string;
     description?: string;
     isLoading?: boolean;
+    skeletonClass?: string;
+    className?: string;
   }>();
 
   let canvas: HTMLCanvasElement;
@@ -37,26 +33,10 @@
         labels: data.map((d) => d.date),
         datasets: [
           {
-            label: "Staked Amount",
-            data: data.map((d) => d.stakedAmount),
+            label: "Daily Rewards ($VFSN)",
+            data: data.map((d) => d.rewardAmount),
             borderColor: "#4ade80",
             backgroundColor: "#4ade80",
-            tension: 0.4,
-            pointRadius: 2,
-          },
-          {
-            label: "Unstaked Amount",
-            data: data.map((d) => d.unstakedAmount),
-            borderColor: "#f87171",
-            backgroundColor: "#f87171",
-            tension: 0.4,
-            pointRadius: 2,
-          },
-          {
-            label: "Net Movement",
-            data: data.map((d) => d.netMovement),
-            borderColor: "#60a5fa",
-            backgroundColor: "#60a5fa",
             tension: 0.4,
             pointRadius: 2,
           },
@@ -67,7 +47,7 @@
         plugins: {
           title: {
             display: !!title,
-            text: title,
+            // text: title
           },
           legend: {
             position: "top",
@@ -78,7 +58,7 @@
             callbacks: {
               title: (tooltipItems) => {
                 const ts = tooltipItems[0].parsed.x;
-                return new Date(ts).toDateString();
+                return new Date(ts).toDateString(); // e.g., "8/4/2025"
               },
             },
           },
@@ -92,6 +72,7 @@
             type: "time",
             time: {
               unit: "day",
+              //   tooltipFormat: 'yyyy-MMMM-dddd',
             },
             title: {
               display: true,
@@ -101,7 +82,7 @@
           y: {
             title: {
               display: true,
-              text: "Amount ($VFSN)",
+              text: "$VFSN",
             },
             beginAtZero: true,
           },
@@ -110,19 +91,14 @@
     });
   };
 
-  onMount(() => {
-    buildChart();
-  });
+  onMount(buildChart);
 
   $effect(() => {
     if (!chart && data.length) {
       buildChart();
-    } else if (chart && data.length) {
-      // Update only datasets and labels
+    } else if (chart && data.length && chart.data.datasets.length > 0) {
       chart.data.labels = data.map((d) => d.date);
-      chart.data.datasets[0].data = data.map((d) => d.stakedAmount);
-      chart.data.datasets[1].data = data.map((d) => d.unstakedAmount);
-      chart.data.datasets[2].data = data.map((d) => d.netMovement);
+      chart.data.datasets[0].data = data.map((d) => d.rewardAmount);
       chart.update();
     }
   });
@@ -133,23 +109,5 @@
 </script>
 
 <div class={cn("w-full", className)}>
-    <canvas class="h-full w-full" bind:this={canvas}></canvas>
+  <canvas class="h-full w-full" bind:this={canvas}></canvas>
 </div>
-<!-- <Card.Root>
-  <Card.Header>
-    <Card.Title>{title || "Staking"}</Card.Title>
-    <Card.Description>
-      {description || "Movement in last 30 days"}
-    </Card.Description>
-  </Card.Header>
-
-  <Card.Content>
-    <div class={cn("w-full", className)}>
-      <canvas class="h-full w-full" bind:this={canvas}></canvas>
-    </div>
-  </Card.Content>
-
-  <Card.Footer>
-    <slot name="footer" />
-  </Card.Footer>
-</Card.Root> -->

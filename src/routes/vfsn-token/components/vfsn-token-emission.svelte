@@ -4,7 +4,7 @@
   import { RefreshCwIcon } from "@lucide/svelte";
   import dayjs from "dayjs";
   import { onMount } from "svelte";
-  import { fetchDlpGraph } from "../../../../api/subgraph-dlp";
+  import { fetchDlpGraph } from "../../../api/subgraph-dlp";
   import VfsnTokenEmissionChart from "./vfsn-token-emission-chart.svelte";
   import * as Card from "$lib/components/ui/card/index.js";
   import { ToggleGroup } from "bits-ui";
@@ -91,29 +91,29 @@
           <Card.Description>Total VFSN rewards per day (last {getDaysFilter()} days)</Card.Description>
         </div>
         <div class="flex flex-row justify-start items-center gap-x-8">
-        <ToggleGroup.Root type="single" bind:value={getDaysFilter, setDaysFilter} class="h-input rounded-xl border-border flex items-center gap-x-2 border px-2 py-1">
-          <ToggleGroup.Item
-            value="30"
-            class="rounded-xl hover:cursor-pointer p-2 active:bg-dark-10 data-[state=on]:bg-muted data-[state=off]:text-foreground-alt data-[state=on]:text-foreground active:data-[state=on]:bg-dark-10 transition-all active:scale-[0.98]"
-          >
-            Last 30 days
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
-            value="60"
-            class="rounded-xl hover:cursor-pointer p-2 active:bg-dark-10 data-[state=on]:bg-muted data-[state=off]:text-foreground-alt data-[state=on]:text-foreground active:data-[state=on]:bg-dark-10 transition-all active:scale-[0.98]"
-          >
-            Last 60 days
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
-            value="90"
-            class="rounded-xl hover:cursor-pointer p-2 active:bg-dark-10 data-[state=on]:bg-muted data-[state=off]:text-foreground-alt data-[state=on]:text-foreground active:data-[state=on]:bg-dark-10 transition-all active:scale-[0.98]"
-          >
-            Last 90 days
-          </ToggleGroup.Item>
-        </ToggleGroup.Root>
-        <Button class="bg-transparent cursor-pointer hover:bg-background" disabled={isLoading} onclick={() => fetchData()}>
-          <RefreshCwIcon class="h-4 w-4 text-foreground" />
-        </Button>
+          <ToggleGroup.Root type="single" bind:value={getDaysFilter, setDaysFilter} class="h-input rounded-xl border-border flex items-center gap-x-2 border px-2 py-1">
+            <ToggleGroup.Item
+              value="30"
+              class="rounded-xl hover:cursor-pointer p-2 active:bg-dark-10 data-[state=on]:bg-muted data-[state=off]:text-foreground-alt data-[state=on]:text-foreground active:data-[state=on]:bg-dark-10 transition-all active:scale-[0.98]"
+            >
+              Last 30 days
+            </ToggleGroup.Item>
+            <ToggleGroup.Item
+              value="60"
+              class="rounded-xl hover:cursor-pointer p-2 active:bg-dark-10 data-[state=on]:bg-muted data-[state=off]:text-foreground-alt data-[state=on]:text-foreground active:data-[state=on]:bg-dark-10 transition-all active:scale-[0.98]"
+            >
+              Last 60 days
+            </ToggleGroup.Item>
+            <ToggleGroup.Item
+              value="90"
+              class="rounded-xl hover:cursor-pointer p-2 active:bg-dark-10 data-[state=on]:bg-muted data-[state=off]:text-foreground-alt data-[state=on]:text-foreground active:data-[state=on]:bg-dark-10 transition-all active:scale-[0.98]"
+            >
+              Last 90 days
+            </ToggleGroup.Item>
+          </ToggleGroup.Root>
+          <Button class="bg-transparent cursor-pointer hover:bg-background" disabled={isLoading} onclick={() => fetchData()}>
+            <RefreshCwIcon class="h-4 w-4 text-foreground" />
+          </Button>
         </div>
       </div>
     </Card.Header>
