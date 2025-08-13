@@ -41,6 +41,9 @@
     "zod": "^3.25.67"
   },
   "dependencies": {
+    "chart.js": "^4.5.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "ethers": "^6.14.4",
     "mode-watcher": "^1.0.8",

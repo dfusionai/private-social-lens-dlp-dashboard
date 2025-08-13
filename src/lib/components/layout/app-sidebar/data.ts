@@ -75,6 +75,43 @@ export const data = {
       url: "/proposal",
       items: [
         {
+            title: "$VFSN Token",
+            url: "/token",
+            icon: BankNoteArrowUp,
+        },
+        {
+            title: "Staking",
+            url: "/staking",
+            icon: BankNoteArrowUp,
+        },
+        // {
+        //     title: "User Chat Activity",
+        //     url: "/user-chat-activity",
+        //     icon: MessageCircleQuestion,
+        // },
+        // {
+        //     title: "Data Efficiency",
+        //     url: "/data-efficiency",
+        //     icon: BarChart,
+        // },
+        // {
+        //     title: "Health Subnet Ops",
+        //     url: "/health-subnet-ops",
+        //     icon: Activity,
+        // },
+        // {
+        //     title: "Pricing Monetization",
+        //     url: "/pricing-monetization",
+        //     icon: HandCoins,
+        // },
+        // {
+        //     title: "Reward Governance Control",
+        //     url: "/reward-governance-control",
+        //     icon: SlidersVertical,
+        // },
+    ],
+    navClouds: [
+        {
           title: "Active Proposals",
           url: "/proposal/active",
         },

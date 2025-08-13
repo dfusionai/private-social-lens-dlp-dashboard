@@ -5,7 +5,7 @@
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import { tokenSymbol } from "$lib/const";
     import { formatDecimalNumber } from "$lib/utils";
-    import { fetchBalance } from "../../../../api/fetchBalance";
+    import { fetchBalance } from "../../../api/fetchBalance";
     import Button from "$lib/components/ui/button/button.svelte";
     import { RefreshCwIcon } from "@lucide/svelte";
 
@@ -16,7 +16,7 @@
         try {
             loading = true;
             const result = await fetchBalance();
-            balance = String(formatDecimalNumber(result));
+            balance = formatDecimalNumber(result);
         } catch (error) {
             toast.error("Fetching balance failed!");
         } finally {
@@ -38,14 +38,11 @@
     <div class="relative">
         <Card.Header>
             <div class="flex items-center justify-between">
-                <Card.Title>Current Reward Pool Balance</Card.Title>
+                <Card.Title>$VFSN Balance</Card.Title>
             </div>
-            <Card.Description>
-                Current reward pool balance in the system
-            </Card.Description>
         </Card.Header>
         <Button
-            class="bg-transparent cursor-pointer hover:bg-background absolute top-[-10px] right-4"
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
             disabled={loading}
             onclick={() => fetchData()}
         >
