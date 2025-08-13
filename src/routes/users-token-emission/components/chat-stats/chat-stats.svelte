@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { fromIndex, lastWeekDayInx, daysPerWeek } from "$lib/const";
+    import { fromIndex, daysPerWeek } from "$lib/const";
     import { Button } from "$lib/components/ui/button";
     import { RefreshCwIcon } from "@lucide/svelte";
     import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
@@ -7,6 +7,14 @@
     import DateJump from "$lib/components/common/date-jump/date-jump.svelte";
     import { formatDate, getDateGap } from "$lib/utils";
     import { chatStore, chatActions } from "$lib/stores/chatStore";
+    import type { DateValue } from "@internationalized/date";
+    import {
+        getLocalTimeZone,
+        parseDate,
+        today,
+        type CalendarDate,
+    } from "@internationalized/date";
+    import { toast } from "svelte-sonner";
     import {
         ChartConfigChatStats,
         seriesChatStats,
@@ -17,15 +25,8 @@
         generateChatStatsParams,
     } from "../../utils";
     import { fetchChatStats } from "../../../../api/fetchChatStats";
-    import type { DateValue } from "@internationalized/date";
-    import {
-        getLocalTimeZone,
-        parseDate,
-        today,
-        type CalendarDate,
-    } from "@internationalized/date";
 
-    let chartData = $state(generateChatStatsData(fromIndex, lastWeekDayInx));
+    let chartData = $state(generateChatStatsData(fromIndex, daysPerWeek));
     let currentDate = $state(today(getLocalTimeZone()));
     let selectedDateIndex = $state<number>(0);
     let isLoading = $state(false);
@@ -33,18 +34,12 @@
     const store = $chatStore;
 
     const queryHandler = async (dateIndex: number) => {
-        const newChartData = generateChatStatsData(
-            dateIndex,
-            dateIndex + lastWeekDayInx
-        );
-
+        const chartDataOnWeek = generateChatStatsData(dateIndex, dateIndex + daysPerWeek)
+    
         try {
             isLoading = true;
 
-            const params = generateChatStatsParams(
-                dateIndex,
-                dateIndex + daysPerWeek
-            );
+            const params = generateChatStatsParams(chartDataOnWeek);
 
             const chatData: { newChats: number; refreshedChats: number }[] = [];
 
@@ -56,7 +51,7 @@
                 });
             }
 
-            chartData = newChartData.map((item, index) => ({
+            chartData = chartDataOnWeek.map((item, index) => ({
                 date: item.date,
                 newChats: chatData[index].newChats,
                 refreshedChats: chatData[index].refreshedChats,
@@ -64,12 +59,17 @@
 
             chatActions.setChatData(chartData);
         } catch (error) {
-            chartData = newChartData;
-            throw error;
+            chartData = chartDataOnWeek
+            toast.error("Fetching chat stats Failed!");
         } finally {
             isLoading = false;
         }
     };
+
+    const reloadHandler = () => {
+        queryHandler(fromIndex)
+        currentDate = today(getLocalTimeZone());
+    }
 
     onMount(() => {
         if (store.chatData) {
@@ -100,7 +100,7 @@
         </span>
 
         <DateJump
-            jumpDay={7}
+            jumpDay={daysPerWeek}
             onChooseDate={handleDateChange}
             disabled={isLoading}
             value={currentDate}
@@ -122,7 +122,7 @@
         <Button
             class="bg-transparent cursor-pointer hover:bg-background absolute top-4 right-4"
             disabled={isLoading}
-            onclick={() => queryHandler(selectedDateIndex)}
+            onclick={reloadHandler}
         >
             <RefreshCwIcon class="h-4 w-4 text-foreground" />
         </Button>

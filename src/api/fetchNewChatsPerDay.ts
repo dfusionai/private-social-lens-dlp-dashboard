@@ -18,7 +18,7 @@ export async function fetchNewChatsPerDay(params: INewChatsPerDayParams) {
     const query = generateQuery({ startDate, endDate });
 
     try {
-        const response: ApiResponse<INewChatsPerDayItem[]> = await http.get(`/api/stats/new-chats-per-day${query}`);
+        const response: ApiResponse<INewChatsPerDayItem[]> = await http.get(`/stats/new-chats-per-day${query}`);
 
         return response;
     } catch (error) {
