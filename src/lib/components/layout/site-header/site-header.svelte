@@ -17,6 +17,8 @@
             <Sidebar.Trigger class="-ml-1" />
         </div>
 
+        <h3 class="font-bold text-[#f19e38]">STAGING</h3>
+
         <Button onclick={toggleMode} variant="outline" size="icon">
             <SunIcon
                 class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
