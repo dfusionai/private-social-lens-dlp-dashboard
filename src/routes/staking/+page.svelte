@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import StakingMovement from "./components/staking-movement.svelte";
+  import VfsnStakedBalance from "./components/vfsn-staked-balance.svelte";
 
   onMount(async () => {
     // try {
@@ -16,6 +17,12 @@
   });
 </script>
 
-<div>
-  <StakingMovement />
+<div class="flex flex-col justify-start items-stretch gap-8">
+  <div class="w-1/2">
+    <VfsnStakedBalance />
+  </div>
+
+  <div>
+    <StakingMovement />
+  </div>
 </div>

@@ -30,7 +30,7 @@ export interface GraphQLData {
  * @returns {Promise<object>} - The result from your backend (deserialized JSON)
  */
 export async function fetchStakingGraph({ query = '', variables = {}, operationName = 'Subgraphs' }) {
-  const endpoint = `${ENV_CONFIG.VITE_DF_BASE_URL}/api/subgraph/staking`;
+  const endpoint = `${ENV_CONFIG.VITE_DF_BASE_URL}/subgraph/staking`;
     const response = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -39,7 +39,8 @@ export async function fetchStakingGraph({ query = '', variables = {}, operationN
         body: JSON.stringify({
             query,
             variables,
-            operationName
+            operationName,
+            environment: 'stage'
         })
     });
     if (!response.ok) {

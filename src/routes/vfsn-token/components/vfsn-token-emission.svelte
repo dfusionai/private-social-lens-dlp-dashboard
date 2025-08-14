@@ -36,7 +36,7 @@
       const currentDate = new Date();
 
       const thirtyDaysAgo = new Date(currentDate);
-      thirtyDaysAgo.setDate(currentDate.getDate() - (Number(daysFilter) - 1));
+      thirtyDaysAgo.setDate(currentDate.getDate() - (Number(daysFilter)));
       thirtyDaysAgo.setHours(0, 0, 0, 0);
       const startOfNDaysAgo = thirtyDaysAgo.getTime();
       currentDate.setHours(23, 59, 59, 0);
@@ -68,12 +68,10 @@
         rewardAmount: parseFloat(item.totalRewardAmount) / 1e18,
       }));
 
-      // stakeEventsActions.setStakeOnWeek(chartData);
     } catch (error) {
       console.error("Error fetching staking metrics:", error);
     } finally {
       isLoading = false;
-      stakeEventsActions.setLoading(false);
     }
   };
 

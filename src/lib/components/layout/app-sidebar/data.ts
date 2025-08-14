@@ -21,13 +21,23 @@ export const data = {
     {
       title: "Users Token Emission",
       url: "/users-token-emission",
-      icon: BankNoteArrowUp,    
+      icon: BankNoteArrowUp,
     },
     {
       title: "Token Gating Settings",
       url: "/token-gating-settings",
       icon: Shield,
     },
+    {
+            title: "$VFSN Token",
+            url: "/token",
+            icon: BankNoteArrowUp,
+        },
+        {
+            title: "Staking",
+            url: "/staking",
+            icon: BankNoteArrowUp,
+        },
     // {
     //     title: "User Chat Activity",
     //     url: "/user-chat-activity",
@@ -74,16 +84,6 @@ export const data = {
       title: "Proposal",
       url: "/proposal",
       items: [
-        {
-            title: "$VFSN Token",
-            url: "/token",
-            icon: BankNoteArrowUp,
-        },
-        {
-            title: "Staking",
-            url: "/staking",
-            icon: BankNoteArrowUp,
-        },
         // {
         //     title: "User Chat Activity",
         //     url: "/user-chat-activity",

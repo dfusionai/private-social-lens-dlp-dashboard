@@ -1,6 +1,5 @@
 <script lang="ts">
   import Button from "$lib/components/ui/button/button.svelte";
-  import { stakeEventsActions } from "$lib/stores/stakeEventsStore";
   import { RefreshCwIcon } from "@lucide/svelte";
   import dayjs from "dayjs";
   import { onMount } from "svelte";
@@ -17,6 +16,7 @@
       stakedAmount: number;
       unstakedAmount: number;
       netMovement: number;
+      cumulativeStakedAmount: number;
     }>
   >([]);
 
@@ -81,24 +81,24 @@
             stakedAmount
             unstakedAmount
             netMovement
+            cumulativeStakedAmount
         }
     }`;
       // TODO
       const data = await fetchStakingGraph({ query: STAKING_QUERY });
-
+      console.log('data', data);
       chartData = data.data.dailyStakingMetrics.map((item) => ({
         date: dayjs.unix(parseInt(item.date)).toDate(),
         stakedAmount: parseFloat(item.stakedAmount) / 1e18,
         unstakedAmount: parseFloat(item.unstakedAmount) / 1e18,
         netMovement: parseFloat(item.netMovement) / 1e18,
+        cumulativeStakedAmount: parseFloat(item?.cumulativeStakedAmount) / 1e18
       }));
 
-      // stakeEventsActions.setStakeOnWeek(chartData);
     } catch (error) {
       console.error("Error fetching staking metrics:", error);
     } finally {
       isLoading = false;
-      stakeEventsActions.setLoading(false);
     }
   };
 

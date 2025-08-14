@@ -1,7 +1,7 @@
 import { ENV_CONFIG } from "$lib/const";
 
 export async function fetchDlpGraph({ query = '', variables = {}, operationName = 'Subgraphs' }) {
-  const endpoint = `${ENV_CONFIG.VITE_DF_BASE_URL}/api/subgraph/dlp`;
+  const endpoint = `${ENV_CONFIG.VITE_DF_BASE_URL}/subgraph/dlp`;
     const response = await fetch(endpoint, {
         method: "POST",
         headers: {
