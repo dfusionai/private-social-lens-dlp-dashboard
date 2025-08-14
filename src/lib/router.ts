@@ -18,6 +18,11 @@ export const routes: Route[] = [
 		component: () => import('../routes/staking/+page.svelte')
 	},
 	{
+		path: '/files',
+		title: 'Files',
+		component: () => import('../routes/files/+page.svelte')
+	},
+	{
 		path: '/staking-token-movement',
 		title: 'Token Flow Staking',
 		component: () => import('../routes/staking-token-movement/+page.svelte')
