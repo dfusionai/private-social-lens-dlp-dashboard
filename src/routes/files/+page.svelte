@@ -3,6 +3,7 @@
   import FileRefinements from "./components/FileRefinements.svelte";
   import RelayWalletBalance from "./components/RelayWalletBalance.svelte";
   import { callRpc, formatNumber, padHex } from "./util/utils";
+  import ServerHealthChecks from "./components/ServerHealthChecks.svelte";
 
   const rpcUrl = import.meta.env.VITE_RPC_URL;
   const DLP_ADDRESS = import.meta.env.VITE_DLP_ADDRESS;
@@ -92,7 +93,7 @@
   });
 </script>
 
-<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-6 text-white">
   <!-- <h1 class="text-[#FB9C2D] text-5xl">Files</h1> -->
 
   <div class="flex flex-row justify-between gap-4">
@@ -126,4 +127,10 @@
     <h3 class="text-2xl mb-4 font-bold">$VFSN Relay Balances:</h3>
     <RelayWalletBalance />
   </div>
+
+  <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
+    <h3 class="text-2xl mb-4 font-bold">Serve Health Ping</h3>
+    <ServerHealthChecks />
+  </div>
+
 </div>
