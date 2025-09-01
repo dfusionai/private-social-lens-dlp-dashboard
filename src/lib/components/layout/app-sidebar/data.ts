@@ -84,6 +84,11 @@ export const data = {
             url: "/staking",
             icon: BankNoteArrowUp,
         },
+        {
+            title: "Files",
+            url: "/files",
+            icon: BankNoteArrowUp,
+        },
         // {
         //     title: "User Chat Activity",
         //     url: "/user-chat-activity",
