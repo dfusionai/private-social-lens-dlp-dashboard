@@ -19,7 +19,7 @@
     const fetchStakerData = async (params: ITopStakersParams) => {
         try {
             const topStakers = await fetchTopStakers(params);
-            top5Stakers = topStakers
+            top5Stakers = topStakers.slice(0, 5);
         } catch (err) {
             toast.error('Fetching top stakers Failed!')
         }
@@ -28,7 +28,7 @@
     const fetchUnstakerData = async (params: ITopUnstakersParams) => {
         try {
             const topUnstakers = await fetchTopUnstakers(params);
-            top5Withdrawers = topUnstakers
+            top5Withdrawers = topUnstakers.slice(0, 5);
         } catch (err) {
             toast.error('Fetching top unstakers Failed!')
         }

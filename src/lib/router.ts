@@ -7,56 +7,66 @@ export type Route = {
 };
 
 export const routes: Route[] = [
-	{
-		path: '/token',
-		title: '$VFSN Token',
-		component: () => import('../routes/vfsn-token/+page.svelte')
-	},
-	{
-		path: '/staking',
-		title: 'Staking',
-		component: () => import('../routes/staking/+page.svelte')
-	},
-	{
-		path: '/files',
-		title: 'Files',
-		component: () => import('../routes/files/+page.svelte')
-	},
-	{
-		path: '/staking-token-movement',
-		title: 'Token Flow Staking',
-		component: () => import('../routes/staking-token-movement/+page.svelte')
-	},
-	{
-		path: '/users-token-emission',
-		title: 'Users Token Emission',
-		component: () => import('../routes/users-token-emission/+page.svelte')
-	},
-	{
-		path: '/user-chat-activity',
-		title: 'User Chat Activity',
-		component: () => import('../routes/user-chat-activity/+page.svelte')
-	},
-	{
-		path: '/data-efficiency',
-		title: 'Data Efficiency',
-		component: () => import('../routes/data-efficiency/+page.svelte')
-	},
-	{
-		path: '/health-subnet-ops',
-		title: 'Health Subnet Ops',
-		component: () => import('../routes/health-subnet-ops/+page.svelte')
-	},
-	{
-		path: '/pricing-monetization',
-		title: 'Pricing Monetization',
-		component: () => import('../routes/pricing-monetization/+page.svelte')
-	},
-	{
-		path: '/reward-governance-control',
-		title: 'Reward Governance Control',
-		component: () => import('../routes/reward-governance-control/+page.svelte')
-	}
+    {
+        path: "/",
+        title: "Token Flow Staking",
+        component: () => import("../routes/staking-token-movement/+page.svelte"),
+    },
+    {
+        path: '/token',
+        title: '$VFSN Token',
+        component: () => import('../routes/vfsn-token/+page.svelte')
+    },
+    {
+        path: '/staking',
+        title: 'Staking',
+        component: () => import('../routes/staking/+page.svelte')
+    },
+    {
+        path: '/files',
+        title: 'Files',
+        component: () => import('../routes/files/+page.svelte')
+    },
+    {
+        path: '/staking-token-movement',
+        title: 'Token Flow Staking',
+        component: () => import('../routes/staking-token-movement/+page.svelte')
+    },
+    {
+        path: '/users-token-emission',
+        title: 'Users Token Emission',
+        component: () => import('../routes/users-token-emission/+page.svelte')
+    },
+    {
+        path: "/token-gating-settings",
+        title: "Token Gating Settings",
+        component: () => import("../routes/token-gating/+page.svelte"),
+    },
+    {
+        path: '/user-chat-activity',
+        title: 'User Chat Activity',
+        component: () => import('../routes/user-chat-activity/+page.svelte')
+    },
+    {
+        path: '/data-efficiency',
+        title: 'Data Efficiency',
+        component: () => import('../routes/data-efficiency/+page.svelte')
+    },
+    {
+        path: '/health-subnet-ops',
+        title: 'Health Subnet Ops',
+        component: () => import('../routes/health-subnet-ops/+page.svelte')
+    },
+    {
+        path: '/pricing-monetization',
+        title: 'Pricing Monetization',
+        component: () => import('../routes/pricing-monetization/+page.svelte')
+    },
+    {
+        path: '/reward-governance-control',
+        title: 'Reward Governance Control',
+        component: () => import('../routes/reward-governance-control/+page.svelte')
+    }
 ];
 
 const notFoundRoute = {

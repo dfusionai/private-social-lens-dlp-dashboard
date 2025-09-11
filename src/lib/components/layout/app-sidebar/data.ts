@@ -21,7 +21,22 @@ export const data = {
     {
       title: "Users Token Emission",
       url: "/users-token-emission",
-      icon: BankNoteArrowUp,    
+      icon: BankNoteArrowUp,
+    },
+    {
+      title: "$VFSN Token",
+      url: "/token",
+      icon: BankNoteArrowUp,
+    },
+    {
+      title: "Staking",
+      url: "/staking",
+      icon: BankNoteArrowUp,
+    },
+    {
+      title: "Files",
+      url: "/files",
+      icon: BankNoteArrowUp,
     },
     {
       title: "Token Gating Settings",
@@ -69,19 +84,19 @@ export const data = {
           url: "/capture/archived",
         },
         {
-            title: "$VFSN Token",
-            url: "/token",
-            icon: BankNoteArrowUp,
+          title: "$VFSN Token",
+          url: "/token",
+          icon: BankNoteArrowUp,
         },
         {
-            title: "Staking",
-            url: "/staking",
-            icon: BankNoteArrowUp,
+          title: "Staking",
+          url: "/staking",
+          icon: BankNoteArrowUp,
         },
         {
-            title: "Files",
-            url: "/files",
-            icon: BankNoteArrowUp,
+          title: "Files",
+          url: "/files",
+          icon: BankNoteArrowUp,
         },
         // {
         //     title: "User Chat Activity",
@@ -108,8 +123,8 @@ export const data = {
         //     url: "/reward-governance-control",
         //     icon: SlidersVertical,
         // },
-    ],
-    navClouds: [
+      ],
+      navClouds: [
         {
           title: "Active Proposals",
           url: "/proposal/active",
