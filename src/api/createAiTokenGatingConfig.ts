@@ -15,10 +15,19 @@ export interface ICreateTokenGatingConfigParams {
 
 export async function createAiTokenGatingConfig(params: ICreateTokenGatingConfigParams) {
     try {
-        const response: ApiResponse<IAiTokenGatingResponse> = await httpAiAgent.post(`/token-gating-configs`, params);
-
-        return response.data;
+        const jwt = localStorage.getItem('jwt');
+        const response: ApiResponse<IAiTokenGatingResponse> = await httpAiAgent.post(
+            `/token-gating-configs`,
+            params,
+            {
+                headers: {
+                    Authorization: `Bearer ${jwt}`
+                }
+            }
+        );
+        return response;
     } catch (error) {
+        console.error("Failed to fetch token gating configs", error);
         throw error;
     }
 }
