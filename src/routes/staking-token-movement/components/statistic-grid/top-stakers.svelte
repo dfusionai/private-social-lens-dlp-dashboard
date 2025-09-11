@@ -1,36 +1,60 @@
 <script lang="ts">
     import * as Card from "$lib/components/ui/card/index.js";
-    import { stakeEventsStore } from "$lib/stores/stakeEventsStore";
     import { Skeleton } from "$lib/components/ui/skeleton/index.js";
     import * as Tooltip from "$lib/components/ui/tooltip/index.js";
     import { buttonVariants } from "$lib/components/ui/button";
-    import { getTopStakers } from "../../utils";
-    import { tokenSymbol } from "$lib/const";
-    import { formatDecimalNumber } from "$lib/utils";
+    import { daysPerMonth, tokenSymbol } from "$lib/const";
+    import { formatDate, formatDecimalNumber } from "$lib/utils";
     import Button from "$lib/components/ui/button/button.svelte";
     import { RefreshCwIcon } from "@lucide/svelte";
-
-    const { fetchData }: { fetchData: () => void } = $props();
+    import { toast } from "svelte-sonner";
+    import { onMount } from "svelte";
+    import { fetchTopStakers, type ITopStakerItem, type ITopStakersParams } from "../../../../api/fetchTopStaker";
+    import { fetchTopUnstakers, type ITopUnstakerItem, type ITopUnstakersParams } from "../../../../api/fetchTopUnstaker";
 
     let loading = $state(false);
-    let top5Stakers = $state<{ address: string; amount: string }[]>([]);
-    let top5Withdrawers = $state<{ address: string; amount: string }[]>([]);
+    let top5Stakers: ITopStakerItem[] = $state([]);
+    let top5Withdrawers: ITopUnstakerItem[] = $state([]);
 
-    stakeEventsStore.subscribe((state) => {
-        loading = state.loading;
+    const fetchStakerData = async (params: ITopStakersParams) => {
+        try {
+            const topStakers = await fetchTopStakers(params);
+            top5Stakers = topStakers.slice(0, 5);
+        } catch (err) {
+            toast.error('Fetching top stakers Failed!')
+        }
+    }
 
-        if (!state.stakeEvents || !state.unstakeEvents) return;
+    const fetchUnstakerData = async (params: ITopUnstakersParams) => {
+        try {
+            const topUnstakers = await fetchTopUnstakers(params);
+            top5Withdrawers = topUnstakers.slice(0, 5);
+        } catch (err) {
+            toast.error('Fetching top unstakers Failed!')
+        }
+    }
 
-        const stakingInfo = getTopStakers(
-            state.stakeEvents,
-            state.unstakeEvents
-        );
+    const fetchAllData = async () => {
+        try{
+            loading = true
+            const today = new Date()
+            const daysBack30 = new Date(new Date().setDate(new Date().getDay() - daysPerMonth))
+    
+            const params = {
+                startDate: formatDate(daysBack30, "YMD_DASH"),
+                endDate: formatDate(today, "YMD_DASH"),
+            }
 
-        if (!stakingInfo) return;
+            await fetchStakerData(params)
+            await fetchUnstakerData(params)
+        } finally {
+            loading = false
+        }
+    }
 
-        top5Stakers = stakingInfo.top5Stakers;
-        top5Withdrawers = stakingInfo.top5Withdrawers;
-    });
+    onMount(() => {
+        fetchAllData()
+    })
 </script>
 
 <Card.Root class="hover:shadow-lg transition-shadow">
@@ -45,9 +69,9 @@
         </Card.Header>
 
         <Button
-            class="bg-transparent cursor-pointer hover:bg-background absolute top-0 right-4"
+            class="bg-transparent cursor-pointer hover:bg-background absolute top-[-10px] right-4"
             disabled={loading}
-            onclick={() => fetchData()}
+            onclick={() => fetchAllData()}
         >
             <RefreshCwIcon class="h-4 w-4 text-foreground" />
         </Button>
@@ -83,18 +107,18 @@
                                         })}
                                     >
                                         <span class="w-20 truncate">
-                                            {member.address}
+                                            {member.wallet_address}
                                         </span>
                                     </Tooltip.Trigger>
                                     <Tooltip.Content>
                                         <div class="flex flex-col gap-1">
                                             <b>Address</b>
-                                            <p>{member.address}</p>
+                                            <p>{member.wallet_address}</p>
 
                                             <b>Amount</b>
                                             <p>
                                                 {formatDecimalNumber(
-                                                    Number(member.amount)
+                                                    Number(member.stake_amount)
                                                 )}
                                                 {tokenSymbol}
                                             </p>
@@ -125,18 +149,18 @@
                                         })}
                                     >
                                         <span class="w-20 truncate">
-                                            {member.address}
+                                            {member.wallet_address}
                                         </span>
                                     </Tooltip.Trigger>
                                     <Tooltip.Content>
                                         <div class="flex flex-col gap-1">
                                             <b>Address</b>
-                                            <p>{member.address}</p>
+                                            <p>{member.wallet_address}</p>
 
                                             <b>Amount</b>
                                             <p>
                                                 {formatDecimalNumber(
-                                                    Number(member.amount)
+                                                    Number(member.unstake_amount)
                                                 )}
                                                 {tokenSymbol}
                                             </p>

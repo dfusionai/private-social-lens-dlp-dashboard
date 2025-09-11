@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { chatStore, chatActions } from "$lib/stores/chatStore";
+    import { toast } from "svelte-sonner";
     import CardInfo from "./card-info.svelte";
     import { fetchAvgChatsPerContributor } from "../../../../api/fetchAvgChatsPerContributor";
     import { fetchTotalUniqueChatIds } from "../../../../api/fetchTotalUniqueChatIds";
@@ -20,7 +21,7 @@
             data.totalChatsId = String(totalChatsId.data);
             chatActions.setTotalChatIds(String(totalChatsId.data));
         } catch (error) {
-            throw error;
+            toast.error("Fetching total unique chats Failed!");
         } finally {
             isTotalChatsIdLoading = false;
         }
@@ -35,7 +36,7 @@
                 String(avgChatsPerContributor.data)
             );
         } catch (error) {
-            throw error;
+            toast.error("Fetching avg chats per contributor Failed!");
         } finally {
             isAvgChatsPerContributorLoading = false;
         }

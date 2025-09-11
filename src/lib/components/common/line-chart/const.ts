@@ -19,4 +19,4 @@ export const defaultVisConfig: LineChartPropsObjProp = {
         format: (v: number) => formatNumberIntoShort(v),
     },
     highlight: { points: { r: 4 } },
-}
+};

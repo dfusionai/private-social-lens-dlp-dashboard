@@ -1,25 +1,15 @@
-import { daysPerMonth } from "$lib/const";
-import { formatDate, formatDecimalNumber, formatNumberIntoShort, generateDailyChartData } from "../../lib/utils";
+import { formatDate, formatDecimalNumber } from "../../lib/utils";
+
+interface IChatItem {
+    date: Date;
+    newChats: number;
+    refreshedChats: number;
+}
 
 export const generateValueString = (value: string) => {
     if (!value) return "-";
     return formatDecimalNumber(Number(value));
 };
-
-export const getDateParams = (selectedDateIndex: number) => {
-    const monthData = generateDailyChartData(
-        selectedDateIndex,
-        selectedDateIndex + daysPerMonth
-    );
-
-    const params = {
-        startDate: formatDate(monthData[0].date, "YMD_DASH"),
-        endDate: formatDate(monthData[monthData.length - 1].date, "YMD_DASH"),
-    };
-
-    return params
-};
-
 
 export const generateChatStatsData = (from: number, to: number) => {
     const data = [];
@@ -37,18 +27,15 @@ export const generateChatStatsData = (from: number, to: number) => {
     return data;
 };
 
-export const generateChatStatsParams = (from: number, to: number) => {
-    const weekData = generateChatStatsData(from, to);
+export const generateChatStatsParams = (chatStatsData: IChatItem[]) => {
+    const params: { startDate: string; endDate: string }[] = [];
 
-    const params: { startDate: string, endDate: string }[] = [];
-
-    for (let i = 0; i < weekData.length - 1; i++) {
-        const startDate = formatDate(weekData[i].date, "YMD_DASH");
-        const endDate = formatDate(weekData[i + 1].date, "YMD_DASH");
+    for (let i = 0; i < chatStatsData.length - 1; i++) {
+        const startDate = formatDate(chatStatsData[i].date, "YMD_DASH");
+        const endDate = formatDate(chatStatsData[i + 1].date, "YMD_DASH");
 
         params.push({ startDate, endDate });
     }
 
     return params;
-}
-
+};
