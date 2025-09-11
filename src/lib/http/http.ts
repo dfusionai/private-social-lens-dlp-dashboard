@@ -20,7 +20,7 @@ const DEFAULT_TIMEOUT = 60 * 1000; // 1 minute
 const DEFAULT_RETRIES = 1;
 const BASE_URL = ENV_CONFIG.VITE_DF_BASE_URL;
 const INDEXER_URL = ENV_CONFIG.VITE_INDEXER_BASE_URL;
-const AI_AGENT_URL = ENV_CONFIG.VITE_AI_AGENT_BASE_URL;
+const AI_AGENT_URL = `${ENV_CONFIG.VITE_AI_AGENT_BASE_URL}/api/v1`;
 
 // util funcs
 const buildUrl = (path: string, baseUrl: string): string => {

@@ -7,6 +7,7 @@ export const ENV_CONFIG = {
     VITE_DF_BASE_URL: import.meta.env.VITE_DF_BASE_URL,
     VITE_INDEXER_BASE_URL: import.meta.env.VITE_INDEXER_BASE_URL,
     VITE_AI_AGENT_BASE_URL: import.meta.env.VITE_AI_AGENT_BASE_URL,
+    VITE_RELAY_BASE_URL: import.meta.env.VITE_RELAY_BASE_URL,
 };
 
 export const queryMonthDuration = 6;
