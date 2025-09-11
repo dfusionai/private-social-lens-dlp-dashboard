@@ -62,10 +62,28 @@
   }
 
   onMount(async () => {
-    // dFusionValidatorHealthResult = (await getDFusionValidatorHealth()).toLowerCase();
-    vanaRelayServiceHealthResult = (await getVanaRelayServiceHealth()).toLowerCase();
-    suiAiAgentServiceHealthResult = (await getSuiAiAgentServiceHealth()).toLowerCase();
+    try {
+      dFusionValidatorHealthResult = (await getDFusionValidatorHealth()).toLowerCase();
+    } catch (e) {
+      console.error("Error getDFusionValidatorHealth:", e);
+      dFusionValidatorHealthResult = "error";
+    }
+
+    try {
+      vanaRelayServiceHealthResult = (await getVanaRelayServiceHealth()).toLowerCase();
+    } catch (e) {
+      console.error("Error getVanaRelayServiceHealth:", e);
+      vanaRelayServiceHealthResult = "error";
+    }
+
+    try {
+      suiAiAgentServiceHealthResult = (await getSuiAiAgentServiceHealth()).toLowerCase();
+    } catch (e) {
+      console.error("Error getSuiAiAgentServiceHealth:", e);
+      suiAiAgentServiceHealthResult = "error";
+    }
   });
+
 </script>
 
 <table class="table-auto">
