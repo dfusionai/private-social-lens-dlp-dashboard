@@ -1,10 +1,14 @@
 import BankNoteArrowUp from "@lucide/svelte/icons/banknote-arrow-up";
+import BankNoteArrowDown from "@lucide/svelte/icons/banknote-arrow-down";
 import MessageCircleQuestion from "@lucide/svelte/icons/message-circle-question";
 import BarChart from "@lucide/svelte/icons/bar-chart";
 import Activity from "@lucide/svelte/icons/activity";
 import HandCoins from "@lucide/svelte/icons/hand-coins";
 import SlidersVertical from "@lucide/svelte/icons/sliders-vertical";
 import Shield from "@lucide/svelte/icons/shield";
+import File from "@lucide/svelte/icons/file";
+import bitcoin from "@lucide/svelte/icons/bitcoin";
+import server from "@lucide/svelte/icons/server";
 
 export const data = {
   user: {
@@ -14,9 +18,14 @@ export const data = {
   },
   navMain: [
     {
-      title: "Staking Token Movement",
+      title: "Balances",
       url: "/",
-      icon: BankNoteArrowUp,
+      icon: bitcoin,
+    },
+    {
+      title: "Staking Token Movement",
+      url: "/staking-token-movement",
+      icon: BankNoteArrowDown,
     },
     {
       title: "Users Token Emission",
@@ -31,17 +40,22 @@ export const data = {
     {
       title: "Staking",
       url: "/staking",
-      icon: BankNoteArrowUp,
+      icon: BankNoteArrowDown,
     },
     {
-      title: "Files",
+      title: "Vana Files",
       url: "/files",
-      icon: BankNoteArrowUp,
+      icon: File,
     },
     {
       title: "Token Gating Settings",
       url: "/token-gating-settings",
       icon: Shield,
+    },
+    {
+      title: "Server Statuses",
+      url: "/server-statuses",
+      icon: server,
     },
     // {
     //     title: "User Chat Activity",

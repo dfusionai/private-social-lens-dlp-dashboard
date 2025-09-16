@@ -1,8 +1,9 @@
 <script>
-    import { callRpc, padHex } from "../util/utils";
+    import { callRpc, padHex } from "$lib/utils";
 
     const DLP_ADDRESS = import.meta.env.VITE_DLP_ADDRESS;
     const DATA_REGISTRY_ADDRESS = import.meta.env.VITE_DATA_REGISTRY_ADDRESS;
+    const rpcUrl = import.meta.env.VITE_RPC_URL;
 
     let { fileCountNumber } = $props();
 
@@ -15,10 +16,14 @@
             for (let i = fileCountNumber - 1; i >= fileCountNumber - 5; i--) {
                 console.log("i", i);
                 listPromises.push(
-                    callRpc("eth_call", [
-                        { to: DLP_ADDRESS, data: "0x3b3cd378" + padHex(i.toString(16)) },
-                        "latest"
-                    ]).then((data) => Number(BigInt(data)))
+                    callRpc(
+                        "eth_call",
+                        [
+                            { to: DLP_ADDRESS, data: "0x3b3cd378" + padHex(i.toString(16)) },
+                            "latest"
+                        ],
+                        rpcUrl
+                ).then((data) => Number(BigInt(data)))
                 );
             }
 
@@ -26,10 +31,13 @@
             console.log("fileIdsList", fileIdsList);
 
             const fileDataPromises = fileIdsList.map((fileId) =>
-                callRpc("eth_call", [
+                callRpc(
+                    "eth_call", [
                     { to: DATA_REGISTRY_ADDRESS, data: "0xf4c714b4" + padHex(fileId.toString(16)) },
                     "latest"
-                ])
+                ],
+                rpcUrl
+            )
             );
 
             const fileDataList = await Promise.all(fileDataPromises);
@@ -108,13 +116,17 @@
 
             const callData = functionSelector + paddedFileId + paddedRefinerId;
 
-            const refinementData = await callRpc("eth_call", [
-                {
-                    to: DATA_REGISTRY_ADDRESS,
-                    data: callData
-                },
-                "latest"
-            ]);
+            const refinementData = await callRpc(
+                "eth_call",
+                [
+                    {
+                        to: DATA_REGISTRY_ADDRESS,
+                        data: callData
+                    },
+                    "latest"
+                ],
+                rpcUrl
+            );
 
             // Decode the string return value
             const decodedRefinement = decodeStringResponse(refinementData);
