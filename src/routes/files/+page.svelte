@@ -1,14 +1,10 @@
 <script lang="ts">
+  import { callRpc, formatNumber, padHex } from "$lib/utils";
   import { onMount } from "svelte";
   import FileRefinements from "./components/FileRefinements.svelte";
-  import RelayWalletBalance from "./components/RelayWalletBalance.svelte";
-  import { callRpc, formatNumber, padHex } from "./util/utils";
-  import ServerHealthChecks from "./components/ServerHealthChecks.svelte";
 
   const rpcUrl = import.meta.env.VITE_RPC_URL;
   const DLP_ADDRESS = import.meta.env.VITE_DLP_ADDRESS;
-  const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS;
-  const DATA_REGISTRY_ADDRESS = import.meta.env.VITE_DATA_REGISTRY_ADDRESS;
 
   // let balance = $state("…");
   let fileCount = $state("…");
@@ -42,10 +38,14 @@
 
   async function fetchCount() {
     try {
-      const countData = await callRpc("eth_call", [
+      const countData = await callRpc
+      ("eth_call",
+      [
         { to: DLP_ADDRESS, data: "0x7ccf35a6" },
         "latest"
-      ]);
+      ],
+      rpcUrl
+    );
 
       const cnt = Number(BigInt(countData));
 
@@ -64,23 +64,31 @@
   }
 
   async function fetchLastUpload(idx) {
-    const listAtData = await callRpc("eth_call", [
-      {
-        to: DLP_ADDRESS,
-        data: "0x3b3cd378" + padHex(idx.toString(16))
-      },
-      "latest"
-    ]);
+    const listAtData = await callRpc(
+      "eth_call",
+      [
+        {
+          to: DLP_ADDRESS,
+          data: "0x3b3cd378" + padHex(idx.toString(16))
+        },
+        "latest"
+      ],
+      rpcUrl
+    );
 
     const fileId = Number(BigInt(listAtData));
 
-    const fileData = await callRpc("eth_call", [
-      {
-        to: DLP_ADDRESS,
-        data: "0xf4c714b4" + padHex(fileId.toString(16))
-      },
-      "latest"
-    ]);
+    const fileData = await callRpc(
+      "eth_call",
+      [
+        {
+          to: DLP_ADDRESS,
+          data: "0xf4c714b4" + padHex(fileId.toString(16))
+        },
+        "latest"
+      ],
+      rpcUrl
+    );
 
     const tsHex = "0x" + fileData.slice(2 + 64, 2 + 64 * 2);
 
@@ -97,11 +105,6 @@
   <!-- <h1 class="text-[#FB9C2D] text-5xl">Files</h1> -->
 
   <div class="flex flex-row justify-between gap-4">
-    <!-- <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
-      <h3 class="text-2xl mb-4 font-bold">$VFSN Balance:</h3>
-      <p class="font-bold">{balance}</p>
-    </div> -->
-
     <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
       <h3 class="text-2xl mb-4 font-bold">Files Uploaded:</h3>
       <p class="font-bold">{fileCount}</p>
@@ -116,21 +119,9 @@
   </div>
   </div>
 
-
-
   <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
     <h3 class="text-2xl mb-4 font-bold">Recent File Refinements</h3>
     <FileRefinements {fileCountNumber} />
-  </div>
-
-  <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
-    <h3 class="text-2xl mb-4 font-bold">$VFSN Relay Balances:</h3>
-    <RelayWalletBalance />
-  </div>
-
-  <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
-    <h3 class="text-2xl mb-4 font-bold">Serve Health Ping</h3>
-    <ServerHealthChecks />
   </div>
 
 </div>
