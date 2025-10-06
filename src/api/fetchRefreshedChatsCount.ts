@@ -13,7 +13,7 @@ export async function fetchRefreshedChatsCount(params: IRefreshedChatsCountParam
     const query = generateQuery({ startDate, endDate });
 
     try {
-        const response: ApiResponse<number> = await http.get(`/stats/refreshed-chats-count${query}`);
+        const response: ApiResponse<number> = await http.get(`/api/stats/refreshed-chats-count${query}`);
 
         return response;
     } catch (error) {

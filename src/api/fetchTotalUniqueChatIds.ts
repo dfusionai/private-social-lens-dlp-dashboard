@@ -4,7 +4,7 @@ import { http, type ApiResponse } from "../lib/http/http";
 
 export async function fetchTotalUniqueChatIds() {
     try {
-        const response: ApiResponse<any> = await http.get("/stats/total-unique-chat-ids");
+        const response: ApiResponse<any> = await http.get("/api/stats/total-unique-chat-ids");
 
         return response;
     } catch (error) {

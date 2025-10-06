@@ -18,7 +18,7 @@ export async function fetchDailyUniqueContributors(params: IDailyUniqueContribut
     const query = generateQuery({ startDate, endDate });
 
     try {
-        const response: ApiResponse<IDailyUniqueContributorsItem[]> = await http.get(`/stats/daily-unique-contributors${query}`);
+        const response: ApiResponse<IDailyUniqueContributorsItem[]> = await http.get(`/api/stats/daily-unique-contributors${query}`);
 
         return response;
     } catch (error) {
