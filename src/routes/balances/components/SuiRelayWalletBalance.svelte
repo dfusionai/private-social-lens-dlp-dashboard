@@ -1,11 +1,16 @@
 <script>
-  import Separator from "$lib/components/ui/separator/separator.svelte";
   import { onMount } from "svelte";
 
-  const SUI_DEPLOYER_WALLET = import.meta.env.VITE_SUI_DEPLOYER_ADDRESS;
+  // Collect all sub wallet addresses from environment variables
+  const SUB_WALLET_ADDRESSES = [];
+  for (let i = 0; i <= 7; i++) {
+    const address = import.meta.env[`VITE_SUI_DEPLOYER_SUB_WALLET_ADDRESS_${i}`];
+    if (address) {
+      SUB_WALLET_ADDRESSES.push(address);
+    }
+  }
   
-  let suiBalance = $state('0');
-  let walBalances = $state('0');
+  let walletBalances = $state({});
   
   async function fetchSuiAndWalrusBalances(address) {
     try {
@@ -44,23 +49,79 @@
   }
 
   onMount(async () => {
-    const { sui, walrus } = await fetchSuiAndWalrusBalances(SUI_DEPLOYER_WALLET);
-    suiBalance = Number(sui).toFixed(5);
-    walBalances = Number(walrus).toFixed(5);
+    const balancePromises = SUB_WALLET_ADDRESSES.map(async (address) => {
+      const balances = await fetchSuiAndWalrusBalances(address);
+      return { address, ...balances };
+    });
+
+    const results = await Promise.all(balancePromises);
+    
+    results.forEach(({ address, sui, walrus }) => {
+      walletBalances = { 
+        ...walletBalances, 
+        [address]: { sui, walrus }
+      };
+    });
   });
 </script>
 
-
-<Separator class="my-8" />
-
-<div class="flex flex-row justify-evenly items-center gap-4">
-  <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
-    <h3 class="text-2xl mb-4 font-bold">SUI Balance:</h3>
-    <p class="font-bold">{suiBalance}</p>
-  </div>
-    
-  <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
-    <h3 class="text-2xl mb-4 font-bold">WAL Balance:</h3>
-    <p class="font-bold">{walBalances}</p>
-  </div>
-</div>
+<table class="table-auto w-full">
+  <thead>
+    <tr class="border-b">
+      <th class="text-center px-4 py-2">Wallet Address</th>
+      <th class="text-center px-4 py-2">SUI Balance</th>
+      <th class="text-center px-4 py-2">Walrus Balance</th>
+      <th class="text-center px-4 py-2">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {#each SUB_WALLET_ADDRESSES as address}
+      <tr>
+        <td class="text-center px-4 py-2">
+          {address.substring(0, 5)} ... {address.substring(address.length - 5)}
+        </td>
+        <td class="text-center px-4 py-2">
+          {#if walletBalances[address]?.sui !== undefined}
+            {typeof walletBalances[address].sui === "number" 
+              ? walletBalances[address].sui.toFixed(5) 
+              : walletBalances[address].sui}
+          {:else}
+            ...
+          {/if}
+        </td>
+        <td class="text-center px-4 py-2">
+          {#if walletBalances[address]?.walrus !== undefined}
+            {typeof walletBalances[address].walrus === "number" 
+              ? walletBalances[address].walrus.toFixed(5) 
+              : walletBalances[address].walrus}
+          {:else}
+            ...
+          {/if}
+        </td>
+        <td class="px-4 py-2 text-center">
+          {#if walletBalances[address] !== undefined}
+            {#if typeof walletBalances[address].sui === "number" && typeof walletBalances[address].walrus === "number"}
+              {#if walletBalances[address].sui < 0.1 || walletBalances[address].walrus < 0.1}
+                <div class="inline-block min-w-[60px] rounded-md bg-red-500 p-1 text-white">
+                  Low!
+                </div>
+              {:else if walletBalances[address].sui < 0.2 || walletBalances[address].walrus < 0.2}
+                <div class="inline-block min-w-[60px] rounded-md bg-yellow-500 p-1 text-gray-900">
+                  Warning
+                </div>
+              {:else}
+                <div class="inline-block min-w-[60px] rounded-md bg-green-500 p-1 text-white">
+                  OK
+                </div>
+              {/if}
+            {:else if walletBalances[address].sui === "Error" || walletBalances[address].walrus === "Error"}
+              <div class="inline-block min-w-[60px] rounded-md bg-gray-400 p-1 text-white">
+                Error
+              </div>
+            {/if}
+          {:else}{/if}
+        </td>
+      </tr>
+    {/each}
+  </tbody>
+</table>
