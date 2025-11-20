@@ -1,6 +1,8 @@
 <script>
   import { onMount } from "svelte";
 
+  const SUI_DEPLOYER_WALLET = import.meta.env.VITE_SUI_DEPLOYER_ADDRESS;
+
   // Collect all sub wallet addresses from environment variables
   const SUB_WALLET_ADDRESSES = [];
   for (let i = 0; i <= 7; i++) {
@@ -10,6 +12,7 @@
     }
   }
   
+  let mainWalletBalance = $state({ sui: '0', walrus: '0' });
   let walletBalances = $state({});
   
   async function fetchSuiAndWalrusBalances(address) {
@@ -49,6 +52,16 @@
   }
 
   onMount(async () => {
+    // Fetch main wallet balance
+    if (SUI_DEPLOYER_WALLET) {
+      const mainBalances = await fetchSuiAndWalrusBalances(SUI_DEPLOYER_WALLET);
+      mainWalletBalance = {
+        sui: typeof mainBalances.sui === "number" ? mainBalances.sui.toFixed(5) : mainBalances.sui,
+        walrus: typeof mainBalances.walrus === "number" ? mainBalances.walrus.toFixed(5) : mainBalances.walrus
+      };
+    }
+
+    // Fetch sub wallet balances
     const balancePromises = SUB_WALLET_ADDRESSES.map(async (address) => {
       const balances = await fetchSuiAndWalrusBalances(address);
       return { address, ...balances };
@@ -64,6 +77,25 @@
     });
   });
 </script>
+
+<!-- Main Deployer Wallet Balance -->
+{#if SUI_DEPLOYER_WALLET}
+  <div class="flex flex-row justify-evenly items-center gap-4 mb-6">
+    <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
+      <h3 class="text-2xl mb-4 font-bold">Deployer/Main SUI:</h3>
+      <p class="font-bold">{mainWalletBalance.sui}</p>
+    </div>
+    
+    <div class="flex flex-1 flex-col gap-2 bg-[#101520] p-4 rounded-2xl">
+      <h3 class="text-2xl mb-4 font-bold">Deployer/Main WAL:</h3>
+      <p class="font-bold">{mainWalletBalance.walrus}</p>
+    </div>
+  </div>
+{/if}
+
+<!-- Sub Wallets -->
+<div class="mt-6">
+  <h3 class="text-2xl mb-4 font-bold">Sub Wallet Addresses:</h3>
 
 <table class="table-auto w-full">
   <thead>
@@ -125,3 +157,4 @@
     {/each}
   </tbody>
 </table>
+</div>
