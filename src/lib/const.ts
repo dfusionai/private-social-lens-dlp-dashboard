@@ -8,6 +8,7 @@ export const ENV_CONFIG = {
     VITE_INDEXER_BASE_URL: import.meta.env.VITE_INDEXER_BASE_URL,
     VITE_AI_AGENT_BASE_URL: import.meta.env.VITE_AI_AGENT_BASE_URL,
     VITE_RELAY_BASE_URL: import.meta.env.VITE_RELAY_BASE_URL,
+    VITE_HIGH_QUALITY_CHAT_COUNT_URL: import.meta.env.VITE_HIGH_QUALITY_CHAT_COUNT_URL,
 };
 
 export const queryMonthDuration = 6;

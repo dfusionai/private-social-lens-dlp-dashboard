@@ -1,4 +1,5 @@
 import { fetchDirect, type ApiResponse } from "$lib/http/http";
+import { ENV_CONFIG } from "$lib/const";
 
 interface HighQualityChatCountResponse {
     container: string;
@@ -8,7 +9,7 @@ interface HighQualityChatCountResponse {
     status: string;
 }
 
-const HIGH_QUALITY_CHAT_COUNT_URL = "https://blob-count-api.happyfield-d4613d37.eastus.azurecontainerapps.io";
+const HIGH_QUALITY_CHAT_COUNT_URL = ENV_CONFIG.VITE_HIGH_QUALITY_CHAT_COUNT_URL;
 
 export async function fetchHighQualityChatCount() {
     try {
