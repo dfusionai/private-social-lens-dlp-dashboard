@@ -5,12 +5,15 @@
     import CardInfo from "./card-info.svelte";
     import { fetchAvgChatsPerContributor } from "../../../../api/fetchAvgChatsPerContributor";
     import { fetchTotalUniqueChatIds } from "../../../../api/fetchTotalUniqueChatIds";
+    import { fetchHighQualityChatCount } from "../../../../api/fetchHighQualityChatCount";
 
     let isTotalChatsIdLoading = $state(false);
     let isAvgChatsPerContributorLoading = $state(false);
+    let isHighQualityChatCountLoading = $state(false);
     let data = $state({
         totalChatsId: "",
         avgChatsPerContributor: "",
+        highQualityChatCount: "",
     });
     const store = $chatStore;
 
@@ -42,6 +45,18 @@
         }
     };
 
+    const queryHighQualityChatCount = async () => {
+        try {
+            isHighQualityChatCountLoading = true;
+            const highQualityChatCount = await fetchHighQualityChatCount();
+            data.highQualityChatCount = String(highQualityChatCount.data);
+        } catch (error) {
+            toast.error("Fetching high quality chat count Failed!");
+        } finally {
+            isHighQualityChatCountLoading = false;
+        }
+    };
+
     onMount(() => {
         if (!store.avgChatsPerContributor) {
             queryAvgChatsPerContributor();
@@ -50,6 +65,8 @@
         if (!store.totalChatIds) {
             queryTotalUniqueChats();
         }
+
+        queryHighQualityChatCount();
     });
 </script>
 
@@ -67,5 +84,12 @@
         description="Average number of chats generated per contributor over time"
         isLoading={isAvgChatsPerContributorLoading}
         reloadHandler={queryAvgChatsPerContributor}
+    />
+    <CardInfo
+        label="High quality chat count"
+        value={data.highQualityChatCount}
+        description="Number of high quality chats submitted"
+        isLoading={isHighQualityChatCountLoading}
+        reloadHandler={queryHighQualityChatCount}
     />
 </div>
