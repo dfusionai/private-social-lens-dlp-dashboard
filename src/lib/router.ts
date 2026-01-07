@@ -82,30 +82,41 @@ const notFoundRoute = {
 
 export const currentRoute = writable<Route>(routes[0]);
 
+// Normalize path by removing trailing slashes (except for root "/")
+function normalizePath(path: string): string {
+    if (path === "/" || path === "") return "/";
+    return path.replace(/\/+$/, "");
+}
+
+function findRoute(path: string): Route {
+    return routes.find((r) => r.path === path) ?? notFoundRoute;
+}
+
 export function navigate(path: string, replace = false) {
-    const route = routes.find((r) => r.path === path);
-    const toRoute = route ? route : notFoundRoute;
+    const normalizedPath = normalizePath(path);
+    const toRoute = findRoute(normalizedPath);
     currentRoute.set(toRoute);
     if (replace) {
-        window.history.replaceState({}, "", path);
+        window.history.replaceState({}, "", normalizedPath);
     } else {
-        window.history.pushState({}, "", path);
+        window.history.pushState({}, "", normalizedPath);
     }
 }
 
 export function initRouter() {
     // Handle browser back/forward buttons
     window.addEventListener("popstate", () => {
-        const path = window.location.pathname;
-        const route = routes.find((r) => r.path === path);
-        const toRoute = route ? route : notFoundRoute;
-        currentRoute.set(toRoute);
-        window.history.pushState({}, "", path);
+        const path = normalizePath(window.location.pathname);
+        currentRoute.set(findRoute(path));
+        // Don't pushState here - popstate is triggered by back/forward navigation
     });
 
     // Set initial route based on current path
-    const path = window.location.pathname;
-    const route = routes.find((r) => r.path === path);
-    const toRoute = route ? route : notFoundRoute;
-    currentRoute.set(toRoute);
+    const path = normalizePath(window.location.pathname);
+    currentRoute.set(findRoute(path));
+    
+    // Clean up trailing slashes in URL if present
+    if (window.location.pathname !== path) {
+        window.history.replaceState({}, "", path);
+    }
 }
