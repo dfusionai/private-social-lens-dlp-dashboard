@@ -19,19 +19,43 @@ jobs:
         with:
           submodules: true
           lfs: false
-      - name: Build And Deploy
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_DLP_ADDRESS: ${{ secrets.VITE_DLP_ADDRESS }}
+          VITE_STAKING_ADDRESS: ${{ secrets.VITE_STAKING_ADDRESS }}
+          VITE_TOKEN_ADDRESS: ${{ secrets.VITE_TOKEN_ADDRESS }}
+          VITE_RPC_URL: ${{ secrets.VITE_RPC_URL }}
+          VITE_TEE_POOL_ADDRESS: ${{ secrets.VITE_TEE_POOL_ADDRESS }}
+          VITE_DATA_REGISTRY_ADDRESS: ${{ secrets.VITE_DATA_REGISTRY_ADDRESS }}
+          VITE_DF_BASE_URL: ${{ secrets.VITE_DF_BASE_URL }}
+          VITE_INDEXER_BASE_URL: ${{ secrets.VITE_INDEXER_BASE_URL }}
+          VITE_AI_AGENT_BASE_URL: ${{ secrets.VITE_AI_AGENT_BASE_URL }}
+          VITE_RELAY_BASE_URL: ${{ secrets.VITE_RELAY_BASE_URL }}
+          VITE_HIGH_QUALITY_CHAT_COUNT_URL: ${{ secrets.VITE_HIGH_QUALITY_CHAT_COUNT_URL }}
+          VITE_SUI_DEPLOYER_ADDRESS: ${{ secrets.VITE_SUI_DEPLOYER_ADDRESS }}
+          VITE_RELAY_WALLET_ADDRESSES: ${{ secrets.VITE_RELAY_WALLET_ADDRESSES }}
+
+      - name: Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_VICTORIOUS_SKY_0B00FD20F }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # App source code path
-          api_location: "" # Api source code path - optional
-          output_location: "dist" # Built app content directory - optional
-          ###### End of Repository/Build Configurations ######
+          app_location: "/"
+          output_location: "dist"
+          skip_app_build: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -44,3 +68,4 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_VICTORIOUS_SKY_0B00FD20F }}
           action: "close"
+          app_location: "/"
