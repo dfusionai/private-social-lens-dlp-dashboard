@@ -45,6 +45,7 @@ jobs:
           VITE_HIGH_QUALITY_CHAT_COUNT_URL: ${{ secrets.VITE_HIGH_QUALITY_CHAT_COUNT_URL }}
           VITE_SUI_DEPLOYER_ADDRESS: ${{ secrets.VITE_SUI_DEPLOYER_ADDRESS }}
           VITE_RELAY_WALLET_ADDRESSES: ${{ secrets.VITE_RELAY_WALLET_ADDRESSES }}
+          VITE_SUI_SUB_WALLET_ADDRESSES: ${{ secrets.VITE_SUI_SUB_WALLET_ADDRESSES }}
 
       - name: Deploy
         id: builddeploy
@@ -52,9 +53,9 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_VICTORIOUS_SKY_0B00FD20F }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "/"
-          output_location: "dist"
+          action: 'upload'
+          app_location: '/'
+          output_location: 'dist'
           skip_app_build: true
 
   close_pull_request_job:
@@ -67,5 +68,5 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_VICTORIOUS_SKY_0B00FD20F }}
-          action: "close"
-          app_location: "/"
+          action: 'close'
+          app_location: '/'

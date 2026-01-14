@@ -1,10 +1,11 @@
 <script>
   import { onMount } from "svelte";
+  import { ENV_CONFIG } from "$lib/const";
 
-  const SUI_DEPLOYER_WALLET = import.meta.env.VITE_SUI_DEPLOYER_ADDRESS;
+  const SUI_DEPLOYER_WALLET = ENV_CONFIG.VITE_SUI_DEPLOYER_ADDRESS;
 
   // Collect all sub wallet addresses from environment variable (JSON array)
-  const SUB_WALLET_ADDRESSES = JSON.parse(import.meta.env.VITE_SUI_SUB_WALLET_ADDRESSES || "[]");
+  const SUB_WALLET_ADDRESSES = JSON.parse(ENV_CONFIG.VITE_SUI_SUB_WALLET_ADDRESSES || "[]");
   
   let mainWalletBalance = $state({ sui: '0', walrus: '0' });
   let walletBalances = $state({});
