@@ -9,13 +9,17 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
@@ -46,6 +50,9 @@ jobs:
           VITE_SUI_DEPLOYER_ADDRESS: ${{ secrets.VITE_SUI_DEPLOYER_ADDRESS }}
           VITE_RELAY_WALLET_ADDRESSES: ${{ secrets.VITE_RELAY_WALLET_ADDRESSES }}
           VITE_SUI_SUB_WALLET_ADDRESSES: ${{ secrets.VITE_SUI_SUB_WALLET_ADDRESSES }}
+
+      - name: Remove node_modules before deploy
+        run: rm -rf node_modules
 
       - name: Deploy
         id: builddeploy
