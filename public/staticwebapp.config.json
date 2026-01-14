@@ -18,6 +18,7 @@
   },
   "mimeTypes": {
     ".json": "application/json",
-    ".svg": "image/svg+xml"
+    ".svg": "image/svg+xml",
+    ".ico": "image/x-icon"
   }
 }
