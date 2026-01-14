@@ -44,7 +44,7 @@
   
   async function getSuiAiAgentServiceHealth() {
     try {
-      const endpoint = `${ENV_CONFIG.VITE_AI_AGENT_BASE_URL}`;;
+      const endpoint = `${ENV_CONFIG.VITE_AI_AGENT_BASE_URL}`;
       const response = await fetch(endpoint, {
         method: "GET",
       });

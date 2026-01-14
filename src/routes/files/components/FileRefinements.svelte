@@ -1,9 +1,10 @@
 <script>
     import { callRpc, padHex } from "$lib/utils";
+    import { ENV_CONFIG } from "$lib/const";
 
-    const DLP_ADDRESS = import.meta.env.VITE_DLP_ADDRESS;
-    const DATA_REGISTRY_ADDRESS = import.meta.env.VITE_DATA_REGISTRY_ADDRESS;
-    const rpcUrl = import.meta.env.VITE_RPC_URL;
+    const DLP_ADDRESS = ENV_CONFIG.VITE_DLP_ADDRESS;
+    const DATA_REGISTRY_ADDRESS = ENV_CONFIG.VITE_DATA_REGISTRY_ADDRESS;
+    const rpcUrl = ENV_CONFIG.VITE_RPC_URL;
 
     let { fileCountNumber } = $props();
 

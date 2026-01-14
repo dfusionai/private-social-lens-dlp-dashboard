@@ -1,11 +1,12 @@
 <script lang="ts">
     import UnderConstruction from "$lib/components/layout/under-construction/under-construction.svelte";
     import { onMount } from "svelte";
+    import { ENV_CONFIG } from "$lib/const";
 
-    const rpcUrl = import.meta.env.VITE_RPC_URL;
-    const DLP_ADDRESS = import.meta.env.VITE_DLP_ADDRESS;
-    const STAKING_ADDRESS = import.meta.env.VITE_STAKING_ADDRESS;
-    const TOKEN_ADDRESS = import.meta.env.VITE_TOKEN_ADDRESS;
+    const rpcUrl = ENV_CONFIG.VITE_RPC_URL;
+    const DLP_ADDRESS = ENV_CONFIG.VITE_DLP_ADDRESS;
+    const STAKING_ADDRESS = ENV_CONFIG.VITE_STAKING_ADDRESS;
+    const TOKEN_ADDRESS = ENV_CONFIG.VITE_TOKEN_ADDRESS;
 
     let balance = $state("…");
     let fileCount = $state("…");

@@ -2,9 +2,10 @@
   import { callRpc, formatNumber, padHex } from "$lib/utils";
   import { onMount } from "svelte";
   import FileRefinements from "./components/FileRefinements.svelte";
+  import { ENV_CONFIG } from "$lib/const";
 
-  const rpcUrl = import.meta.env.VITE_RPC_URL;
-  const DLP_ADDRESS = import.meta.env.VITE_DLP_ADDRESS;
+  const rpcUrl = ENV_CONFIG.VITE_RPC_URL;
+  const DLP_ADDRESS = ENV_CONFIG.VITE_DLP_ADDRESS;
 
   // let balance = $state("…");
   let fileCount = $state("…");

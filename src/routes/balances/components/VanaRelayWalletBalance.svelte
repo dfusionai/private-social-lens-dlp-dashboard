@@ -1,10 +1,11 @@
 <script>
   import { onMount } from "svelte";
   import { callRpc } from "$lib/utils";
+  import { ENV_CONFIG } from "$lib/const";
 
   let vanaBalances = $state({});
-  const WALLET_ADDRESSES_TO_CHECK = JSON.parse(import.meta.env.VITE_RELAY_WALLET_ADDRESSES || "[]");
-  const rpcUrl = import.meta.env.VITE_RPC_URL;
+  const WALLET_ADDRESSES_TO_CHECK = JSON.parse(ENV_CONFIG.VITE_RELAY_WALLET_ADDRESSES || "[]");
+  const rpcUrl = ENV_CONFIG.VITE_RPC_URL;
 
   async function fetchVanaBalanceForAddress(address) {
     try {
