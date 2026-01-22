@@ -16,8 +16,22 @@
         isLoading,
         skeletonClass,
         formatter,
+        showDateInTooltip = false,
         ...lineChartProps
     }: Props = $props()
+
+    // Format date for tooltip label
+    function formatDateLabel(value: any) {
+        if (value instanceof Date) {
+            return value.toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+                year: "numeric"
+            });
+        }
+        return value;
+    }
 </script>
 
 {#snippet defaultFormatter(tooltipProps: any)}
@@ -46,7 +60,12 @@
                     {...lineChartProps}
                 >
                     {#snippet tooltip()}
-                        <Chart.Tooltip hideLabel formatter={formatter || defaultFormatter} />
+                        <Chart.Tooltip 
+                            hideLabel={!showDateInTooltip} 
+                            labelFormatter={formatDateLabel}
+                            labelKey="date"
+                            formatter={formatter || defaultFormatter} 
+                        />
                     {/snippet}
                 </LineChart>
             </Chart.Container>

@@ -10,4 +10,5 @@ export interface Props extends LineChartProps<Record<string, any>> {
     isLoading?: boolean;
     skeletonClass?: string;
     formatter?: Snippet;
+    showDateInTooltip?: boolean;
 }

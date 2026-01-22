@@ -15,9 +15,6 @@
         rpcUrl
       );
       const balanceVana = Number(BigInt(balanceWeiHex)) / 10 ** 18; // VANA has 18 decimals
-      // console.log('balanceWeiHex', balanceWeiHex);
-      // console.log('balanceVana', balanceVana);
-      // return formatNumber(balanceVana);
       return balanceVana;
     } catch (error) {
       console.error(`Error fetching VANA balance for ${address}:`, error);
