@@ -12,6 +12,7 @@
     title = "VFSN Token Emission",
     description = "Total VFSN rewards per day (last 30 days)",
     className = "",
+    onDateSelect,
   } = $props<{
     data: Array<{ date: Date; rewardAmount: number }>;
     title?: string;
@@ -19,6 +20,7 @@
     isLoading?: boolean;
     skeletonClass?: string;
     className?: string;
+    onDateSelect?: (date: Date) => void;
   }>();
 
   let canvas: HTMLCanvasElement;
@@ -38,7 +40,8 @@
             borderColor: "#4ade80",
             backgroundColor: "#4ade80",
             tension: 0.4,
-            pointRadius: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
           },
         ],
       },
@@ -66,6 +69,17 @@
         interaction: {
           mode: "nearest",
           intersect: false,
+        },
+        onClick: (event, elements) => {
+          if (elements.length > 0 && onDateSelect) {
+            const element = elements[0];
+            const datasetIndex = element.datasetIndex;
+            const index = element.index;
+            if (chart && chart.data.labels && chart.data.labels[index]) {
+              const clickedDate = chart.data.labels[index] as Date;
+              onDateSelect(clickedDate);
+            }
+          }
         },
         scales: {
           x: {
