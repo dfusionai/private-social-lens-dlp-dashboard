@@ -279,7 +279,13 @@
           <div class="flex flex-col gap-4">
             <div class="flex flex-row justify-between items-center">
               <h3 class="text-lg font-semibold">
-                Individual Rewards for {dayjs(selectedDate).format("MMMM D, YYYY")}
+                Individual Rewards for {(() => {
+                  // Calculate UTC day start (same logic as fetchDailyEvents) and format in UTC
+                  const utcDayStart = new Date(selectedDate);
+                  utcDayStart.setUTCHours(0, 0, 0, 0);
+                  // Use UTC timestamp to ensure UTC formatting
+                  return dayjs.unix(Math.floor(utcDayStart.getTime() / 1000)).utc().format("MMMM D, YYYY");
+                })()}
               </h3>
               <Button 
                 class="bg-transparent cursor-pointer hover:bg-background"
