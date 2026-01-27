@@ -12,6 +12,7 @@
   let isLoading = $state(false);
   let isLoadingDailyEvents = $state(false);
   let selectedDate = $state<Date | null>(null);
+  let currentRequestId = $state<number | null>(null);
   let dailyEvents = $state<
     Array<{
       id: string;
@@ -114,11 +115,16 @@
   };
 
   const handleDateSelect = async (date: Date) => {
+    // Generate a unique request ID for this fetch
+    const requestId = Date.now();
+    currentRequestId = requestId;
     selectedDate = date;
-    await fetchDailyEvents(date);
+    // Clear previous events immediately to show loading state
+    dailyEvents = [];
+    await fetchDailyEvents(date, requestId);
   };
 
-  const fetchDailyEvents = async (date: Date) => {
+  const fetchDailyEvents = async (date: Date, requestId: number) => {
     try {
       isLoadingDailyEvents = true;
       
@@ -147,6 +153,12 @@
       let hasMore = true;
 
       while (hasMore) {
+        // Check if this request is still current before each fetch
+        if (currentRequestId !== requestId) {
+          // This request has been superseded, abort
+          return;
+        }
+
         const EVENTS_QUERY = `{
                     rewardRequesteds(
                         where: {
@@ -171,6 +183,12 @@
         
         const data = await fetchDlpGraph({ query: EVENTS_QUERY });
         
+        // Check again after async operation
+        if (currentRequestId !== requestId) {
+          // This request has been superseded, abort
+          return;
+        }
+        
         if (data.data && data.data.rewardRequesteds) {
           const events = data.data.rewardRequesteds;
           allEvents.push(...events);
@@ -185,21 +203,30 @@
         }
       }
 
-      dailyEvents = allEvents.map((event) => ({
-        id: event.id,
-        contributorAddress: event.contributorAddress,
-        fileId: event.fileId,
-        proofIndex: event.proofIndex,
-        rewardAmount: parseFloat(event.rewardAmount) / 1e18,
-        blockNumber: event.blockNumber,
-        blockTimestamp: event.blockTimestamp,
-        transactionHash: event.transactionHash,
-      }));
+      // Only update state if this is still the current request
+      if (currentRequestId === requestId) {
+        dailyEvents = allEvents.map((event) => ({
+          id: event.id,
+          contributorAddress: event.contributorAddress,
+          fileId: event.fileId,
+          proofIndex: event.proofIndex,
+          rewardAmount: parseFloat(event.rewardAmount) / 1e18,
+          blockNumber: event.blockNumber,
+          blockTimestamp: event.blockTimestamp,
+          transactionHash: event.transactionHash,
+        }));
+      }
     } catch (error) {
       console.error("Error fetching daily events:", error);
-      dailyEvents = [];
+      // Only clear events if this is still the current request
+      if (currentRequestId === requestId) {
+        dailyEvents = [];
+      }
     } finally {
-      isLoadingDailyEvents = false;
+      // Only update loading state if this is still the current request
+      if (currentRequestId === requestId) {
+        isLoadingDailyEvents = false;
+      }
     }
   };
 
@@ -258,6 +285,7 @@
                 class="bg-transparent cursor-pointer hover:bg-background"
                 onclick={() => {
                   selectedDate = null;
+                  currentRequestId = null;
                   dailyEvents = [];
                 }}
               >
