@@ -14,7 +14,7 @@ export const routes: Route[] = [
     },
     {
         path: '/token',
-        title: '$VFSN Token',
+        title: '$VFSN Token Emission',
         component: () => import('../routes/vfsn-token/+page.svelte')
     },
     {
@@ -34,7 +34,7 @@ export const routes: Route[] = [
     },
     {
         path: '/users-token-emission',
-        title: 'Users Token Emission',
+        title: 'Chat Stats',
         component: () => import('../routes/users-token-emission/+page.svelte')
     },
     {

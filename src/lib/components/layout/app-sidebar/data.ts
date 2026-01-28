@@ -28,12 +28,12 @@ export const data = {
       icon: BankNoteArrowDown,
     },
     {
-      title: "Users Token Emission",
+      title: "Chat Stats",
       url: "/users-token-emission",
       icon: BankNoteArrowUp,
     },
     {
-      title: "$VFSN Token",
+      title: "$VFSN Token Emission",
       url: "/token",
       icon: BankNoteArrowUp,
     },
@@ -98,7 +98,7 @@ export const data = {
           url: "/capture/archived",
         },
         {
-          title: "$VFSN Token",
+          title: "$VFSN Token Emission",
           url: "/token",
           icon: BankNoteArrowUp,
         },

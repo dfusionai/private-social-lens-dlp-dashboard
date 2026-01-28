@@ -3,7 +3,10 @@
   import { stakeEventsActions } from "$lib/stores/stakeEventsStore";
   import { RefreshCwIcon } from "@lucide/svelte";
   import dayjs from "dayjs";
+  import utc from "dayjs/plugin/utc";
   import { onMount } from "svelte";
+  
+  dayjs.extend(utc);
   import { fetchDlpGraph } from "../../../api/subgraph-dlp";
   import VfsnTokenEmissionChart from "./vfsn-token-emission-chart.svelte";
   import * as Card from "$lib/components/ui/card/index.js";
@@ -18,11 +21,12 @@
       id: string;
       contributorAddress: string;
       fileId: string;
-      proofIndex: string;
       rewardAmount: number;
       blockNumber: string;
       blockTimestamp: string;
       transactionHash: string;
+      hasRewardAmount: boolean;
+      hasBlockTimestamp: boolean;
     }>
   >([]);
 
@@ -30,6 +34,7 @@
     Array<{
       date: Date;
       rewardAmount: number;
+      maxRewardAmount: number;
     }>
   >([]);
 
@@ -50,12 +55,17 @@
 
       // Use UTC for date calculations to match subgraph's UTC day start
       const currentDate = new Date();
-      const thirtyDaysAgo = new Date(currentDate);
-      thirtyDaysAgo.setUTCDate(currentDate.getUTCDate() - (Number(daysFilter) - 1));
-      thirtyDaysAgo.setUTCHours(0, 0, 0, 0);
-      const startOfNDaysAgo = Math.floor(thirtyDaysAgo.getTime() / 1000); // Convert to seconds (UTC)
-      currentDate.setUTCHours(23, 59, 59, 999);
-      const endOfCurrentDate = Math.floor(currentDate.getTime() / 1000); // Convert to seconds (UTC)
+      const endDate = new Date(currentDate);
+      endDate.setUTCHours(23, 59, 59, 999);
+      const endOfCurrentDate = Math.floor(endDate.getTime() / 1000); // Convert to seconds (UTC)
+      
+      // Calculate start date: subtract (daysFilter - 1) days to get N days total including today
+      // e.g., for 30 days: today - 29 days = 30 days total (Dec 28 to Jan 27 if today is Jan 27)
+      // Use milliseconds for reliable date arithmetic across month boundaries
+      const daysToSubtract = Number(daysFilter) - 1;
+      const nDaysAgo = new Date(currentDate.getTime() - daysToSubtract * 24 * 60 * 60 * 1000);
+      nDaysAgo.setUTCHours(0, 0, 0, 0);
+      const startOfNDaysAgo = Math.floor(nDaysAgo.getTime() / 1000); // Convert to seconds (UTC)
 
       // Fetch all records using pagination (max 1000 per query)
       const allDailyMetrics: Array<{ date: string; totalRewardAmount: string }> = [];
@@ -67,8 +77,8 @@
         const DLP_QUERY = `{
                     dailyRewardMetrics(
                         where: {
-                            date_gt: ${startOfNDaysAgo},
-                            date_lt: ${endOfCurrentDate}
+                            date_gte: ${startOfNDaysAgo},
+                            date_lte: ${endOfCurrentDate}
                         }
                         orderBy: date
                         orderDirection: asc
@@ -103,6 +113,7 @@
       chartData = allDailyMetrics.map((item) => ({
         date: dayjs.unix(parseInt(item.date)).toDate(),
         rewardAmount: parseFloat(item.totalRewardAmount) / 1e18,
+        maxRewardAmount: 0, // Not needed - users can see max when clicking datapoint
       }));
 
       // stakeEventsActions.setStakeOnWeek(chartData);
@@ -110,7 +121,6 @@
       console.error("Error fetching staking metrics:", error);
     } finally {
       isLoading = false;
-      stakeEventsActions.setLoading(false);
     }
   };
 
@@ -137,84 +147,57 @@
       dayEnd.setUTCHours(23, 59, 59, 999);
       const dayEndTimestamp = Math.floor(dayEnd.getTime() / 1000);
 
-      // Fetch all rewardRequested events for this day with pagination
-      const allEvents: Array<{
-        id: string;
-        contributorAddress: string;
-        fileId: string;
-        proofIndex: string;
-        rewardAmount: string;
-        blockNumber: string;
-        blockTimestamp: string;
-        transactionHash: string;
-      }> = [];
-      const pageSize = 1000;
-      let skip = 0;
-      let hasMore = true;
-
-      while (hasMore) {
-        // Check if this request is still current before each fetch
-        if (currentRequestId !== requestId) {
-          // This request has been superseded, abort
-          return;
-        }
-
-        const EVENTS_QUERY = `{
-                    rewardRequesteds(
-                        where: {
-                            blockTimestamp_gte: ${dayStartTimestamp},
-                            blockTimestamp_lte: ${dayEndTimestamp}
-                        }
-                        orderBy: blockTimestamp
-                        orderDirection: asc
-                        first: ${pageSize}
-                        skip: ${skip}
-                    ) {
-                        id
-                        contributorAddress
-                        fileId
-                        proofIndex
-                        rewardAmount
-                        blockNumber
-                        blockTimestamp
-                        transactionHash
+      // Fetch top 20 events ordered by rewardAmount descending
+      // Trust The Graph's API to return the correct top 20 records
+      const EVENTS_QUERY = `{
+                rewardRequesteds(
+                    where: {
+                        blockTimestamp_gte: ${dayStartTimestamp},
+                        blockTimestamp_lte: ${dayEndTimestamp}
                     }
-                }`;
-        
-        const data = await fetchDlpGraph({ query: EVENTS_QUERY });
-        
-        // Check again after async operation
-        if (currentRequestId !== requestId) {
-          // This request has been superseded, abort
-          return;
-        }
-        
-        if (data.data && data.data.rewardRequesteds) {
-          const events = data.data.rewardRequesteds;
-          allEvents.push(...events);
-          
-          if (events.length < pageSize) {
-            hasMore = false;
-          } else {
-            skip += pageSize;
-          }
-        } else {
-          hasMore = false;
-        }
+                    orderBy: rewardAmount
+                    orderDirection: desc
+                    first: 20
+                ) {
+                    id
+                    contributorAddress
+                    fileId
+                    rewardAmount
+                    blockNumber
+                    blockTimestamp
+                    transactionHash
+                }
+            }`;
+      
+      // Check if this request is still current before fetch
+      if (currentRequestId !== requestId) {
+        return;
       }
-
+      
+      const data = await fetchDlpGraph({ query: EVENTS_QUERY });
+      
+      // Check again after async operation
+      if (currentRequestId !== requestId) {
+        return;
+      }
+      
       // Only update state if this is still the current request
       if (currentRequestId === requestId) {
-        dailyEvents = allEvents.map((event) => ({
-          id: event.id,
-          contributorAddress: event.contributorAddress,
-          fileId: event.fileId,
-          proofIndex: event.proofIndex,
-          rewardAmount: parseFloat(event.rewardAmount) / 1e18,
-          blockNumber: event.blockNumber,
-          blockTimestamp: event.blockTimestamp,
-          transactionHash: event.transactionHash,
-        }));
+        // Map events - no sorting needed, The Graph API already returns them in the correct order
+        const mappedEvents = (data.data?.rewardRequesteds || [])
+          .map((event) => ({
+            id: event.id,
+            contributorAddress: event.contributorAddress,
+            fileId: event.fileId,
+            rewardAmount: event.rewardAmount ? parseFloat(event.rewardAmount) / 1e18 : 0,
+            blockNumber: event.blockNumber || "",
+            blockTimestamp: event.blockTimestamp || "",
+            transactionHash: event.transactionHash || "",
+            hasRewardAmount: !!event.rewardAmount,
+            hasBlockTimestamp: !!event.blockTimestamp,
+          }));
+        
+        dailyEvents = mappedEvents;
       }
     } catch (error) {
       console.error("Error fetching daily events:", error);
@@ -246,6 +229,12 @@
         <div class="flex flex-row justify-start items-center gap-x-8">
           <ToggleGroup.Root type="single" bind:value={getDaysFilter, setDaysFilter} class="h-input rounded-xl border-border flex items-center gap-x-2 border px-2 py-1">
             <ToggleGroup.Item
+              value="7"
+              class="rounded-xl hover:cursor-pointer p-2 active:bg-dark-10 data-[state=on]:bg-muted data-[state=off]:text-foreground-alt data-[state=on]:text-foreground active:data-[state=on]:bg-dark-10 transition-all active:scale-[0.98]"
+            >
+              Last 7 days
+            </ToggleGroup.Item>
+            <ToggleGroup.Item
               value="30"
               class="rounded-xl hover:cursor-pointer p-2 active:bg-dark-10 data-[state=on]:bg-muted data-[state=off]:text-foreground-alt data-[state=on]:text-foreground active:data-[state=on]:bg-dark-10 transition-all active:scale-[0.98]"
             >
@@ -272,21 +261,29 @@
     </Card.Header>
 
     <Card.Content>
+      <div class="mb-4 text-sm text-muted-foreground">
+        Click on any data point in the chart to view the top 20 reward events for that day, sorted by reward amount (most recent transactions shown first when amounts are equal).
+      </div>
       <VfsnTokenEmissionChart data={chartData} onDateSelect={handleDateSelect} />
       
       {#if selectedDate}
         <div class="mt-8 border-t pt-6">
           <div class="flex flex-col gap-4">
             <div class="flex flex-row justify-between items-center">
-              <h3 class="text-lg font-semibold">
-                Individual Rewards for {(() => {
-                  // Calculate UTC day start (same logic as fetchDailyEvents) and format in UTC
-                  const utcDayStart = new Date(selectedDate);
-                  utcDayStart.setUTCHours(0, 0, 0, 0);
-                  // Use UTC timestamp to ensure UTC formatting
-                  return dayjs.unix(Math.floor(utcDayStart.getTime() / 1000)).utc().format("MMMM D, YYYY");
-                })()}
-              </h3>
+              <div class="flex flex-col gap-1">
+                <h3 class="text-lg font-semibold">
+                  Top 20 Rewards for {(() => {
+                    // Calculate UTC day start (same logic as fetchDailyEvents) and format in UTC
+                    const utcDayStart = new Date(selectedDate);
+                    utcDayStart.setUTCHours(0, 0, 0, 0);
+                    // Use UTC timestamp to ensure UTC formatting
+                    return dayjs.unix(Math.floor(utcDayStart.getTime() / 1000)).utc().format("MMMM D, YYYY");
+                  })()}
+                </h3>
+                <p class="text-sm text-muted-foreground">
+                  Sorted by reward amount (most recent shown first when amounts are equal)
+                </p>
+              </div>
               <Button 
                 class="bg-transparent cursor-pointer hover:bg-background"
                 onclick={() => {
@@ -310,9 +307,8 @@
                     <tr class="border-b">
                       <th class="text-left p-2">Contributor</th>
                       <th class="text-left p-2">File ID</th>
-                      <th class="text-left p-2">Proof Index</th>
                       <th class="text-right p-2">Reward Amount</th>
-                      <th class="text-left p-2">Time</th>
+                      <th class="text-left p-2">Time (UTC)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -322,23 +318,15 @@
                           {event.contributorAddress.slice(0, 6)}...{event.contributorAddress.slice(-4)}
                         </td>
                         <td class="p-2">{event.fileId}</td>
-                        <td class="p-2">{event.proofIndex}</td>
-                        <td class="p-2 text-right font-semibold">{event.rewardAmount.toFixed(4)} VFSN</td>
+                        <td class="p-2 text-right font-semibold">
+                          {event.hasRewardAmount ? event.rewardAmount.toFixed(4) : "N/A"} VFSN
+                        </td>
                         <td class="p-2 text-sm text-muted-foreground">
-                          {dayjs.unix(parseInt(event.blockTimestamp)).format("HH:mm:ss")}
+                          {event.hasBlockTimestamp ? dayjs.unix(parseInt(event.blockTimestamp)).utc().format("HH:mm:ss") : "N/A"}
                         </td>
                       </tr>
                     {/each}
                   </tbody>
-                  <tfoot>
-                    <tr class="border-t font-semibold">
-                      <td colspan="3" class="p-2 text-right">Total:</td>
-                      <td class="p-2 text-right">
-                        {dailyEvents.reduce((sum, e) => sum + e.rewardAmount, 0).toFixed(4)} VFSN
-                      </td>
-                      <td class="p-2"></td>
-                    </tr>
-                  </tfoot>
                 </table>
               </div>
             {/if}
