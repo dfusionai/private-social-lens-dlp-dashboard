@@ -14,7 +14,7 @@
     className = "",
     onDateSelect,
   } = $props<{
-    data: Array<{ date: Date; rewardAmount: number }>;
+    data: Array<{ date: Date; rewardAmount: number; maxRewardAmount: number }>;
     title?: string;
     description?: string;
     isLoading?: boolean;
@@ -25,9 +25,13 @@
 
   let canvas: HTMLCanvasElement;
   let chart: Chart | null = null;
+  let currentMaxRewardAmounts: number[] = [];
 
   const buildChart = () => {
     if (chart) chart.destroy();
+
+    // Store maxRewardAmounts for tooltip access
+    currentMaxRewardAmounts = data.map((d) => d.maxRewardAmount);
 
     chart = new Chart(canvas, {
       type: "line",
@@ -62,6 +66,10 @@
               title: (tooltipItems) => {
                 const ts = tooltipItems[0].parsed.x;
                 return new Date(ts).toDateString(); // e.g., "8/4/2025"
+              },
+              label: (context) => {
+                const totalAmount = context.parsed.y;
+                return `${totalAmount.toFixed(4)} VFSN`;
               },
             },
           },
@@ -113,6 +121,8 @@
     } else if (chart && data.length && chart.data.datasets.length > 0) {
       chart.data.labels = data.map((d) => d.date);
       chart.data.datasets[0].data = data.map((d) => d.rewardAmount);
+      // Update maxRewardAmounts for tooltip
+      currentMaxRewardAmounts = data.map((d) => d.maxRewardAmount);
       chart.update();
     }
   });
