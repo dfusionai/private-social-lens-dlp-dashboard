@@ -78,11 +78,13 @@
   let chartData = $state<Record<string, any>[]>([]);
   let isLoading = $state(false);
 
-  // Calculate rate statistics for each wallet
+  // Calculate rate statistics for each wallet.
+  // Burn rate uses only day-over-day *decreases* (actual outflow), so top-ups don't skew it.
   interface WalletStats {
     address: string;
     totalChange: number;
-    avgDailyRate: number;
+    totalBurn: number;
+    avgDailyBurnRate: number;
     daysUntilEmpty: number | null;
     currentBalance: number;
   }
@@ -95,19 +97,28 @@
       const firstBalance = chartData[0]?.[key] || 0;
       const lastBalance = chartData[chartData.length - 1]?.[key] || 0;
       const totalChange = lastBalance - firstBalance;
-      const numDays = chartData.length - 1;
-      const avgDailyRate = numDays > 0 ? totalChange / numDays : 0;
-      
-      // Calculate days until empty (only if burning)
+
+      // Sum only decreases (outflows); ignore increases (top-ups)
+      let totalBurn = 0;
+      for (let i = 0; i < chartData.length - 1; i++) {
+        const prev = chartData[i]?.[key] ?? 0;
+        const next = chartData[i + 1]?.[key] ?? 0;
+        if (next < prev) totalBurn += prev - next;
+      }
+
+      const numDayTransitions = chartData.length - 1;
+      const avgDailyBurnRate = numDayTransitions > 0 ? totalBurn / numDayTransitions : 0;
+
       let daysUntilEmpty: number | null = null;
-      if (avgDailyRate < 0 && lastBalance > 0) {
-        daysUntilEmpty = Math.ceil(lastBalance / Math.abs(avgDailyRate));
+      if (avgDailyBurnRate > 0 && lastBalance > 0) {
+        daysUntilEmpty = Math.ceil(lastBalance / avgDailyBurnRate);
       }
 
       return {
         address,
         totalChange,
-        avgDailyRate,
+        totalBurn,
+        avgDailyBurnRate,
         daysUntilEmpty,
         currentBalance: lastBalance,
       };
@@ -237,10 +248,11 @@
   {/each}
 </div>
 
-<!-- Burn Rate Summary -->
+<!-- Burn Rate Summary (only counts decreases; top-ups are ignored) -->
 {#if walletStats.length > 0}
   <div class="mt-4 px-4 pb-4">
     <h4 class="text-sm font-medium text-muted-foreground mb-2">Burn Rate (Last {chartData.length - 1} Days)</h4>
+    <p class="text-xs text-muted-foreground mb-2">Based only on daily balance decreases (outflow). Top-ups do not affect burn rate.</p>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       {#each walletStats as stats, idx}
         <div 
@@ -249,14 +261,14 @@
         >
           <div class="font-medium mb-1">{formatAddress(stats.address)}</div>
           <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-            <span class="text-muted-foreground">Total Change:</span>
+            <span class="text-muted-foreground">Net Change:</span>
             <span class={stats.totalChange >= 0 ? 'text-green-500' : 'text-red-500'}>
               {stats.totalChange >= 0 ? '+' : ''}{stats.totalChange.toFixed(4)} VANA
             </span>
-            <span class="text-muted-foreground">Daily Avg:</span>
-            <span class={stats.avgDailyRate >= 0 ? 'text-green-500' : 'text-red-500'}>
-              {stats.avgDailyRate >= 0 ? '+' : ''}{stats.avgDailyRate.toFixed(4)} VANA/day
-            </span>
+            <span class="text-muted-foreground">Total Burn:</span>
+            <span class="text-red-500">{stats.totalBurn.toFixed(4)} VANA</span>
+            <span class="text-muted-foreground">Burn Rate:</span>
+            <span class="text-red-500">{stats.avgDailyBurnRate.toFixed(4)} VANA/day</span>
             {#if stats.daysUntilEmpty !== null}
               <span class="text-muted-foreground">Est. Empty In:</span>
               <span class="text-amber-500">{stats.daysUntilEmpty} days</span>
