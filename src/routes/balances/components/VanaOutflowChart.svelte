@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import LineChart from "$lib/components/common/line-chart/line-chart.svelte";
-  import { ENV_CONFIG } from "$lib/const";
+  import { ENV_CONFIG, VANASCAN_API_V2 } from "$lib/const";
   import * as Chart from "$lib/components/ui/chart/index.js";
   import { defaultVisConfig } from "$lib/components/common/line-chart/const";
   import type { LineChartPropsObjProp } from "layerchart";
@@ -10,7 +10,6 @@
   import { toast } from "svelte-sonner";
 
   const WALLET_ADDRESSES_TO_CHECK: string[] = JSON.parse(ENV_CONFIG.VITE_RELAY_WALLET_ADDRESSES || "[]");
-  const VANASCAN_API_V2 = "https://vanascan.io/api/v2";
 
   // Chart colors for different wallets
   const CHART_COLORS = [

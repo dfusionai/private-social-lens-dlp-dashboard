@@ -1,3 +1,5 @@
+export const VANASCAN_API_V2 = "https://vanascan.io/api/v2";
+
 export const ENV_CONFIG = {
     VITE_DLP_ADDRESS: import.meta.env.VITE_DLP_ADDRESS,
     VITE_STAKING_ADDRESS: import.meta.env.VITE_STAKING_ADDRESS,
